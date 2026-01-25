@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <title>Quản lý Người dùng - Store Phone</title>
+    <link rel="stylesheet" href="./assets/css/admin.css">
+    <link rel="stylesheet" href="./assets/css/users.css">
+    <style>
+        /* Thêm style cho quick-toolbar với stats */
+        .quick-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .toolbar-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .toolbar-stats .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 15px;
+            background: var(--gray-50);
+            border-radius: 6px;
+            min-width: 100px;
+        }
+        
+        .toolbar-stats .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 2px;
+        }
+        
+        .toolbar-stats .stat-label {
+            font-size: 1.2rem;
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>STORE PHONE</h2>
+                <p>Admin Dashboard</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    Sản phẩm
+                </a>
+                <a href="orders.html" class="menu-item">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    Đơn hàng
+                </a>
+                <a href="chats.html" class="menu-item">
+                    <span class="material-symbols-outlined">chat</span>
+                    Quản lý Chat
+                </a>
+                <a href="banners.html" class="menu-item">
+                    <span class="material-symbols-outlined">image</span>
+                    Banner
+                </a>
+                <a href="images.html" class="menu-item">
+                    <span class="material-symbols-outlined">photo_library</span>
+                    Quản lý ảnh
+                </a>
+                <a href="users.html" class="menu-item active" id="users-menu-link">
+                    <span class="material-symbols-outlined">group</span>
+                    Người dùng
+                </a>
+                <a href="analytics.html" class="menu-item">
+                    <span class="material-symbols-outlined">analytics</span>
+                    Thống kê
+                </a>
+                <a href="../index.html" class="menu-item">
+                    <span class="material-symbols-outlined">home</span>
+                    Về trang chủ
+                </a>
+                <a href="#" class="menu-item" id="logout-btn">
+                    <span class="material-symbols-outlined">logout</span>
+                    Đăng xuất
+                </a>
+            </nav>
+            
+            <div class="user-info">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="user-name" style="font-size: 1.4rem; font-weight: 500;"></span>
+                            <span id="user-role-badge" class="role-badge role-admin"></span>
+                        </div>
+                        <div id="user-email" style="font-size: 1.2rem; color: var(--gray-400);"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+            <!-- TOP BAR -->
+            <header class="admin-topbar">
+                <h1>Quản lý Người dùng</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="exportUsersCSV()">
+                        <span class="material-symbols-outlined">download</span>
+                        Xuất CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Thêm người dùng
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <div class="admin-content">
+                <!-- QUICK TOOLBAR WITH STATS -->
+                <div class="quick-toolbar">
+                    <div class="toolbar-actions">
+                        <button class="toolbar-btn" onclick="refreshUserList()">
+                            <span class="material-symbols-outlined">refresh</span>
+                            Làm mới
+                        </button>
+                        <button class="toolbar-btn" onclick="sendBulkEmail()">
+                            <span class="material-symbols-outlined">mail</span>
+                            Gửi email
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-stats">
+                        <div class="stat-box">
+                            <span class="stat-value" id="total-users-stat">0</span>
+                            <span class="stat-label">Tổng người dùng</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value" id="today-signups-stat">0</span>
+                            <span class="stat-label">Đăng ký hôm nay</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value" id="verified-users-stat">0</span>
+                            <span class="stat-label">Đã xác thực</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEARCH & FILTERS -->
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Tìm theo tên, email, số điện thoại...">
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="setUserViewMode('list')" title="Xem dạng danh sách">
+                            <span class="material-symbols-outlined">view_list</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ADVANCED FILTERS -->
+                <div class="advanced-filter">
+                    <div class="filter-group">
+                        <label>Trạng thái</label>
+                        <select id="status-filter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
+                            <option value="banned">Đã khóa</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Loại tài khoản</label>
+                        <select id="type-filter">
+                            <option value="">Tất cả loại</option>
+                            <option value="customer">Khách hàng</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Xác thực email</label>
+                        <select id="email-verified-filter">
+                            <option value="">Tất cả</option>
+                            <option value="verified">Đã xác thực</option>
+                            <option value="not-verified">Chưa xác thực</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ngày đăng ký</label>
+                        <select id="signup-date-filter">
+                            <option value="">Tất cả thời gian</option>
+                            <option value="today">Hôm nay</option>
+                            <option value="week">Tuần này</option>
+                            <option value="month">Tháng này</option>
+                            <option value="year">Năm nay</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sắp xếp</label>
+                        <select id="sort-by">
+                            <option value="created_desc">Mới nhất</option>
+                            <option value="created_asc">Cũ nhất</option>
+                            <option value="name_asc">Tên A-Z</option>
+                            <option value="name_desc">Tên Z-A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- BULK ACTIONS -->
+                <div class="bulk-actions" id="bulk-actions" style="display: none;">
+                    <label>
+                        <input type="checkbox" id="select-all">
+                        Chọn tất cả (<span id="selected-count">0</span>)
+                    </label>
+                    <button class="btn btn-danger" onclick="bulkDeleteUsers()">
+                        <span class="material-symbols-outlined">delete</span>
+                        Xóa đã chọn
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearUserSelection()">
+                        <span class="material-symbols-outlined">close</span>
+                        Bỏ chọn
+                    </button>
+                </div>
+
+                <!-- USERS TABLE -->
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all-checkbox"></th>
+                                <th>STT</th>
+                                <th>Ảnh đại diện</th>
+                                <th>Tên người dùng</th>
+                                <th>Email</th>
+                                <th>Loại tài khoản</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày đăng ký</th>
+                                <th>Đăng nhập gần nhất</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- LOADING STATE -->
+                <div class="loading" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Đang tải danh sách người dùng...</p>
+                </div>
+
+                <!-- EMPTY STATE -->
+                <div style="text-align: center; padding: 60px; display: none;" id="empty-state">
+                    <span class="material-symbols-outlined" style="font-size: 60px; color: var(--gray-300);">
+                        group_off
+                    </span>
+                    <h3 style="font-size: 1.8rem; color: var(--gray-500); margin: 1rem 0;">Không tìm thấy người dùng</h3>
+                    <p style="color: var(--gray-400); margin-bottom: 2rem;">Hãy thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="pagination">
+                    <div>
+                        Hiển thị 
+                        <select id="per-page" onchange="changeUserPerPage(this.value)" style="padding: 0.4rem; margin: 0 0.5rem;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select> 
+                        người dùng/trang
+                    </div>
+                    <div class="page-controls">
+                        <button id="prev-page" onclick="prevUserPage()" disabled>‹ Trước</button>
+                        <span id="page-info">Trang 1/1</span>
+                        <button id="next-page" onclick="nextUserPage()" disabled>Sau ›</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- USER DETAIL MODAL -->
+    <div id="user-detail-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết người dùng</h2>
+                <span class="close-modal" onclick="closeUserDetailModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="user-detail-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD USER MODAL -->
+    <div id="add-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Thêm người dùng mới</h2>
+                <span class="close-modal" onclick="closeAddUserModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-user-form">
+                    <div class="form-group">
+                        <label for="new-user-name">Họ và tên *</label>
+                        <input type="text" id="new-user-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-email">Email *</label>
+                        <input type="email" id="new-user-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-phone">Số điện thoại</label>
+                        <input type="tel" id="new-user-phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-password">Mật khẩu *</label>
+                        <input type="password" id="new-user-password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-type">Loại tài khoản</label>
+                        <select id="new-user-type">
+                            <option value="customer">Khách hàng</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddUserModal()">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Thêm người dùng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        // ========== FIREBASE CONFIG ==========
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signOut,
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            query,
+            where,
+            doc,
+            deleteDoc,
+            updateDoc,
+            setDoc,
+            serverTimestamp,
+            getDoc,
+            addDoc,
+            Timestamp
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+            authDomain: "products-a39df.firebaseapp.com",
+            projectId: "products-a39df",
+            storageBucket: "products-a39df.firebasestorage.app",
+            messagingSenderId: "708345988066",
+            appId: "1:708345988066:web:b8011a4859285450162fbb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ========== GLOBAL VARIABLES ==========
+        let users = [];
+        let filteredUsers = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let totalPages = 1;
+        let currentSort = 'created_desc';
+        let currentFilters = {
+            status: '',
+            type: '',
+            emailVerified: '',
+            signupDate: '',
+            search: ''
+        };
+        let selectedUsers = new Set();
+        let currentUserRole = '';
+
+        // ========== AUTH CHECK VÀ KIỂM TRA ROLE ==========
+        onAuthStateChanged(auth, async (user) => {
+            console.log("Users page auth check - User:", user ? user.email : "No user");
+            
+            if (!user) {
+                window.location.href = '../a1b2c3-secret.html';
+                return;
+            }
+            
+            try {
+                // Kiểm tra trong collection "admins"
+                const adminsRef = collection(db, "admins");
+                const q = query(adminsRef, where("email", "==", user.email));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                    await signOut(auth);
+                    alert("❌ Bạn không có quyền truy cập Admin Panel!");
+                    window.location.href = '../a1b2c3-secret.html';
+                    return;
+                }
+                
+                // Lấy thông tin user
+                const userData = snapshot.docs[0].data();
+                currentUserRole = userData.role || 'admin';
+                
+                // KIỂM TRA QUAN TRỌNG: Nếu là staff, không cho vào users.html
+                if (currentUserRole === 'staff') {
+                    alert("❌ Chỉ quản trị viên mới được truy cập trang Quản lý Người dùng!");
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                // Hiển thị thông tin user
+                document.getElementById('user-name').textContent = userData.name || user.displayName || 'Admin';
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('user-avatar').textContent = 
+                    (userData.name?.charAt(0) || user.email.charAt(0)).toUpperCase();
+                
+                // Hiển thị role badge
+                const roleBadge = document.getElementById('user-role-badge');
+                if (currentUserRole === 'super_admin') {
+                    roleBadge.textContent = 'Super Admin';
+                    roleBadge.className = 'role-badge role-super_admin';
+                } else if (currentUserRole === 'admin') {
+                    roleBadge.textContent = 'Admin';
+                    roleBadge.className = 'role-badge role-admin';
+                } else if (currentUserRole === 'staff') {
+                    roleBadge.textContent = 'Nhân viên';
+                    roleBadge.className = 'role-badge role-staff';
+                }
+                
+                // Load dữ liệu người dùng
+                await loadUsers();
+                await loadUserStats();
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error("❌ Auth check error:", error);
+                window.location.href = '../a1b2c3-secret.html';
+            }
+        });
+
+        // ========== LOAD USER STATS ==========
+        async function loadUserStats() {
+            try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Tổng người dùng
+                const totalUsers = users.length;
+                document.getElementById('total-users-stat').textContent = totalUsers;
+                
+                // Đăng ký hôm nay
+                const todaySignups = users.filter(user => {
+                    const userDate = new Date(user.createdAt);
+                    return userDate >= today;
+                }).length;
+                document.getElementById('today-signups-stat').textContent = todaySignups;
+                
+                // Đã xác thực email
+                const verifiedUsers = users.filter(user => user.emailVerified).length;
+                document.getElementById('verified-users-stat').textContent = verifiedUsers;
+                
+            } catch (error) {
+                console.error("Error loading user stats:", error);
+            }
+        }
+
+        // ========== USER MANAGEMENT ==========
+        async function loadUsers() {
+            try {
+                showLoading(true);
+                
+                // Tải người dùng từ collection "users"
+                const usersRef = collection(db, "users");
+                const snapshot = await getDocs(usersRef);
+                
+                users = [];
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    
+                    // Xử lý timestamp
+                    let createdAt;
+                    if (data.createdAt) {
+                        if (typeof data.createdAt.toDate === 'function') {
+                            createdAt = data.createdAt.toDate();
+                        } else if (data.createdAt instanceof Date) {
+                            createdAt = data.createdAt;
+                        } else if (typeof data.createdAt === 'string') {
+                            createdAt = new Date(data.createdAt);
+                        } else {
+                            createdAt = new Date();
+                        }
+                    } else {
+                        createdAt = new Date();
+                    }
+                    
+                    let lastLogin = null;
+                    if (data.lastLogin) {
+                        if (typeof data.lastLogin.toDate === 'function') {
+                            lastLogin = data.lastLogin.toDate();
+                        } else if (data.lastLogin instanceof Date) {
+                            lastLogin = data.lastLogin;
+                        }
+                    }
+                    
+                    users.push({
+                        id: docSnap.id,
+                        uid: docSnap.id,
+                        ...data,
+                        createdAt: createdAt,
+                        lastLogin: lastLogin,
+                        totalSpent: Number(data.totalSpent) || 0,
+                        totalOrders: Number(data.totalOrders) || 0,
+                        emailVerified: data.emailVerified || false,
+                        status: data.status || 'active',
+                        userType: data.userType || 'customer'
+                    });
+                });
+
+                console.log(`✅ Loaded ${users.length} users`);
+                applyUserFiltersAndSort();
+                renderUsers();
+                renderUserPagination();
+                
+            } catch (error) {
+                console.error("Error loading users:", error);
+                showError("Lỗi tải người dùng: " + error.message);
+                
+                const tbody = document.getElementById('users-list');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #ef4444;">
+                            <p>Lỗi kết nối Firebase: ${error.message}</p>
+                            <p>Vui lòng kiểm tra kết nối internet</p>
+                        </td>
+                    </tr>
+                `;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function applyUserFiltersAndSort() {
+            filteredUsers = [...users];
+
+            // Apply search filter
+            if (currentFilters.search) {
+                const searchTerm = currentFilters.search.toLowerCase();
+                filteredUsers = filteredUsers.filter(u => 
+                    (u.name?.toLowerCase().includes(searchTerm) || '') ||
+                    (u.email?.toLowerCase().includes(searchTerm) || '') ||
+                    (u.phone?.toLowerCase().includes(searchTerm) || '')
+                );
+            }
+
+            // Apply status filter
+            if (currentFilters.status) {
+                filteredUsers = filteredUsers.filter(u => u.status === currentFilters.status);
+            }
+
+            // Apply type filter
+            if (currentFilters.type) {
+                filteredUsers = filteredUsers.filter(u => u.userType === currentFilters.type);
+            }
+
+            // Apply email verified filter
+            if (currentFilters.emailVerified) {
+                const isVerified = currentFilters.emailVerified === 'verified';
+                filteredUsers = filteredUsers.filter(u => u.emailVerified === isVerified);
+            }
+
+            // Apply signup date filter
+            if (currentFilters.signupDate) {
+                const now = new Date();
+                let startDate = new Date();
+                
+                switch (currentFilters.signupDate) {
+                    case 'today':
+                        startDate.setHours(0, 0, 0, 0);
+                        break;
+                    case 'week':
+                        startDate.setDate(startDate.getDate() - 7);
+                        break;
+                    case 'month':
+                        startDate.setMonth(startDate.getMonth() - 1);
+                        break;
+                    case 'year':
+                        startDate.setFullYear(startDate.getFullYear() - 1);
+                        break;
+                }
+                
+                filteredUsers = filteredUsers.filter(u => {
+                    const userDate = new Date(u.createdAt);
+                    return userDate >= startDate;
+                });
+            }
+
+            // Apply sorting
+            applyUserSorting();
+
+            // Update total pages
+            totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+        }
+
+        function applyUserSorting() {
+            switch (currentSort) {
+                case 'created_desc':
+                    filteredUsers.sort((a, b) => b.createdAt - a.createdAt);
+                    break;
+                case 'created_asc':
+                    filteredUsers.sort((a, b) => a.createdAt - b.createdAt);
+                    break;
+                case 'name_asc':
+                    filteredUsers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                    break;
+                case 'name_desc':
+                    filteredUsers.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+                    break;
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('users-list');
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('empty-state').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('empty-state').style.display = 'none';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const usersToShow = filteredUsers.slice(startIndex, endIndex);
+
+            tbody.innerHTML = usersToShow.map((user, index) => {
+                // Tạo màu avatar dựa trên tên
+                const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+                const nameChar = (user.name?.charAt(0) || user.email?.charAt(0) || 'U').toUpperCase();
+                const colorIndex = nameChar.charCodeAt(0) % colors.length;
+                const avatarColor = colors[colorIndex];
+                
+                // Format last login
+                let lastLoginText = 'Chưa đăng nhập';
+                let lastLoginClass = 'last-login-never';
+                if (user.lastLogin) {
+                    const lastLoginDate = new Date(user.lastLogin);
+                    const now = new Date();
+                    const diffMs = now - lastLoginDate;
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 0) {
+                        lastLoginText = 'Hôm nay ' + lastLoginDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                    } else if (diffDays === 1) {
+                        lastLoginText = 'Hôm qua ' + lastLoginDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                    } else if (diffDays < 7) {
+                        lastLoginText = `${diffDays} ngày trước`;
+                    } else {
+                        lastLoginText = lastLoginDate.toLocaleDateString('vi-VN');
+                    }
+                    lastLoginClass = '';
+                }
+                
+                return `
+                <tr class="user-row" data-user-id="${user.id}">
+                    <td>
+                        <input type="checkbox" class="user-checkbox" 
+                               value="${user.id}" 
+                               ${selectedUsers.has(user.id) ? 'checked' : ''}
+                               onchange="toggleUserSelection('${user.id}', this.checked)">
+                    </td>
+                    <td>${startIndex + index + 1}</td>
+                    <td>
+                        <div class="user-avatar-small" style="background: ${avatarColor};">
+                            ${nameChar}
+                        </div>
+                    </td>
+                    <td style="font-weight: 500;">${user.name || 'Chưa cập nhật'}</td>
+                    <td>
+                        ${user.email || 'N/A'}
+                        ${user.emailVerified ? '<span class="status-badge status-in_stock" style="margin-left: 5px; font-size: 1rem;">✓</span>' : ''}
+                    </td>
+                    <td>
+                        <span class="status-badge user-type-${user.userType}">
+                            ${getUserTypeText(user.userType)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge user-status-${user.status}">
+                            ${getUserStatusText(user.status)}
+                        </span>
+                    </td>
+                    <td>${formatDate(user.createdAt)}</td>
+                    <td class="last-login-cell ${lastLoginClass}">
+                        ${lastLoginText}
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            
+            // Thêm sự kiện click cho từng hàng
+            document.querySelectorAll('.user-row').forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // Không mở modal nếu click vào checkbox
+                    if (e.target.type === 'checkbox' || e.target.classList.contains('user-checkbox')) {
+                        return;
+                    }
+                    const userId = this.dataset.userId;
+                    if (userId) {
+                        viewUserDetail(userId);
+                    }
+                });
+            });
+        }
+
+        function getUserTypeText(type) {
+            const textMap = {
+                'admin': 'Quản trị',
+                'staff': 'Nhân viên',
+                'customer': 'Khách hàng'
+            };
+            return textMap[type] || type || 'Không rõ';
+        }
+
+        function getUserStatusText(status) {
+            const textMap = {
+                'active': 'Hoạt động',
+                'inactive': 'Không HĐ',
+                'banned': 'Đã khóa'
+            };
+            return textMap[status] || status || 'Không rõ';
+        }
+
+        function formatDate(date) {
+            if (!date) return 'N/A';
+            try {
+                return new Date(date).toLocaleDateString('vi-VN');
+            } catch (error) {
+                return 'N/A';
+            }
+        }
+
+        function formatDateTime(date) {
+            if (!date) return 'N/A';
+            try {
+                return new Date(date).toLocaleString('vi-VN');
+            } catch (error) {
+                return 'N/A';
+            }
+        }
+
+        function formatRelativeTime(date) {
+            if (!date) return 'Chưa đăng nhập';
+            const now = new Date();
+            const past = new Date(date);
+            const diffMs = now - past;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Vừa xong';
+            if (diffMins < 60) return `${diffMins} phút trước`;
+            if (diffHours < 24) return `${diffHours} giờ trước`;
+            if (diffDays === 1) return 'Hôm qua';
+            if (diffDays < 7) return `${diffDays} ngày trước`;
+            return formatDate(date);
+        }
+
+        // ========== PAGINATION ==========
+        function renderUserPagination() {
+            document.getElementById('page-info').textContent = `Trang ${currentPage}/${totalPages}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        function prevUserPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderUsers();
+                renderUserPagination();
+            }
+        }
+
+        function nextUserPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderUsers();
+                renderUserPagination();
+            }
+        }
+
+        function changeUserPerPage(value) {
+            itemsPerPage = parseInt(value);
+            currentPage = 1;
+            applyUserFiltersAndSort();
+            renderUsers();
+            renderUserPagination();
+        }
+
+        // ========== FILTERS & SORTING ==========
+        function setupEventListeners() {
+            // Search
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                currentFilters.search = e.target.value;
+                currentPage = 1;
+                applyUserFiltersAndSort();
+                renderUsers();
+                renderUserPagination();
+            });
+
+            // Status filter
+            document.getElementById('status-filter').addEventListener('change', (e) => {
+                currentFilters.status = e.target.value;
+                currentPage = 1;
+                applyUserFiltersAndSort();
+                renderUsers();
+                renderUserPagination();
+            });
+
+            // Type filter
+            document.getElementById('type-filter').addEventListener('change', (e) => {
+                currentFilters.type = e.target.value;
+                currentPage = 1;
+                applyUserFiltersAndSort();
+                renderUsers();
+                renderUserPagination();
+            });
+
+            // Email verified filter
+            document.getElementById('email-verified-filter').addEventListener('change', (e) => {
+                currentFilters.emailVerified = e.target.value;
+                currentPage = 1;
+                applyUserFiltersAndSort();
+                renderUsers();
+                renderUserPagination();
+            });
+
+            // Signup date filter
+            document.getElementById('signup-date-filter').addEventListener('change', (e) => {
+                currentFilters.signupDate = e.target.value;
+                currentPage = 1;
+                applyUserFiltersAndSort();
+                renderUsers();
+                renderUserPagination();
+            });
+
+            // Sort by
+            document.getElementById('sort-by').addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                applyUserFiltersAndSort();
+                renderUsers();
+            });
+
+            // Add user form
+            document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await addNewUser();
+            });
+
+            // Select all checkbox
+            document.getElementById('select-all-checkbox').addEventListener('change', (e) => {
+                const checkboxes = document.querySelectorAll('.user-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = e.target.checked;
+                    const userId = checkbox.value;
+                    if (e.target.checked) {
+                        selectedUsers.add(userId);
+                    } else {
+                        selectedUsers.delete(userId);
+                    }
+                });
+                updateUserBulkActions();
+            });
+        }
+
+        // ========== SELECTION & BULK ACTIONS ==========
+        window.toggleUserSelection = function(userId, checked) {
+            if (checked) {
+                selectedUsers.add(userId);
+            } else {
+                selectedUsers.delete(userId);
+            }
+            updateUserBulkActions();
+        };
+
+        function updateUserBulkActions() {
+            const selectedCount = selectedUsers.size;
+            document.getElementById('selected-count').textContent = selectedCount;
+            
+            if (selectedCount > 0) {
+                document.getElementById('bulk-actions').style.display = 'flex';
+            } else {
+                document.getElementById('bulk-actions').style.display = 'none';
+            }
+        }
+
+        window.clearUserSelection = function() {
+            selectedUsers.clear();
+            document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('select-all-checkbox').checked = false;
+            updateUserBulkActions();
+        };
+
+        // ========== USER ACTIONS ==========
+        window.viewUserDetail = async function(userId) {
+    try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (!userDoc.exists()) {
+            alert("Không tìm thấy thông tin người dùng!");
+            return;
+        }
+
+        const userData = userDoc.data();
+        const detailContent = document.getElementById('user-detail-content');
+        
+        // Xử lý timestamp
+        let createdAt = 'N/A';
+        if (userData.createdAt) {
+            if (typeof userData.createdAt.toDate === 'function') {
+                createdAt = formatDateTime(userData.createdAt.toDate());
+            } else if (userData.createdAt instanceof Date) {
+                createdAt = formatDateTime(userData.createdAt);
+            }
+        }
+        
+        let lastLogin = 'Chưa đăng nhập';
+        let lastLoginRelative = 'Chưa đăng nhập';
+        if (userData.lastLogin) {
+            if (typeof userData.lastLogin.toDate === 'function') {
+                lastLogin = formatDateTime(userData.lastLogin.toDate());
+                lastLoginRelative = formatRelativeTime(userData.lastLogin.toDate());
+            } else if (userData.lastLogin instanceof Date) {
+                lastLogin = formatDateTime(userData.lastLogin);
+                lastLoginRelative = formatRelativeTime(userData.lastLogin);
+            }
+        }
+        
+        // SỬA QUAN TRỌNG: Lấy thông tin đơn hàng từ user data thay vì query orders
+        // Đây là cách tối ưu vì đã có sẵn trong user document
+        let totalOrders = Number(userData.totalOrders) || 0;
+        let totalSpent = Number(userData.totalSpent) || 0;
+        
+        // Tạo màu avatar
+        const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const nameChar = (userData.name?.charAt(0) || userData.email?.charAt(0) || 'U').toUpperCase();
+        const colorIndex = nameChar.charCodeAt(0) % colors.length;
+        const avatarColor = colors[colorIndex];
+        
+        // Định dạng địa chỉ gọn gàng hơn
+        const address = userData.address || '';
+        const addressNote = userData.addressNote || '';
+        const fullAddress = address + (addressNote ? ` (${addressNote})` : '');
+        
+        // Tạo HTML cho modal chi tiết - ĐƠN GIẢN HÓA
+        detailContent.innerHTML = `
+            <div class="user-info-header">
+                <div class="user-avatar-large" style="background: ${avatarColor};">
+                    ${nameChar}
+                </div>
+                <div class="user-basic-info">
+                    <h3>${userData.name || 'Chưa cập nhật'}</h3>
+                    <p><strong>Email:</strong> ${userData.email || 'N/A'}</p>
+                    <p><strong>Số điện thoại:</strong> ${userData.phone || 'N/A'}</p>
+                    ${fullAddress ? `<p><strong>Địa chỉ:</strong> ${fullAddress}</p>` : ''}
+                </div>
+            </div>
+            
+            <div class="user-info-grid">
+                <div class="info-section">
+                    <h4>
+                        <span class="material-symbols-outlined">badge</span>
+                        Thông tin tài khoản
+                    </h4>
+                    <div class="info-row">
+                        <span class="info-label">Loại tài khoản</span>
+                        <span class="status-badge user-type-${userData.userType || 'customer'}">
+                            ${getUserTypeText(userData.userType)}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Trạng thái</span>
+                        <span class="status-badge user-status-${userData.status || 'active'}">
+                            ${getUserStatusText(userData.status)}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Xác thực email</span>
+                        <span class="info-value">
+                            ${userData.emailVerified ? 
+                                '<span style="color: #10b981;">✓ Đã xác thực</span>' : 
+                                '<span style="color: #ef4444;">✗ Chưa xác thực</span>'}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày đăng ký</span>
+                        <span class="info-value">${createdAt}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Đăng nhập gần nhất</span>
+                        <span class="info-value">
+                            ${lastLoginRelative}
+                            <small style="display: block; color: #9ca3af; font-size: 1.2rem;">${lastLogin}</small>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h4>
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        Thống kê mua hàng
+                    </h4>
+                    <!-- SỬA: Giao diện đơn giản hơn -->
+                    <div class="simple-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <span class="material-symbols-outlined">receipt_long</span>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">${totalOrders}</div>
+                                <div class="stat-title">Tổng đơn hàng</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <span class="material-symbols-outlined">payments</span>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">${formatPrice(totalSpent)}</div>
+                                <div class="stat-title">Tổng chi tiêu</div>
+                            </div>
+                        </div>
+                    </div>
+                    ${totalOrders > 0 ? `
+                        <div style="margin-top: 15px; font-size: 1.2rem; color: #6b7280; text-align: center;">
+                            Trung bình: ${formatPrice(totalSpent / totalOrders)}/đơn
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="resetUserPassword('${userId}')">
+                    <span class="material-symbols-outlined">key</span>
+                    Reset mật khẩu
+                </button>
+                <button class="btn btn-warning" onclick="toggleUserStatus('${userId}', '${userData.status || 'active'}')">
+                    <span class="material-symbols-outlined">block</span>
+                    ${(userData.status === 'banned') ? 'Mở khóa' : 'Khóa tài khoản'}
+                </button>
+                <button class="btn btn-danger" onclick="confirmDeleteUser('${userId}', '${userData.email || userData.name}')">
+                    <span class="material-symbols-outlined">delete</span>
+                    Xóa tài khoản
+                </button>
+            </div>
+        `;
+
+        document.getElementById('user-detail-modal').style.display = 'flex';
+    } catch (error) {
+        console.error("Error loading user details:", error);
+        alert("Lỗi tải thông tin người dùng: " + error.message);
+    }
+};
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price || 0);
+        }
+
+        window.closeUserDetailModal = function() {
+            document.getElementById('user-detail-modal').style.display = 'none';
+        };
+
+        window.showAddUserModal = function() {
+            document.getElementById('add-user-modal').style.display = 'flex';
+        };
+
+        window.closeAddUserModal = function() {
+            document.getElementById('add-user-modal').style.display = 'none';
+            document.getElementById('add-user-form').reset();
+        };
+
+        async function addNewUser() {
+            const name = document.getElementById('new-user-name').value.trim();
+            const email = document.getElementById('new-user-email').value.trim().toLowerCase();
+            const phone = document.getElementById('new-user-phone').value.trim();
+            const password = document.getElementById('new-user-password').value;
+            const userType = document.getElementById('new-user-type').value;
+
+            if (!name || !email || !password) {
+                alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
+                return;
+            }
+
+            try {
+                // Kiểm tra email đã tồn tại chưa
+                const existingUserQuery = query(collection(db, "users"), where("email", "==", email));
+                const existingUserSnapshot = await getDocs(existingUserQuery);
+                
+                if (!existingUserSnapshot.empty) {
+                    alert("Email này đã được sử dụng!");
+                    return;
+                }
+
+                // Tạo user trong Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
+
+                // Lưu thông tin vào Firestore
+                await setDoc(doc(db, "users", uid), {
+                    name: name,
+                    email: email,
+                    phone: phone || '',
+                    userType: userType,
+                    status: 'active',
+                    emailVerified: false,
+                    createdAt: serverTimestamp(),
+                    lastLogin: null,
+                    totalOrders: 0,
+                    totalSpent: 0
+                });
+
+                alert("✅ Thêm người dùng thành công!");
+                closeAddUserModal();
+                await loadUsers();
+                await loadUserStats();
+
+            } catch (error) {
+                console.error("Error adding user:", error);
+                let errorMessage = "Lỗi thêm người dùng: ";
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += "Email đã được sử dụng!";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += "Email không hợp lệ!";
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += "Mật khẩu quá yếu (ít nhất 6 ký tự)!";
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage += "Chức năng tạo tài khoản bị tắt!";
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
+            }
+        }
+
+        window.confirmDeleteUser = async function(userId, userIdentifier) {
+            if (!confirm(`Bạn có chắc muốn xóa người dùng "${userIdentifier}"?\n\nHành động này không thể hoàn tác!`)) {
+                return;
+            }
+
+            await deleteUser(userId, userIdentifier);
+        };
+
+        async function deleteUser(userId, userIdentifier) {
+            try {
+                // Xóa khỏi Firestore (users collection)
+                await deleteDoc(doc(db, "users", userId));
+                
+                // Xóa khỏi admins collection nếu có
+                try {
+                    await deleteDoc(doc(db, "admins", userId));
+                } catch (e) {
+                    // Không có trong admins, không sao
+                }
+
+                alert("✅ Đã xóa người dùng thành công!");
+                await loadUsers();
+                await loadUserStats();
+                closeUserDetailModal();
+
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                alert("Lỗi xóa người dùng: " + error.message);
+            }
+        };
+
+        window.resetUserPassword = async function(userId) {
+            try {
+                const userDoc = await getDoc(doc(db, "users", userId));
+                if (!userDoc.exists()) {
+                    alert("Không tìm thấy người dùng!");
+                    return;
+                }
+
+                const email = userDoc.data().email;
+                await sendPasswordResetEmail(auth, email);
+                alert("✅ Đã gửi email reset mật khẩu đến " + email);
+
+            } catch (error) {
+                console.error("Error resetting password:", error);
+                alert("Lỗi reset mật khẩu: " + error.message);
+            }
+        };
+
+        window.toggleUserStatus = async function(userId, currentStatus) {
+            const newStatus = currentStatus === 'banned' ? 'active' : 'banned';
+            const actionText = newStatus === 'banned' ? 'khóa' : 'mở khóa';
+
+            if (!confirm(`Bạn có chắc muốn ${actionText} tài khoản này?`)) {
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, "users", userId), {
+                    status: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+
+                alert(`✅ Đã ${actionText} tài khoản thành công!`);
+                await loadUsers();
+                closeUserDetailModal();
+
+            } catch (error) {
+                console.error("Error updating user status:", error);
+                alert("Lỗi cập nhật trạng thái: " + error.message);
+            }
+        };
+
+        // ========== BULK USER ACTIONS ==========
+        window.bulkDeleteUsers = async function() {
+            if (selectedUsers.size === 0) return;
+            
+            if (!confirm(`Bạn có chắc muốn xóa ${selectedUsers.size} người dùng?`)) return;
+            
+            try {
+                const promises = [];
+                for (const userId of selectedUsers) {
+                    promises.push(deleteDoc(doc(db, "users", userId)));
+                }
+                
+                await Promise.all(promises);
+                alert(`✅ Đã xóa ${selectedUsers.size} người dùng thành công!`);
+                selectedUsers.clear();
+                await loadUsers();
+                await loadUserStats();
+            } catch (error) {
+                console.error("Error bulk deleting users:", error);
+                alert("Lỗi khi xóa người dùng: " + error.message);
+            }
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        function showLoading(show) {
+            document.getElementById('loading-state').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            console.error(message);
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ef4444;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        window.refreshUserList = async function() {
+            await loadUsers();
+            await loadUserStats();
+            alert("✅ Đã làm mới danh sách người dùng!");
+        };
+
+        window.setUserViewMode = function(mode) {
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        };
+
+        // ========== EXPORT FUNCTIONS ==========
+        window.exportUsersCSV = function() {
+            if (filteredUsers.length === 0) {
+                alert("Không có dữ liệu để xuất!");
+                return;
+            }
+
+            const headers = ['Tên', 'Email', 'Số điện thoại', 'Loại tài khoản', 'Trạng thái', 'Xác thực email', 'Ngày đăng ký', 'Đăng nhập gần nhất'];
+            const csvData = filteredUsers.map(user => [
+                user.name || '',
+                user.email || '',
+                user.phone || '',
+                getUserTypeText(user.userType),
+                getUserStatusText(user.status),
+                user.emailVerified ? 'Đã xác thực' : 'Chưa xác thực',
+                formatDate(user.createdAt),
+                user.lastLogin ? formatDateTime(user.lastLogin) : 'Chưa đăng nhập'
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            
+            alert(`✅ Đã xuất ${filteredUsers.length} người dùng thành file CSV!`);
+        };
+
+        window.printUserList = function() {
+            window.print();
+        };
+
+        window.sendBulkEmail = function() {
+            alert("Tính năng gửi email hàng loạt sẽ được thực hiện sau!");
+        };
+
+        // ========== LOGOUT ==========
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = '../a1b2c3-secret.html';
+                } catch (error) {
+                    console.error("Error logging out:", error);
+                    alert("Lỗi đăng xuất: " + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

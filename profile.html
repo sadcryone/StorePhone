@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <link rel="stylesheet" href="./assets/css/base.css">
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <link rel="stylesheet" href="./assets/css/chat.css">
+    <title>Hồ sơ - Store Phone</title>
+    <style>
+        .profile-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .profile-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .profile-title {
+            font-size: 2.4rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+        
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Sidebar */
+        .profile-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-details h3 {
+            font-size: 1.6rem;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            font-size: 1.3rem;
+            color: #64748b;
+        }
+        
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            font-size: 1.4rem;
+        }
+        
+        .menu-item:hover {
+            background: #f8fafc;
+        }
+        
+        .menu-item.active {
+            background: #eff6ff;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .menu-item .material-symbols-outlined {
+            font-size: 2rem;
+        }
+        
+        /* Logout Button */
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            font-size: 1.4rem;
+            margin-top: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+        
+        .logout-btn .material-symbols-outlined {
+            font-size: 2rem;
+        }
+        
+        /* Main Content */
+        .profile-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .content-title {
+            font-size: 2rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+        
+        .date-range {
+            font-size: 1.4rem;
+            color: #64748b;
+        }
+        
+        /* Order Status Tabs */
+        .order-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .order-tab {
+            padding: 10px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            background: white;
+            color: #64748b;
+            font-size: 1.3rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .order-tab:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .order-tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        /* Orders List - ĐƠN GIẢN HƠN */
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .order-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8fafc;
+        }
+        
+        .order-info {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .order-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .order-label {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+        
+        .order-value {
+            font-size: 1.4rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        
+        .order-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-confirmed {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .status-shipping {
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+        
+        .status-delivering {
+            background: #f0f9ff;
+            color: #0c4a6e;
+        }
+        
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-success {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        /* Order Items - ĐƠN GIẢN */
+        .order-items {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .order-item {
+            display: flex;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-image {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-size: 1.4rem;
+            color: #1e293b;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .item-specs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+            color: #64748b;
+        }
+        
+        .item-price {
+            font-size: 1.4rem;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .item-quantity {
+            font-size: 1.3rem;
+            color: #64748b;
+        }
+        
+        .item-link {
+            margin-top: 5px;
+        }
+        
+        .item-link a {
+            font-size: 1.3rem;
+            color: #3b82f6;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .item-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Order Summary */
+        .order-summary {
+            padding: 15px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .total-label {
+            font-size: 1.5rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .total-amount {
+            font-size: 1.6rem;
+            color: #3b82f6;
+            font-weight: 700;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-state-icon {
+            font-size: 60px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.8rem;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            font-size: 1.4rem;
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+        
+        /* Account Info Form */
+        .account-form {
+            max-width: 600px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 1.4rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            color: #1e293b;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .form-input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            color: #1e293b;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        /* Location Button */
+        .location-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-location:hover {
+            background: #2563eb;
+        }
+        
+        .btn-location:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .location-status {
+            font-size: 1.3rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .location-loading {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-save {
+            padding: 12px 30px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-save:hover {
+            background: #059669;
+        }
+        
+        .btn-cancel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 30px;
+            background: #f1f5f9;
+            color: #1e293b;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: #ef4444;
+        }
+        
+        .notification.warning {
+            background: #f59e0b;
+        }
+        
+        .header-action-person > a{
+            color: #000000;
+        }
+        
+        /* Phone Status Styles (Thêm mới) */
+        .phone-status {
+            font-size: 1.2rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-height: 20px;
+        }
+        
+        .phone-status.available {
+            color: #10b981;
+        }
+        
+        .phone-status.taken {
+            color: #ef4444;
+        }
+        
+        .phone-status.loading {
+            color: #64748b;
+        }
+        
+        .phone-status .material-symbols-outlined {
+            font-size: 1.6rem;
+        }
+        
+        .form-input.invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+        
+        .form-input.valid {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top-banner">
+                <div class="grid">
+                    <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/67/93/6793515f0766fca28be4dac7b831acd2.png" alt="" width="1200px">
+                </div>
+            </div>
+            <div class="main-header">
+                <div class="main-header-container">
+                    <div class="header-top grid">
+                        <div class="header-logo-top">
+                            <a href="./index.html" style="text-decoration: none; color: inherit;"></a>
+                        </div>
+                        <div class="search-bar">
+                            <form action="" class="form-search-bar">
+                                <span class="material-symbols-outlined search-icon">search</span>
+                                <input type="text" placeholder="Nhận ngay mã giảm 1 triệu" class="search-bar-input">
+                            </form>
+                        </div>
+
+                        <div class="header-actions">
+                            <div class="header-action-person" id="auth-section">
+                                <span class="material-symbols-outlined">person</span>
+                                <a href="./profile.html"><p id="header-username">Đăng Nhập</p></a>
+                            </div>
+                        </div>
+                        <div class="header-cart">
+                            <a href="./cart.html" style="text-decoration: none; color: inherit;">
+                                <div class="header-action-cart" style="position: relative;">
+                                    <span class="material-symbols-outlined">shopping_cart</span> 
+                                    <p>Giỏ Hàng</p>
+                                    <span class="cart-count" style="
+                                        position: absolute;
+                                        top: -8px;
+                                        right: -8px;
+                                        background: #ef4444;
+                                        color: white;
+                                        width: 20px;
+                                        height: 20px;
+                                        border-radius: 50%;
+                                        font-size: 1.2rem;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                    ">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <nav class="main-navigation grid">
+                        <ul>
+                            <li><img src="https://cdn.tgdd.vn/content/phonne-24x24.png" alt=""><a href="./index.html">Điện thoại</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/laptop-24x24.png" alt=""><a href="#">Laptop</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/phu-kien-24x24.png" alt=""><a href="#">Phụ kiện</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/smartwatch-24x24.png" alt=""><a href="#">Smartwatch</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/watch-24x24.png" alt=""><a href="#">Đồng hồ</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/tablet-24x24.png" alt=""><a href="#">Tablet</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/may-cu-24x24.png" alt=""><a href="#">Máy cũ, Thu cũ</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/PC-24x24.png" alt=""><a href="#">Màn hình, Máy in</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/sim-24x24.png" alt=""><a href="#">Sim, Thẻ cào</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/tien-ich-24x24.png" alt=""><a href="#">Dịch vụ tiện ích</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h1 class="profile-title">Hồ sơ của tôi</h1>
+                </div>
+                
+                <div class="profile-layout">
+                    <!-- Sidebar -->
+                    <div class="profile-sidebar">
+                        <div class="user-info">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <div class="user-details">
+                                <h3 id="username">Đang tải...</h3>
+                                <p id="user-email">Đang tải...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="sidebar-menu">
+                            <a href="#" class="menu-item active" data-tab="orders">
+                                <span class="material-symbols-outlined">shopping_bag</span>
+                                Đơn hàng đã mua
+                            </a>
+                            <a href="#" class="menu-item" data-tab="account">
+                                <span class="material-symbols-outlined">person</span>
+                                Thông tin và địa chỉ
+                            </a>
+                        </div>
+                        
+                        <button class="logout-btn" id="logout-btn">
+                            <span class="material-symbols-outlined">logout</span>
+                            Đăng xuất
+                        </button>
+                    </div>
+                    
+                    <!-- Main Content -->
+                    <div class="profile-content">
+                        <!-- Orders Tab -->
+                        <div class="content-tab active" id="orders-tab">
+                            <div class="content-header">
+                                <h2 class="content-title">Đơn hàng đã mua</h2>
+                                <div class="date-range" id="date-range"></div>
+                            </div>
+                            
+                            <div class="order-tabs">
+                                <button class="order-tab active" data-status="all">Tất cả</button>
+                                <button class="order-tab" data-status="pending">Chờ xử lý</button>
+                                <button class="order-tab" data-status="confirmed">Đã xác nhận</button>
+                                <button class="order-tab" data-status="shipping">Đang chuyển hàng</button>
+                                <button class="order-tab" data-status="delivering">Đang giao hàng</button>
+                                <button class="order-tab" data-status="cancelled">Đã huỷ</button>
+                                <button class="order-tab" data-status="success">Thành công</button>
+                            </div>
+                            
+                            <div class="orders-list" id="orders-list">
+                                <!-- Orders sẽ được thêm bằng JavaScript -->
+                            </div>
+                            
+                            <div class="empty-state" id="orders-empty" style="display: none;">
+                                <div class="empty-state-icon">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                </div>
+                                <h3>Chưa có đơn hàng nào</h3>
+                                <p>Hãy mua sắm và tạo đơn hàng đầu tiên của bạn!</p>
+                                <a href="./index.html" class="btn-cancel" style="text-decoration: none;">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    Mua sắm ngay
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Account Info Tab -->
+                        <div class="content-tab" id="account-tab" style="display: none;">
+                            <div class="content-header">
+                                <h2 class="content-title">Thông tin tài khoản</h2>
+                            </div>
+                            
+                            <div class="account-form">
+                                <div class="form-section">
+                                    <h3 class="section-title">Thông tin cá nhân</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Họ và tên *</label>
+                                            <input type="text" class="form-input" id="fullname" placeholder="Nhập họ và tên" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Số điện thoại *</label>
+                                            <input type="tel" class="form-input" id="phone" placeholder="Nhập số điện thoại" required>
+                                            <!-- Thêm thẻ hiển thị trạng thái số điện thoại -->
+                                            <div id="phone-status" class="phone-status" style="display: none;">
+                                                <span class="material-symbols-outlined">info</span>
+                                                <span id="phone-status-text"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h3 class="section-title">Địa chỉ giao hàng</h3>
+                                    <div class="location-controls">
+                                        <button class="btn-location" id="get-location-btn">
+                                            <span class="material-symbols-outlined">location_on</span>
+                                            Lấy vị trí hiện tại
+                                        </button>
+                                        <div class="location-status" id="location-status"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Địa chỉ chi tiết *</label>
+                                        <textarea class="form-textarea" id="address" placeholder="Nhập địa chỉ chi tiết" required></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button class="btn-save" id="save-account">
+                                        <span class="material-symbols-outlined">save</span>
+                                        Lưu thông tin
+                                    </button>
+                                    <button class="btn-cancel" id="cancel-account">
+                                        <span class="material-symbols-outlined">close</span>
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="notification-text"></span>
+    </div>
+
+    <!-- Chat Support Widget -->
+    <div class="chat-support-widget" id="chat-widget">
+        <div class="chat-bubble" id="chat-bubble">
+            <span class="material-symbols-outlined">chat</span>
+            <div class="chat-badge" id="chat-badge" style="display: none;">0</div>
+        </div>
+        
+        <div class="chat-container" id="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span class="material-symbols-outlined">support_agent</span>
+                    <h3>Hỗ trợ khách hàng</h3>
+                    <div class="chat-status">
+                        <span class="status-dot"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+                <button class="chat-close" id="chat-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- Welcome message -->
+                <div class="welcome-message">
+                    <p>👋 Chào bạn! Tôi có thể giúp gì cho bạn? Hãy gửi tin nhắn và chúng tôi sẽ trả lời sớm nhất!</p>
+                </div>
+                
+                <!-- Messages will be loaded here -->
+            </div>
+            
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chat-input" 
+                    placeholder="Nhập tin nhắn của bạn..." 
+                    maxlength="500"
+                >
+                <button class="chat-send-btn" id="chat-send" disabled>
+                    <span class="material-symbols-outlined">send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+    import cart from './assets/js/cart.js';
+    import { initChatSupport } from './assets/js/chat.js';
+    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+        authDomain: "products-a39df.firebaseapp.com",
+        projectId: "products-a39df",
+        storageBucket: "products-a39df.firebasestorage.app",
+        messagingSenderId: "708345988066",
+        appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    cart.setFirebase(app, auth, db);
+
+    // DOM Elements
+    const headerUsername = document.getElementById('header-username');
+    const userAvatar = document.getElementById('user-avatar');
+    const usernameElement = document.getElementById('username');
+    const userEmailElement = document.getElementById('user-email');
+    const dateRangeElement = document.getElementById('date-range');
+    const ordersList = document.getElementById('orders-list');
+    const ordersEmpty = document.getElementById('orders-empty');
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notification-text');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const contentTabs = document.querySelectorAll('.content-tab');
+    const orderTabs = document.querySelectorAll('.order-tab');
+    const logoutBtn = document.getElementById('logout-btn');
+    const fullnameInput = document.getElementById('fullname');
+    const phoneInput = document.getElementById('phone');
+    const addressInput = document.getElementById('address');
+    const saveAccountBtn = document.getElementById('save-account');
+    const cancelAccountBtn = document.getElementById('cancel-account');
+    const getLocationBtn = document.getElementById('get-location-btn');
+    const locationStatus = document.getElementById('location-status');
+    
+    // Thêm các element mới cho kiểm tra số điện thoại
+    const phoneStatus = document.getElementById('phone-status');
+    const phoneStatusText = document.getElementById('phone-status-text');
+
+    let currentUser = null;
+    let userData = null;
+    let currentTab = 'orders';
+    let currentOrderFilter = 'all';
+    let chatInstance = null;
+    let originalPhone = ''; // Lưu số điện thoại ban đầu để so sánh
+    let phoneCheckTimeout = null; // Biến cho debounce
+
+    function formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price);
+    }
+
+    function formatDate(date) {
+        const d = new Date(date);
+        return d.toLocaleDateString('vi-VN');
+    }
+
+    function showNotification(message, type = 'success', duration = 3000) {
+        notificationText.textContent = message;
+        notification.className = 'notification';
+        notification.classList.add('show');
+        
+        if (type === 'error') {
+            notification.classList.add('error');
+            notification.querySelector('.material-symbols-outlined').textContent = 'error';
+        } else if (type === 'warning') {
+            notification.classList.add('warning');
+            notification.querySelector('.material-symbols-outlined').textContent = 'warning';
+        } else {
+            notification.querySelector('.material-symbols-outlined').textContent = 'check_circle';
+        }
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, duration);
+    }
+
+    function getDateRange() {
+        const today = new Date();
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(today.getFullYear() - 1);
+        
+        const format = (date) => {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+        
+        return `${format(oneYearAgo)} - ${format(today)}`;
+    }
+
+    function getStatusText(status) {
+        const statusMap = {
+            'pending': 'Chờ xử lý',
+            'confirmed': 'Đã xác nhận',
+            'shipping': 'Đang chuyển hàng',
+            'delivering': 'Đang giao hàng',
+            'cancelled': 'Đã huỷ',
+            'success': 'Thành công'
+        };
+        return statusMap[status] || status;
+    }
+
+    function updateHeader(user, userData) {
+        if (user) {
+            let displayName = user.email.split('@')[0];
+            
+            if (userData && userData.name) {
+                displayName = userData.name;
+            }
+            
+            if (displayName.length > 15) {
+                displayName = displayName.substring(0, 12) + '...';
+            }
+            
+            headerUsername.textContent = displayName;
+        } else {
+            headerUsername.textContent = 'Đăng Nhập';
+        }
+    }
+
+    async function getUserData(userId) {
+        try {
+            const userDoc = await getDoc(doc(db, "users", userId));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                return {
+                    name: data.name || '',
+                    phone: data.phone || '',
+                    address: data.address || '',
+                    addressNote: data.addressNote || '',
+                    status: data.status || 'active'
+                };
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async function saveUserData(userId, data) {
+        try {
+            await updateDoc(doc(db, "users", userId), {
+                name: data.fullname,
+                phone: data.phone,
+                address: data.address,
+                addressNote: data.addressNote || '',
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async function getProductInfo(productId) {
+        try {
+            const productDoc = await getDoc(doc(db, "products", productId));
+            if (productDoc.exists()) {
+                const data = productDoc.data();
+                return {
+                    name: data.name || '',
+                    image: data.image || 'https://via.placeholder.com/80',
+                    price: data.price || 0,
+                    category: data.category || '',
+                    slug: data.slug || '',
+                    storage: data.storage || '',
+                    color: data.color || '',
+                    ram: data.ram || ''
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting product info:', error);
+            return null;
+        }
+    }
+
+    async function getOrders(userId) {
+        try {
+            const ordersRef = collection(db, "orders");
+            const q = query(ordersRef, where("userId", "==", userId));
+            const querySnapshot = await getDocs(q);
+            
+            const orders = [];
+            
+            for (const docSnapshot of querySnapshot.docs) {
+                const orderData = docSnapshot.data();
+                
+                let itemsWithDetails = [];
+                if (orderData.items && Array.isArray(orderData.items)) {
+                    for (const item of orderData.items) {
+                        let productDetails = {};
+                        
+                        if (item.productId) {
+                            const productInfo = await getProductInfo(item.productId);
+                            if (productInfo) {
+                                productDetails = {
+                                    ...item,
+                                    name: productInfo.name || item.name || 'Sản phẩm không xác định',
+                                    image: productInfo.image || item.image || 'https://via.placeholder.com/80',
+                                    price: productInfo.price || item.price || 0,
+                                    category: productInfo.category || item.category || '',
+                                    slug: productInfo.slug || item.slug || '',
+                                    storage: item.storage || productInfo.storage || '',
+                                    color: item.color || productInfo.color || '',
+                                    ram: item.ram || productInfo.ram || ''
+                                };
+                            } else {
+                                productDetails = {
+                                    ...item,
+                                    name: item.name || 'Sản phẩm không xác định',
+                                    image: item.image || 'https://via.placeholder.com/80',
+                                    price: item.price || 0,
+                                    category: item.category || '',
+                                    slug: item.slug || '',
+                                    storage: item.storage || '',
+                                    color: item.color || '',
+                                    ram: item.ram || ''
+                                };
+                            }
+                        } else {
+                            productDetails = {
+                                ...item,
+                                name: item.name || 'Sản phẩm không xác định',
+                                image: item.image || 'https://via.placeholder.com/80',
+                                price: item.price || 0,
+                                category: item.category || '',
+                                slug: item.slug || '',
+                                storage: item.storage || '',
+                                color: item.color || '',
+                                ram: item.ram || ''
+                            };
+                        }
+                        
+                        itemsWithDetails.push(productDetails);
+                    }
+                }
+                
+                orders.push({
+                    id: docSnapshot.id,
+                    ...orderData,
+                    items: itemsWithDetails,
+                    date: orderData.createdAt?.toDate() || new Date()
+                });
+            }
+            
+            orders.sort((a, b) => b.date - a.date);
+            return orders;
+        } catch (error) {
+            console.error('Error getting orders:', error);
+            return [];
+        }
+    }
+
+    function renderOrders(orders) {
+        if (!orders || orders.length === 0) {
+            ordersList.style.display = 'none';
+            ordersEmpty.style.display = 'block';
+            return;
+        }
+        
+        ordersList.style.display = 'flex';
+        ordersEmpty.style.display = 'none';
+        
+        const filteredOrders = currentOrderFilter === 'all' 
+            ? orders 
+            : orders.filter(order => order.status === currentOrderFilter);
+        
+        if (filteredOrders.length === 0) {
+            ordersList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <span class="material-symbols-outlined">search_off</span>
+                    </div>
+                    <h3>Không tìm thấy đơn hàng</h3>
+                    <p>Không có đơn hàng nào với trạng thái đã chọn</p>
+                </div>
+            `;
+            return;
+        }
+        
+        ordersList.innerHTML = filteredOrders.map(order => {
+            let total = order.total || 0;
+            if (!total && order.items && order.items.length > 0) {
+                total = order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+            }
+            
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <div class="order-info-item">
+                                <span class="order-label">Mã đơn hàng</span>
+                                <span class="order-value">${order.id}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-label">Ngày đặt</span>
+                                <span class="order-value">${formatDate(order.date)}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-label">Tổng tiền</span>
+                                <span class="order-value">${formatPrice(total)}</span>
+                            </div>
+                        </div>
+                        <div class="order-status status-${order.status}">
+                            ${getStatusText(order.status)}
+                        </div>
+                    </div>
+                    
+                    <div class="order-items">
+                        ${order.items && order.items.length > 0 ? order.items.map(item => {
+                            const productUrl = item.slug ? `./product-detail.html?slug=${encodeURIComponent(item.slug)}` : './index.html';
+                            return `
+                                <div class="order-item">
+                                    <div class="item-image">
+                                        <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}">
+                                    </div>
+                                    <div class="item-details">
+                                        <h3 class="item-name">${item.name}</h3>
+                                        <div class="item-specs">
+                                            ${item.storage ? `<span>${item.storage}</span>` : ''}
+                                            ${item.ram ? `<span>${item.ram}</span>` : ''}
+                                            ${item.color ? `<span>${item.color}</span>` : ''}
+                                        </div>
+                                        <p class="item-price">${formatPrice(item.price || 0)}</p>
+                                        <p class="item-quantity">Số lượng: ${item.quantity || 1}</p>
+                                        <div class="item-link">
+                                            <a href="${productUrl}" target="_blank">
+                                                <span class="material-symbols-outlined" style="font-size: 1.4rem;">open_in_new</span>
+                                                Xem sản phẩm
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('') : '<p>Không có sản phẩm</p>'}
+                    </div>
+                    
+                    <div class="order-summary">
+                        <span class="total-label">Tổng cộng:</span>
+                        <span class="total-amount">${formatPrice(total)}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function loadUserOrders() {
+        if (!currentUser) return;
+        
+        try {
+            const orders = await getOrders(currentUser.uid);
+            renderOrders(orders);
+        } catch (error) {
+            console.error('Error loading orders:', error);
+            showNotification("Lỗi tải đơn hàng. Vui lòng thử lại!", 'error');
+        }
+    }
+
+    function loadUserAccountInfo() {
+        if (!currentUser || !userData) return;
+        
+        fullnameInput.value = userData.name || '';
+        phoneInput.value = userData.phone || '';
+        addressInput.value = userData.address || '';
+        locationStatus.innerHTML = '';
+        
+        // Lưu số điện thoại ban đầu để so sánh
+        originalPhone = userData.phone || '';
+        
+        // Reset trạng thái số điện thoại
+        phoneStatus.style.display = 'none';
+        phoneInput.classList.remove('invalid', 'valid');
+    }
+
+    // 🔥 HÀM KIỂM TRA SỐ ĐIỆN THOẠI ĐÃ TỒN TẠI (TRỪ SỐ CỦA CHÍNH NGƯỜI DÙNG HIỆN TẠI)
+    async function checkPhoneExistsExcludingCurrent(phone, currentUserId) {
+        if (!phone || phone.trim() === '') {
+            return { exists: false, message: '' };
+        }
+        
+        // Kiểm tra định dạng số điện thoại Việt Nam
+        const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+        if (!phoneRegex.test(phone)) {
+            return { 
+                exists: false, 
+                message: 'Số điện thoại không hợp lệ (VD: 0912345678)' 
+            };
+        }
+        
+        try {
+            // Kiểm tra trong Firestore xem có số điện thoại nào trùng không
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("phone", "==", phone));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                // Kiểm tra xem có phải là số điện thoại của người dùng hiện tại không
+                let isCurrentUser = false;
+                querySnapshot.forEach((doc) => {
+                    if (doc.id === currentUserId) {
+                        isCurrentUser = true;
+                    }
+                });
+                
+                if (!isCurrentUser) {
+                    return { 
+                        exists: true, 
+                        message: 'Số điện thoại này đã được sử dụng' 
+                    };
+                } else {
+                    return { 
+                        exists: false, 
+                        message: 'Số điện thoại của bạn' 
+                    };
+                }
+            } else {
+                return { 
+                    exists: false, 
+                    message: 'Số điện thoại có thể sử dụng' 
+                };
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra số điện thoại:", error);
+            return { 
+                exists: false, 
+                message: 'Không thể kiểm tra số điện thoại' 
+            };
+        }
+    }
+
+    // 🔥 XỬ LÝ KIỂM TRA SỐ ĐIỆN THOẠI KHI NHẬP
+    function initPhoneValidation() {
+        phoneInput.addEventListener('input', function() {
+            const phone = this.value.trim();
+            
+            // Ẩn trạng thái cũ
+            phoneStatus.style.display = 'none';
+            phoneInput.classList.remove('invalid', 'valid');
+            
+            // Xóa timeout cũ nếu có
+            if (phoneCheckTimeout) {
+                clearTimeout(phoneCheckTimeout);
+            }
+            
+            // Nếu số điện thoại rỗng hoặc không đổi so với ban đầu, không kiểm tra
+            if (!phone || phone === originalPhone) {
+                return;
+            }
+            
+            // Nếu số điện thoại đủ 10-11 số, kiểm tra sau 500ms (debounce)
+            if (phone.length >= 10) {
+                phoneCheckTimeout = setTimeout(async () => {
+                    phoneStatus.style.display = 'flex';
+                    phoneStatus.className = 'phone-status loading';
+                    phoneStatusText.textContent = 'Đang kiểm tra số điện thoại...';
+                    
+                    const result = await checkPhoneExistsExcludingCurrent(phone, currentUser.uid);
+                    
+                    if (result.exists) {
+                        phoneStatus.className = 'phone-status taken';
+                        phoneStatusText.textContent = result.message;
+                        phoneInput.classList.add('invalid');
+                        phoneInput.classList.remove('valid');
+                        
+                        // Focus vào ô số điện thoại
+                        phoneInput.focus();
+                        phoneInput.select();
+                    } else if (result.message === 'Số điện thoại không hợp lệ (VD: 0912345678)') {
+                        phoneStatus.className = 'phone-status taken';
+                        phoneStatusText.textContent = result.message;
+                        phoneInput.classList.add('invalid');
+                        phoneInput.classList.remove('valid');
+                    } else {
+                        phoneStatus.className = 'phone-status available';
+                        phoneStatusText.textContent = result.message;
+                        phoneInput.classList.add('valid');
+                        phoneInput.classList.remove('invalid');
+                    }
+                }, 500);
+            } else if (phone.length > 0 && phone.length < 10) {
+                phoneStatus.style.display = 'flex';
+                phoneStatus.className = 'phone-status taken';
+                phoneStatusText.textContent = 'Số điện thoại phải có 10-11 số';
+                phoneInput.classList.add('invalid');
+                phoneInput.classList.remove('valid');
+            }
+        });
+    }
+
+    async function handleLogout() {
+        try {
+            await signOut(auth);
+            showNotification("Đăng xuất thành công!");
+            setTimeout(() => {
+                window.location.href = './index.html';
+            }, 1500);
+        } catch (error) {
+            showNotification("Lỗi đăng xuất. Vui lòng thử lại!", 'error');
+        }
+    }
+
+    function switchTab(tabName) {
+        currentTab = tabName;
+        
+        menuItems.forEach(item => {
+            if (item.dataset.tab === tabName) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+        
+        contentTabs.forEach(tab => {
+            if (tab.id === `${tabName}-tab`) {
+                tab.style.display = 'block';
+                if (tabName === 'account') {
+                    locationStatus.innerHTML = '';
+                }
+            } else {
+                tab.style.display = 'none';
+            }
+        });
+        
+        if (tabName === 'orders') {
+            dateRangeElement.textContent = getDateRange();
+            loadUserOrders();
+        } else if (tabName === 'account') {
+            loadUserAccountInfo();
+        }
+    }
+
+    function switchOrderFilter(status) {
+        currentOrderFilter = status;
+        
+        orderTabs.forEach(tab => {
+            if (tab.dataset.status === status) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+        
+        loadUserOrders();
+    }
+
+    async function handleGetLocation() {
+        try {
+            getLocationBtn.disabled = true;
+            getLocationBtn.innerHTML = '<span class="material-symbols-outlined">location_on</span>Đang lấy vị trí...';
+            locationStatus.innerHTML = '<span class="location-loading"><span class="spinner"></span> Đang lấy vị trí GPS...</span>';
+            
+            if (!navigator.geolocation) {
+                throw new Error('Trình duyệt không hỗ trợ GPS');
+            }
+            
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            });
+            
+            const { latitude, longitude } = position.coords;
+            
+            const osmUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1&accept-language=vi`;
+            
+            const response = await fetch(osmUrl, {
+                headers: {
+                    'User-Agent': 'StorePhoneApp/1.0'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Lỗi kết nối dịch vụ địa chỉ');
+            }
+            
+            const data = await response.json();
+            let fullAddress = data.display_name || `Vị trí: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+            
+            const currentAddress = addressInput.value;
+            if (currentAddress && currentAddress.trim() !== '') {
+                if (confirm('Bạn đã có địa chỉ. Bạn có muốn thay thế bằng địa chỉ mới từ GPS không?')) {
+                    addressInput.value = fullAddress;
+                } else {
+                    addressInput.value = currentAddress + '\n\n[Vị trí GPS]: ' + fullAddress;
+                }
+            } else {
+                addressInput.value = fullAddress;
+            }
+            
+            locationStatus.innerHTML = `
+                <span style="color:#10b981;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span>
+                    Đã lấy vị trí!
+                </span>
+            `;
+            
+            addressInput.focus();
+            addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showNotification('Đã lấy địa chỉ từ vị trí hiện tại!', 'success');
+            
+        } catch (error) {
+            let errorMessage = 'Không thể lấy vị trí. Vui lòng thử lại!';
+            if (error.message.includes('denied')) {
+                errorMessage = 'Bạn đã từ chối quyền truy cập vị trí.';
+            } else if (error.message.includes('unavailable')) {
+                errorMessage = 'Thông tin vị trí không khả dụng.';
+            } else if (error.message.includes('timeout')) {
+                errorMessage = 'Hết thời gian chờ lấy vị trí.';
+            }
+            
+            locationStatus.innerHTML = `
+                <span style="color:#ef4444;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">error</span>
+                    ${errorMessage}
+                </span>
+            `;
+            showNotification(errorMessage, 'error');
+        } finally {
+            getLocationBtn.disabled = false;
+            getLocationBtn.innerHTML = '<span class="material-symbols-outlined">location_on</span>Lấy vị trí hiện tại';
+        }
+    }
+
+    async function handleSaveAccount() {
+        if (!currentUser) return;
+        
+        const accountData = {
+            fullname: fullnameInput.value.trim(),
+            phone: phoneInput.value.trim(),
+            address: addressInput.value.trim(),
+            addressNote: ''
+        };
+        
+        if (!accountData.fullname) {
+            showNotification("Vui lòng nhập họ và tên!", 'warning');
+            fullnameInput.focus();
+            return;
+        }
+        
+        if (!accountData.phone) {
+            showNotification("Vui lòng nhập số điện thoại!", 'warning');
+            phoneInput.focus();
+            return;
+        }
+        
+        const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+        if (!phoneRegex.test(accountData.phone)) {
+            showNotification("Số điện thoại không hợp lệ! (VD: 0912345678)", 'warning');
+            phoneInput.focus();
+            phoneInput.select();
+            return;
+        }
+        
+        // 🔥 KIỂM TRA SỐ ĐIỆN THOẠI ĐÃ TỒN TẠI (NẾU ĐÃ THAY ĐỔI)
+        if (accountData.phone !== originalPhone) {
+            showNotification("Đang kiểm tra số điện thoại...", 'info');
+            
+            const phoneCheck = await checkPhoneExistsExcludingCurrent(accountData.phone, currentUser.uid);
+            
+            if (phoneCheck.exists) {
+                showNotification("Số điện thoại này đã được sử dụng. Vui lòng dùng số khác!", 'error');
+                phoneInput.focus();
+                phoneInput.select();
+                return;
+            }
+        }
+        
+        if (!accountData.address) {
+            showNotification("Vui lòng nhập địa chỉ!", 'warning');
+            addressInput.focus();
+            return;
+        }
+        
+        try {
+            const success = await saveUserData(currentUser.uid, accountData);
+            if (success) {
+                showNotification("Lưu thông tin thành công!");
+                userData = { 
+                    ...userData, 
+                    name: accountData.fullname,
+                    phone: accountData.phone,
+                    address: accountData.address,
+                    addressNote: accountData.addressNote 
+                };
+                
+                updateHeader(currentUser, userData);
+                usernameElement.textContent = accountData.fullname;
+                userAvatar.textContent = accountData.fullname.charAt(0).toUpperCase();
+                locationStatus.innerHTML = '';
+                phoneStatus.style.display = 'none';
+                phoneInput.classList.remove('invalid', 'valid');
+                
+                // Cập nhật số điện thoại ban đầu
+                originalPhone = accountData.phone;
+            } else {
+                showNotification("Lỗi lưu thông tin. Vui lòng thử lại!", 'error');
+            }
+        } catch (error) {
+            showNotification("Lỗi lưu thông tin. Vui lòng thử lại!", 'error');
+        }
+    }
+
+    function initEventListeners() {
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchTab(item.dataset.tab);
+            });
+        });
+        
+        orderTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchOrderFilter(tab.dataset.status);
+            });
+        });
+        
+        logoutBtn.addEventListener('click', handleLogout);
+        getLocationBtn.addEventListener('click', handleGetLocation);
+        
+        saveAccountBtn.addEventListener('click', handleSaveAccount);
+        
+        cancelAccountBtn.addEventListener('click', () => {
+            loadUserAccountInfo();
+            showNotification("Đã huỷ thay đổi", 'warning');
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && currentTab === 'account') {
+                e.preventDefault();
+                saveAccountBtn.click();
+            }
+        });
+    }
+
+    async function initApp() {
+        dateRangeElement.textContent = getDateRange();
+        initEventListeners();
+        initPhoneValidation(); // Khởi tạo kiểm tra số điện thoại
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                userData = await getUserData(user.uid);
+                
+                // Kiểm tra trạng thái tài khoản
+                if (userData && (userData.status === 'banned' || userData.status === 'inactive')) {
+                    await signOut(auth);
+                    alert('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+                    window.location.href = './login.html';
+                    return;
+                }
+                
+                updateHeader(user, userData);
+                
+                if (userData && userData.name) {
+                    usernameElement.textContent = userData.name;
+                    userAvatar.textContent = userData.name.charAt(0).toUpperCase();
+                } else {
+                    const username = user.email.split('@')[0];
+                    usernameElement.textContent = username;
+                    userAvatar.textContent = username.charAt(0).toUpperCase();
+                }
+                userEmailElement.textContent = user.email;
+                
+                if (currentTab === 'orders') {
+                    loadUserOrders();
+                }
+            } else {
+                window.location.href = './login.html';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        cart.updateBadge();
+        cart.onCartLoaded(() => {
+            cart.updateBadge();
+        });
+        
+        // Khởi tạo chat support
+        chatInstance = initChatSupport(auth, db);
+        
+        setTimeout(() => {
+            cart.updateBadge();
+        }, 500);
+        
+        initApp();
+    });
+    
+    setTimeout(() => {
+        cart.updateBadge();
+    }, 2000);
+    
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            cart.updateBadge();
+        }
+    });
+    </script>
+</body>
+</html>

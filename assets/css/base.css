@@ -1,0 +1,13 @@
+*{
+box-sizing: border-box;
+}
+html{
+    font-size: 62.5%;
+    line-height: 1.6rem;
+    
+}
+.grid{
+    width: 1200px;
+    max-width: 100%;
+    margin: 0 auto;
+}

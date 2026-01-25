@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <title>Quản lý đơn hàng - Store Phone Admin</title>
+    <link rel="stylesheet" href="./assets/css/admin.css">
+    <link rel="stylesheet" href="./assets/css/orders.css">
+    <style>
+        .order-count-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .display-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .order-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .order-stats .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--gray-50);
+            border-radius: 6px;
+            min-width: 120px;
+        }
+        
+        .order-stats .stat-value {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+        
+        .order-stats .stat-label {
+            font-size: 1.2rem;
+            color: var(--gray-600);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- MOBILE MENU TOGGLE -->
+    <button class="menu-toggle" id="menu-toggle">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>STORE PHONE</h2>
+                <p>Admin Dashboard</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    Sản phẩm
+                </a>
+                <a href="orders.html" class="menu-item active">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    Đơn hàng
+                </a>
+                <a href="chats.html" class="menu-item">
+                    <span class="material-symbols-outlined">chat</span>
+                    Quản lý Chat
+                </a>
+                <a href="banners.html" class="menu-item">
+                    <span class="material-symbols-outlined">image</span>
+                    Banner
+                </a>
+                <a href="images.html" class="menu-item">
+                    <span class="material-symbols-outlined">photo_library</span>
+                    Quản lý ảnh
+                </a>
+                <a href="users.html" class="menu-item" id="users-menu-link">
+                    <span class="material-symbols-outlined">group</span>
+                    Người dùng
+                </a>
+                <a href="analytics.html" class="menu-item">
+                    <span class="material-symbols-outlined">analytics</span>
+                    Thống kê
+                </a>
+                <a href="../index.html" class="menu-item">
+                    <span class="material-symbols-outlined">home</span>
+                    Về trang chủ
+                </a>
+                <a href="#" class="menu-item" id="logout-btn">
+                    <span class="material-symbols-outlined">logout</span>
+                    Đăng xuất
+                </a>
+            </nav>
+            
+            <div class="user-info">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="user-name" style="font-size: 1.4rem; font-weight: 500;"></span>
+                            <span id="user-role-badge" class="role-badge role-admin"></span>
+                        </div>
+                        <div id="user-email" style="font-size: 1.2rem; color: var(--gray-400);"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+            <!-- TOP BAR -->
+            <header class="admin-topbar">
+                <h1>Quản lý đơn hàng</h1>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <div class="admin-content">
+                <!-- ORDER COUNT INFO with Stats -->
+                <div class="order-count-info">
+                    <div class="display-info">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">filter_list</span>
+                        Đang hiển thị: <strong id="showing-orders">0</strong> đơn hàng
+                        <div class="filter-tags" id="filter-tags">
+                            <!-- Các filter tag sẽ được thêm vào đây -->
+                        </div>
+                    </div>
+                    
+                    <div class="order-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="total-orders">0</span>
+                            <span class="stat-label">
+                                <span class="material-symbols-outlined" style="font-size: 1.4rem;">shopping_bag</span>
+                                Tổng đơn hàng
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="pending-orders">0</span>
+                            <span class="stat-label">
+                                <span class="material-symbols-outlined" style="font-size: 1.4rem;">schedule</span>
+                                Chờ xử lý
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="today-orders">0</span>
+                            <span class="stat-label">
+                                <span class="material-symbols-outlined" style="font-size: 1.4rem;">today</span>
+                                Hôm nay
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUICK TOOLBAR -->
+                <div class="quick-toolbar">
+                    <button class="toolbar-btn" onclick="refreshOrders()">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Làm mới
+                    </button>
+                    <button class="toolbar-btn" onclick="printOrders()">
+                        <span class="material-symbols-outlined">print</span>
+                        In danh sách
+                    </button>
+                </div>
+
+                <!-- DATE RANGE & FILTERS -->
+                <div class="advanced-filter">
+                    <div class="filter-group">
+                        <label>Từ ngày</label>
+                        <input type="date" id="start-date" class="date-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>Đến ngày</label>
+                        <input type="date" id="end-date" class="date-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>Trạng thái</label>
+                        <select id="status-filter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="pending">Chờ xử lý</option>
+                            <option value="confirmed">Đã xác nhận</option>
+                            <option value="shipping">Đang chuyển hàng</option>
+                            <option value="delivering">Đang giao hàng</option>
+                            <option value="success">Thành công</option>
+                            <option value="cancelled">Đã huỷ</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Thanh toán</label>
+                        <select id="payment-filter">
+                            <option value="">Tất cả</option>
+                            <option value="paid">Đã thanh toán</option>
+                            <option value="unpaid">Chưa thanh toán</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sắp xếp</label>
+                        <select id="sort-by">
+                            <option value="created_desc">Mới nhất</option>
+                            <option value="created_asc">Cũ nhất</option>
+                            <option value="total_desc">Giá trị cao</option>
+                            <option value="total_asc">Giá trị thấp</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SEARCH -->
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Tìm theo mã đơn, tên khách hàng, SĐT, email...">
+                    <button class="btn btn-primary" onclick="applyFilters()">
+                        <span class="material-symbols-outlined">search</span>
+                        Tìm kiếm
+                    </button>
+                </div>
+
+                <!-- ORDERS TABLE -->
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn hàng</th>
+                                <th>Ngày đặt</th>
+                                <th>Khách hàng</th>
+                                <th>Số điện thoại</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Thanh toán</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-list">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- LOADING STATE -->
+                <div class="loading" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Đang tải đơn hàng...</p>
+                </div>
+
+                <!-- EMPTY STATE -->
+                <div style="text-align: center; padding: 60px; display: none;" id="empty-state">
+                    <span class="material-symbols-outlined" style="font-size: 60px; color: var(--gray-300);">
+                        search_off
+                    </span>
+                    <h3 style="font-size: 1.8rem; color: var(--gray-500); margin: 1rem 0;">Không tìm thấy đơn hàng</h3>
+                    <p style="color: var(--gray-400); margin-bottom: 2rem;">Hãy thử thay đổi bộ lọc hoặc thêm đơn hàng mới</p>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="pagination">
+                    <div>
+                        Hiển thị 
+                        <select id="per-page" onchange="changePerPage(this.value)" style="padding: 0.4rem; margin: 0 0.5rem;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select> 
+                        đơn hàng/trang
+                    </div>
+                    <div class="page-controls">
+                        <button id="prev-page" onclick="prevPage()" disabled>‹ Trước</button>
+                        <span id="page-info">Trang 1/1</span>
+                        <button id="next-page" onclick="nextPage()" disabled>Sau ›</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ORDER DETAILS MODAL -->
+    <div class="order-details-modal" id="order-details-modal">
+        <div class="order-details-content">
+            <div class="details-header">
+                <h2 style="margin: 0; font-size: 2rem; font-weight: 600;">Chi tiết đơn hàng</h2>
+                <button id="close-details" style="background: none; border: none; color: white; font-size: 3rem; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            <div class="details-body">
+                <!-- Content sẽ được điền bằng JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+    // ========== FIREBASE CONFIG ==========
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+        getAuth, 
+        onAuthStateChanged, 
+        signOut 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        query,
+        where,
+        doc,
+        updateDoc,
+        serverTimestamp,
+        deleteDoc,
+        getDoc,
+        increment
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+        authDomain: "products-a39df.firebaseapp.com",
+        projectId: "products-a39df",
+        storageBucket: "products-a39df.firebasestorage.app",
+        messagingSenderId: "708345988066",
+        appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ========== GLOBAL VARIABLES ==========
+    let orders = [];
+    let filteredOrders = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let totalPages = 1;
+    let currentSort = 'created_desc';
+    let currentFilters = {
+        startDate: '',
+        endDate: '',
+        status: '',
+        payment: '',
+        search: ''
+    };
+    let currentUserRole = '';
+
+    // ========== MOBILE MENU TOGGLE ==========
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        const sidebar = document.getElementById('admin-sidebar');
+        sidebar.classList.toggle('active');
+    });
+
+    // ========== AUTH CHECK ==========
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = '../a1b2c3-secret.html';
+            return;
+        }
+        
+        try {
+            const adminsRef = collection(db, "admins");
+            const q = query(adminsRef, where("email", "==", user.email));
+            const snapshot = await getDocs(q);
+            
+            if (snapshot.empty) {
+                await signOut(auth);
+                alert("❌ Bạn không có quyền truy cập Admin Panel!");
+                window.location.href = '../a1b2c3-secret.html';
+                return;
+            }
+            
+            const userData = snapshot.docs[0].data();
+            currentUserRole = userData.role || 'admin';
+            
+            document.getElementById('user-name').textContent = userData.name || user.displayName || 'User';
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-avatar').textContent = 
+                (userData.name?.charAt(0) || user.email.charAt(0)).toUpperCase();
+            
+            const roleBadge = document.getElementById('user-role-badge');
+            if (currentUserRole === 'super_admin') {
+                roleBadge.textContent = 'Super Admin';
+                roleBadge.className = 'role-badge role-super_admin';
+            } else if (currentUserRole === 'admin') {
+                roleBadge.textContent = 'Admin';
+                roleBadge.className = 'role-badge role-admin';
+            } else if (currentUserRole === 'staff') {
+                roleBadge.textContent = 'Nhân viên';
+                roleBadge.className = 'role-badge role-staff';
+            }
+            
+            await loadOrders();
+            setupMenuPermissions();
+            
+        } catch (error) {
+            console.error("Lỗi xác thực:", error);
+            window.location.href = '../a1b2c3-secret.html';
+        }
+    });
+
+    function setupMenuPermissions() {
+        const usersMenuLink = document.getElementById('users-menu-link');
+        
+        if (usersMenuLink) {
+            usersMenuLink.addEventListener('click', function(e) {
+                if (currentUserRole === 'staff') {
+                    e.preventDefault();
+                    alert("❌ Chỉ quản trị viên mới được truy cập trang Quản lý Người dùng!");
+                    return false;
+                }
+                return true;
+            });
+        }
+    }
+
+    // ========== ORDER MANAGEMENT ==========
+    async function loadOrders() {
+        try {
+            showLoading(true);
+            
+            const ordersRef = collection(db, "orders");
+            const snapshot = await getDocs(ordersRef);
+            
+            orders = [];
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                
+                // Xử lý timestamp cho createdAt
+                let createdAtDate;
+                if (data.createdAt) {
+                    if (typeof data.createdAt.toDate === 'function') {
+                        createdAtDate = data.createdAt.toDate();
+                    } else if (data.createdAt.seconds) {
+                        createdAtDate = new Date(data.createdAt.seconds * 1000);
+                    } else if (typeof data.createdAt === 'string') {
+                        createdAtDate = new Date(data.createdAt);
+                    } else if (data.createdAt instanceof Date) {
+                        createdAtDate = data.createdAt;
+                    } else {
+                        createdAtDate = new Date();
+                    }
+                } else {
+                    createdAtDate = new Date();
+                }
+                
+                orders.push({
+                    id: docSnap.id,
+                    ...data,
+                    total: Number(data.total) || 0,
+                    createdAt: createdAtDate,
+                    status: data.status || 'pending',
+                    paymentStatus: data.paymentStatus || 'unpaid',
+                    paymentMethod: data.paymentMethod || 'cod',
+                    userName: data.userName || 'Không có tên',
+                    userEmail: data.userEmail || 'N/A',
+                    userPhone: data.userPhone || 'N/A',
+                    userAddress: data.userAddress || 'N/A',
+                    items: data.items || [],
+                    note: data.note || '',
+                    isStatsUpdated: data.isStatsUpdated || false // Thêm cờ đã cập nhật thống kê
+                });
+            });
+
+            updateStats();
+            applyFiltersAndSort();
+            renderOrders();
+            renderPagination();
+            
+        } catch (error) {
+            console.error("Lỗi tải đơn hàng:", error);
+            showError("Lỗi tải đơn hàng: " + error.message);
+            
+            const tbody = document.getElementById('orders-list');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">
+                        <p>Lỗi kết nối Firebase: ${error.message}</p>
+                        <p>Vui lòng kiểm tra kết nối internet</p>
+                        <button onclick="location.reload()" style="margin-top: 10px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">Thử lại</button>
+                    </td>
+                </tr>
+            `;
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function updateStats() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const todayOrders = orders.filter(order => {
+            const orderDate = new Date(order.createdAt);
+            orderDate.setHours(0, 0, 0, 0);
+            return orderDate.getTime() === today.getTime();
+        });
+        
+        const pendingOrders = orders.filter(order => order.status === 'pending');
+        
+        document.getElementById('total-orders').textContent = orders.length;
+        document.getElementById('pending-orders').textContent = pendingOrders.length;
+        document.getElementById('today-orders').textContent = todayOrders.length;
+    }
+
+    function applyFiltersAndSort() {
+        filteredOrders = [...orders];
+
+        // Apply date filter
+        if (currentFilters.startDate) {
+            const startDate = new Date(currentFilters.startDate);
+            startDate.setHours(0, 0, 0, 0);
+            filteredOrders = filteredOrders.filter(order => {
+                const orderDate = new Date(order.createdAt);
+                orderDate.setHours(0, 0, 0, 0);
+                return orderDate >= startDate;
+            });
+        }
+
+        if (currentFilters.endDate) {
+            const endDate = new Date(currentFilters.endDate);
+            endDate.setHours(23, 59, 59, 999);
+            filteredOrders = filteredOrders.filter(order => {
+                const orderDate = new Date(order.createdAt);
+                return orderDate <= endDate;
+            });
+        }
+
+        // Apply status filter
+        if (currentFilters.status) {
+            filteredOrders = filteredOrders.filter(order => order.status === currentFilters.status);
+        }
+
+        // Apply payment filter
+        if (currentFilters.payment) {
+            filteredOrders = filteredOrders.filter(order => order.paymentStatus === currentFilters.payment);
+        }
+
+        // Apply search filter
+        if (currentFilters.search) {
+            const searchTerm = currentFilters.search.toLowerCase();
+            filteredOrders = filteredOrders.filter(order => 
+                order.id.toLowerCase().includes(searchTerm) ||
+                (order.userName && order.userName.toLowerCase().includes(searchTerm)) ||
+                (order.userEmail && order.userEmail.toLowerCase().includes(searchTerm)) ||
+                (order.userPhone && order.userPhone.toLowerCase().includes(searchTerm))
+            );
+        }
+
+        applySorting();
+        updateFilterTags();
+
+        totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+        if (currentPage > totalPages) currentPage = 1;
+        
+        document.getElementById('showing-orders').textContent = filteredOrders.length;
+    }
+
+    function applySorting() {
+        switch (currentSort) {
+            case 'created_desc':
+                filteredOrders.sort((a, b) => b.createdAt - a.createdAt);
+                break;
+            case 'created_asc':
+                filteredOrders.sort((a, b) => a.createdAt - b.createdAt);
+                break;
+            case 'total_desc':
+                filteredOrders.sort((a, b) => (b.total || 0) - (a.total || 0));
+                break;
+            case 'total_asc':
+                filteredOrders.sort((a, b) => (a.total || 0) - (b.total || 0));
+                break;
+        }
+    }
+
+    function updateFilterTags() {
+        const tagsContainer = document.getElementById('filter-tags');
+        tagsContainer.innerHTML = '';
+        
+        const tags = [];
+        
+        if (currentFilters.startDate) {
+            tags.push({
+                text: `Từ: ${formatDate(new Date(currentFilters.startDate))}`,
+                type: 'startDate'
+            });
+        }
+        
+        if (currentFilters.endDate) {
+            tags.push({
+                text: `Đến: ${formatDate(new Date(currentFilters.endDate))}`,
+                type: 'endDate'
+            });
+        }
+        
+        if (currentFilters.status) {
+            tags.push({
+                text: `Trạng thái: ${getStatusText(currentFilters.status)}`,
+                type: 'status'
+            });
+        }
+        
+        if (currentFilters.payment) {
+            tags.push({
+                text: `Thanh toán: ${currentFilters.payment === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}`,
+                type: 'payment'
+            });
+        }
+        
+        if (currentFilters.search) {
+            tags.push({
+                text: `Tìm: "${currentFilters.search}"`,
+                type: 'search'
+            });
+        }
+        
+        if (tags.length > 0) {
+            tags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'filter-tag';
+                tagElement.innerHTML = `
+                    ${tag.text}
+                    <span class="remove" onclick="removeFilter('${tag.type}')">&times;</span>
+                `;
+                tagsContainer.appendChild(tagElement);
+            });
+            
+            const clearAll = document.createElement('a');
+            clearAll.href = '#';
+            clearAll.style.fontSize = '1.2rem';
+            clearAll.style.color = 'var(--primary)';
+            clearAll.style.textDecoration = 'none';
+            clearAll.textContent = 'Xóa tất cả';
+            clearAll.onclick = (e) => {
+                e.preventDefault();
+                clearAllFilters();
+            };
+            tagsContainer.appendChild(clearAll);
+        }
+    }
+
+    // ========== RENDER ORDERS ==========
+    function renderOrders() {
+        const tbody = document.getElementById('orders-list');
+        
+        if (filteredOrders.length === 0) {
+            tbody.innerHTML = '';
+            document.getElementById('empty-state').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('empty-state').style.display = 'none';
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const ordersToShow = filteredOrders.slice(startIndex, endIndex);
+
+        tbody.innerHTML = ordersToShow.map(order => `
+            <tr class="order-row" data-id="${order.id}" onclick="showOrderDetails('${order.id}')">
+                <td><strong>${order.id}</strong></td>
+                <td>${formatDateTime(order.createdAt)}</td>
+                <td>
+                    <div class="customer-info">
+                        <span class="customer-name">${order.userName || 'Không có tên'}</span>
+                        <span class="customer-email" style="font-size: 1.2rem; color: var(--gray-500);">${order.userEmail || ''}</span>
+                    </div>
+                </td>
+                <td>${order.userPhone || 'N/A'}</td>
+                <td><strong>${formatPrice(order.total)}</strong></td>
+                <td>
+                    <span class="status-badge status-${order.status || 'pending'}">
+                        ${getStatusText(order.status)}
+                    </span>
+                </td>
+                <td>
+                    <span class="payment-status payment-${order.paymentStatus || 'unpaid'}">
+                        ${order.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                        ${order.isStatsUpdated ? ' ✅' : ''}
+                    </span>
+                </td>
+                <td class="action-cell" onclick="event.stopPropagation();">
+                    <div class="order-actions">
+                        <select class="status-select" onchange="updateOrderStatus('${order.id}', this.value)" 
+                                onclick="event.stopPropagation();">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
+                            <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Đã xác nhận</option>
+                            <option value="shipping" ${order.status === 'shipping' ? 'selected' : ''}>Đang chuyển hàng</option>
+                            <option value="delivering" ${order.status === 'delivering' ? 'selected' : ''}>Đang giao hàng</option>
+                            <option value="success" ${order.status === 'success' ? 'selected' : ''}>Thành công</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Đã huỷ</option>
+                        </select>
+                        ${order.paymentStatus !== 'paid' && order.status !== 'cancelled' ? `
+                            <button class="btn btn-success btn-sm" 
+                                    onclick="event.stopPropagation(); confirmPayment('${order.id}')"
+                                    title="Xác nhận đã thanh toán">
+                                <span class="material-symbols-outlined" style="font-size: 1.4rem;">payments</span>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); showOrderDetails('${order.id}')">
+                            <span class="material-symbols-outlined" style="font-size: 1.4rem;">visibility</span>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteOrder('${order.id}')">
+                            <span class="material-symbols-outlined" style="font-size: 1.4rem;">delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ========== UTILITY FUNCTIONS ==========
+    function formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price || 0);
+    }
+
+    function formatDate(date) {
+        if (!date) return 'N/A';
+        try {
+            return date.toLocaleDateString('vi-VN');
+        } catch (error) {
+            return 'N/A';
+        }
+    }
+
+    function formatDateTime(date) {
+        if (!date) return 'N/A';
+        try {
+            const d = new Date(date);
+            return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        } catch (error) {
+            return 'N/A';
+        }
+    }
+
+    function getStatusText(status) {
+        const statusMap = {
+            'pending': 'Chờ xử lý',
+            'confirmed': 'Đã xác nhận',
+            'shipping': 'Đang chuyển hàng',
+            'delivering': 'Đang giao hàng',
+            'success': 'Thành công',
+            'cancelled': 'Đã huỷ'
+        };
+        return statusMap[status] || status || 'Chờ xử lý';
+    }
+
+    function showLoading(show) {
+        document.getElementById('loading-state').style.display = show ? 'block' : 'none';
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        `;
+        notification.innerHTML = `
+            <span class="material-symbols-outlined">check_circle</span>
+            ${message}
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        `;
+        errorDiv.innerHTML = `
+            <span class="material-symbols-outlined">error</span>
+            ${message}
+        `;
+        document.body.appendChild(errorDiv);
+        setTimeout(() => errorDiv.remove(), 3000);
+    }
+
+    // ========== PAGINATION ==========
+    function renderPagination() {
+        document.getElementById('page-info').textContent = `Trang ${currentPage}/${totalPages}`;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+    }
+
+    // ========== EVENT LISTENERS ==========
+    function setupEventListeners() {
+        // Date filters
+        document.getElementById('start-date').addEventListener('change', (e) => {
+            currentFilters.startDate = e.target.value;
+            currentPage = 1;
+            applyFiltersAndSort();
+            renderOrders();
+            renderPagination();
+        });
+
+        document.getElementById('end-date').addEventListener('change', (e) => {
+            currentFilters.endDate = e.target.value;
+            currentPage = 1;
+            applyFiltersAndSort();
+            renderOrders();
+            renderPagination();
+        });
+
+        // Status filter
+        document.getElementById('status-filter').addEventListener('change', (e) => {
+            currentFilters.status = e.target.value;
+            currentPage = 1;
+            applyFiltersAndSort();
+            renderOrders();
+            renderPagination();
+        });
+
+        // Payment filter
+        document.getElementById('payment-filter').addEventListener('change', (e) => {
+            currentFilters.payment = e.target.value;
+            currentPage = 1;
+            applyFiltersAndSort();
+            renderOrders();
+            renderPagination();
+        });
+
+        // Sort
+        document.getElementById('sort-by').addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            applyFiltersAndSort();
+            renderOrders();
+        });
+
+        // Search
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+
+        // Close details modal
+        document.getElementById('close-details').addEventListener('click', closeOrderDetails);
+        document.getElementById('order-details-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('order-details-modal')) {
+                closeOrderDetails();
+            }
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = '../a1b2c3-secret.html';
+                } catch (error) {
+                    alert("Lỗi đăng xuất: " + error.message);
+                }
+            }
+        });
+    }
+
+    // ========== GLOBAL WINDOW FUNCTIONS ==========
+    window.removeFilter = function(type) {
+        switch (type) {
+            case 'startDate':
+                document.getElementById('start-date').value = '';
+                currentFilters.startDate = '';
+                break;
+            case 'endDate':
+                document.getElementById('end-date').value = '';
+                currentFilters.endDate = '';
+                break;
+            case 'status':
+                document.getElementById('status-filter').value = '';
+                currentFilters.status = '';
+                break;
+            case 'payment':
+                document.getElementById('payment-filter').value = '';
+                currentFilters.payment = '';
+                break;
+            case 'search':
+                document.getElementById('search-input').value = '';
+                currentFilters.search = '';
+                break;
+        }
+        currentPage = 1;
+        applyFiltersAndSort();
+        renderOrders();
+        renderPagination();
+    };
+
+    window.clearAllFilters = function() {
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('status-filter').value = '';
+        document.getElementById('payment-filter').value = '';
+        document.getElementById('search-input').value = '';
+        document.getElementById('sort-by').value = 'created_desc';
+        
+        currentFilters = {
+            startDate: '',
+            endDate: '',
+            status: '',
+            payment: '',
+            search: ''
+        };
+        currentSort = 'created_desc';
+        currentPage = 1;
+        
+        applyFiltersAndSort();
+        renderOrders();
+        renderPagination();
+    };
+
+    window.applyFilters = function() {
+        currentFilters.search = document.getElementById('search-input').value;
+        currentPage = 1;
+        applyFiltersAndSort();
+        renderOrders();
+        renderPagination();
+    };
+
+    window.showOrderDetails = function(orderId) {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+        
+        const modal = document.getElementById('order-details-modal');
+        const body = modal.querySelector('.details-body');
+        
+        body.innerHTML = `
+            <div class="details-section">
+                <h3 class="section-title">
+                    <span class="material-symbols-outlined">info</span>
+                    Thông tin đơn hàng
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <div>
+                        <p><strong>Mã đơn hàng:</strong> ${order.id}</p>
+                        <p><strong>Ngày đặt:</strong> ${formatDateTime(order.createdAt)}</p>
+                        <p><strong>Trạng thái:</strong> 
+                            <span class="status-badge status-${order.status}" style="margin-left: 0.5rem;">
+                                ${getStatusText(order.status)}
+                            </span>
+                        </p>
+                        <p><strong>Phương thức thanh toán:</strong> ${order.paymentMethod === 'cod' ? 'COD (Thanh toán khi nhận hàng)' : 'Chuyển khoản'}</p>
+                        <p><strong>Tình trạng thanh toán:</strong> 
+                            <span class="payment-status payment-${order.paymentStatus}" style="margin-left: 0.5rem;">
+                                ${order.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                ${order.isStatsUpdated ? ' (Đã cập nhật thống kê)' : ''}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <p><strong>Tổng tiền:</strong> <span style="font-size: 1.8rem; color: #e53935; font-weight: bold;">${formatPrice(order.total)}</span></p>
+                        <p><strong>Ghi chú:</strong> ${order.note || 'Không có ghi chú'}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="details-section">
+                <h3 class="section-title">
+                    <span class="material-symbols-outlined">person</span>
+                    Thông tin khách hàng
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <div>
+                        <p><strong>Họ tên:</strong> ${order.userName || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${order.userEmail || 'N/A'}</p>
+                        <p><strong>Điện thoại:</strong> ${order.userPhone || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p><strong>Địa chỉ:</strong> ${order.userAddress || 'N/A'}</p>
+                        <p><strong>User ID:</strong> ${order.userId || 'N/A'}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="details-section">
+                <h3 class="section-title">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    Sản phẩm đã đặt
+                </h3>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${order.items && order.items.length > 0 ? order.items.map(item => `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <img src="${item.image || 'https://via.placeholder.com/60'}" 
+                                             alt="${item.name}" 
+                                             class="item-image"
+                                             onerror="this.src='https://via.placeholder.com/60?text=No+Image'">
+                                        <div>
+                                            <strong>${item.name}</strong>
+                                            <div style="font-size: 1.2rem; color: var(--gray-600);">
+                                                ${item.color ? `<span>Màu: ${item.color}</span>` : ''}
+                                                ${item.storage ? `<span> | Dung lượng: ${item.storage}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${formatPrice(item.price)}</td>
+                                <td>${item.quantity}</td>
+                                <td><strong>${formatPrice(item.price * item.quantity)}</strong></td>
+                            </tr>
+                        `).join('') : '<tr><td colspan="4" style="text-align: center;">Không có sản phẩm</td></tr>'}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: right; font-weight: bold;">Tổng cộng:</td>
+                            <td style="font-weight: bold; font-size: 1.6rem; color: #e53935;">${formatPrice(order.total)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="details-section">
+                <h3 class="section-title">
+                    <span class="material-symbols-outlined">payments</span>
+                    Quản lý thanh toán
+                </h3>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="flex: 1;">
+                        <p><strong>Trạng thái thanh toán:</strong></p>
+                        <span class="payment-status payment-${order.paymentStatus}" style="font-size: 1.4rem;">
+                            ${order.paymentStatus === 'paid' ? '✅ Đã thanh toán' : '❌ Chưa thanh toán'}
+                            ${order.isStatsUpdated ? ' (Đã cập nhật thống kê)' : ''}
+                        </span>
+                    </div>
+                    ${order.paymentStatus !== 'paid' && order.status !== 'cancelled' ? `
+                        <button class="btn btn-success" onclick="confirmPayment('${order.id}')" style="padding: 10px 20px;">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Xác nhận đã thanh toán
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="closeOrderDetails()">Đóng</button>
+                <button class="btn btn-primary" onclick="printOrder('${order.id}')">In đơn hàng</button>
+                ${order.status !== 'cancelled' ? `
+                    <button class="btn btn-danger" onclick="cancelOrder('${order.id}')">Huỷ đơn hàng</button>
+                ` : ''}
+            </div>
+        `;
+        
+        modal.style.display = 'block';
+    };
+
+    window.closeOrderDetails = function() {
+        document.getElementById('order-details-modal').style.display = 'none';
+    };
+
+    // Hàm chung để cập nhật thống kê khi thanh toán
+    async function updateOrderStats(orderId, order) {
+        try {
+            console.log(`🔄 Cập nhật thống kê cho đơn hàng ${orderId}...`);
+            
+            // 1. CẬP NHẬT THỐNG KÊ NGƯỜI DÙNG
+            if (order.userId) {
+                try {
+                    const userRef = doc(db, "users", order.userId);
+                    const userSnap = await getDoc(userRef);
+                    
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        const currentTotalOrders = userData.totalOrders || 0;
+                        const currentTotalSpent = userData.totalSpent || 0;
+                        
+                        // Tăng số đơn và tổng chi tiêu
+                        await updateDoc(userRef, {
+                            totalOrders: currentTotalOrders + 1,
+                            totalSpent: currentTotalSpent + (order.total || 0),
+                            updatedAt: serverTimestamp()
+                        });
+                        
+                        console.log(`👤 Đã cập nhật user ${order.userId}: 
+                            totalOrders từ ${currentTotalOrders} → ${currentTotalOrders + 1}
+                            totalSpent từ ${currentTotalSpent} → ${currentTotalSpent + (order.total || 0)}`);
+                    } else {
+                        console.warn(`Không tìm thấy user ${order.userId}`);
+                    }
+                } catch (userError) {
+                    console.error("❌ Lỗi cập nhật user:", userError);
+                    throw userError;
+                }
+            } else {
+                console.warn("Đơn hàng không có userId, không thể cập nhật thống kê user");
+            }
+            
+            // 2. CẬP NHẬT SẢN PHẨM (TĂNG SOLD, GIẢM STOCK)
+            const items = order.items || [];
+            for (const item of items) {
+                if (item.productId) {
+                    try {
+                        const productRef = doc(db, "products", item.productId);
+                        const productDoc = await getDoc(productRef);
+                        
+                        if (productDoc.exists()) {
+                            const productData = productDoc.data();
+                            const currentStock = productData.stock || 0;
+                            const currentSold = productData.sold || 0;
+                            const quantity = item.quantity || 1;
+                            
+                            // Sử dụng increment để đảm bảo atomic operation
+                            await updateDoc(productRef, {
+                                stock: Math.max(0, currentStock - quantity),
+                                sold: currentSold + quantity,
+                                updatedAt: serverTimestamp()
+                            });
+                            
+                            console.log(`📦 Đã cập nhật sản phẩm ${item.productId}: 
+                                stock từ ${currentStock} → ${Math.max(0, currentStock - quantity)}
+                                sold từ ${currentSold} → ${currentSold + quantity}`);
+                        }
+                    } catch (productError) {
+                        console.error("❌ Lỗi cập nhật sản phẩm:", productError);
+                        throw productError;
+                    }
+                } else {
+                    console.warn(`Sản phẩm "${item.name}" không có productId, không thể cập nhật`);
+                }
+            }
+            
+            return true;
+        } catch (error) {
+            console.error("❌ Lỗi cập nhật thống kê:", error);
+            throw error;
+        }
+    }
+
+    window.updateOrderStatus = async function(orderId, newStatus) {
+        try {
+            const orderRef = doc(db, "orders", orderId);
+            const orderDoc = await getDoc(orderRef);
+            const order = orderDoc.data();
+
+            // Cập nhật trạng thái đơn hàng
+            await updateDoc(orderRef, {
+                status: newStatus,
+                updatedAt: serverTimestamp()
+            });
+            
+            // LOGIC QUAN TRỌNG: 
+            // "Thành công" (success) chỉ là trạng thái vận chuyển (ship thành công)
+            // KHÔNG tự động cập nhật thống kê ở đây!
+            // Chỉ bấm "Xác nhận thanh toán" mới cập nhật thống kê
+            
+            // Cập nhật trong mảng orders local
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex > -1) {
+                orders[orderIndex].status = newStatus;
+            }
+            
+            renderOrders();
+            updateStats();
+            showNotification(`Đã cập nhật trạng thái đơn hàng thành: ${getStatusText(newStatus)}`);
+            
+        } catch (error) {
+            showError("Lỗi cập nhật trạng thái: " + error.message);
+        }
+    };
+
+    window.confirmPayment = async function(orderId) {
+        if (!confirm('Xác nhận đơn hàng này đã được thanh toán?\n')) return;
+        
+        try {
+            // Lấy thông tin đơn hàng trước
+            const orderRef = doc(db, "orders", orderId);
+            const orderSnap = await getDoc(orderRef);
+            
+            if (!orderSnap.exists()) {
+                showError("Đơn hàng không tồn tại!");
+                return;
+            }
+            
+            const order = orderSnap.data();
+            
+            // Kiểm tra đã thanh toán chưa
+            if (order.paymentStatus === 'paid') {
+                showError("Đơn hàng đã được thanh toán trước đó!");
+                return;
+            }
+            
+            // Kiểm tra đã cập nhật thống kê chưa
+            if (order.isStatsUpdated) {
+                showError("Đơn hàng đã được cập nhật thống kê trước đó!");
+                return;
+            }
+            
+            // 1. CẬP NHẬT THỐNG KÊ - Đây là bước QUAN TRỌNG NHẤT
+            await updateOrderStats(orderId, order);
+            
+            // 2. Cập nhật trạng thái thanh toán và đánh dấu đã cập nhật thống kê
+            await updateDoc(orderRef, {
+                paymentStatus: 'paid',
+                isStatsUpdated: true, // QUAN TRỌNG: Đánh dấu đã cập nhật thống kê
+                paymentDate: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+            
+            // 3. Cập nhật trong mảng orders local
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex > -1) {
+                orders[orderIndex].paymentStatus = 'paid';
+                orders[orderIndex].isStatsUpdated = true;
+            }
+            
+            renderOrders();
+            updateStats();
+            
+            // Hiển thị thông tin chi tiết về cập nhật
+            const items = order.items || [];
+            const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            
+            showNotification(` Đã xác nhận thanh toán thành công!\n Thống kê đã được cập nhật:\n• User: +1 đơn hàng, +${formatPrice(order.total)}\n• Sản phẩm: ${totalQuantity} sản phẩm đã bán`);
+            
+            closeOrderDetails();
+            
+        } catch (error) {
+            console.error("❌ Lỗi xác nhận thanh toán:", error);
+            showError("Lỗi xác nhận thanh toán: " + error.message);
+        }
+    };
+
+    window.deleteOrder = async function(orderId) {
+        if (!confirm('Bạn có chắc muốn xóa đơn hàng này?')) return;
+        
+        try {
+            await deleteDoc(doc(db, "orders", orderId));
+            
+            orders = orders.filter(o => o.id !== orderId);
+            applyFiltersAndSort();
+            renderOrders();
+            updateStats();
+            showNotification('Đã xóa đơn hàng');
+            
+        } catch (error) {
+            showError("Lỗi xóa đơn hàng: " + error.message);
+        }
+    };
+
+    window.cancelOrder = async function(orderId) {
+        if (!confirm('Bạn có chắc muốn huỷ đơn hàng này?')) return;
+        
+        await window.updateOrderStatus(orderId, 'cancelled');
+        window.closeOrderDetails();
+    };
+
+    window.prevPage = function() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderOrders();
+            renderPagination();
+        }
+    };
+
+    window.nextPage = function() {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderOrders();
+            renderPagination();
+        }
+    };
+
+    window.changePerPage = function(value) {
+        itemsPerPage = parseInt(value);
+        currentPage = 1;
+        applyFiltersAndSort();
+        renderOrders();
+        renderPagination();
+    };
+
+    window.refreshOrders = async function() {
+        await loadOrders();
+        showNotification('Đã làm mới danh sách đơn hàng');
+    };
+
+    window.printOrders = function() {
+        window.print();
+    };
+
+    window.printOrder = function(orderId) {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+        
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Đơn hàng ${orderId}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #333; }
+                        .info { margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        .total { font-weight: bold; font-size: 1.2em; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Đơn hàng: ${orderId}</h1>
+                    <div class="info">
+                        <p><strong>Ngày đặt:</strong> ${formatDateTime(order.createdAt)}</p>
+                        <p><strong>Khách hàng:</strong> ${order.userName}</p>
+                        <p><strong>Điện thoại:</strong> ${order.userPhone}</p>
+                        <p><strong>Địa chỉ:</strong> ${order.userAddress}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${order.items ? order.items.map(item => `
+                                <tr>
+                                    <td>${item.name} ${item.color ? `(${item.color})` : ''} ${item.storage ? `[${item.storage}]` : ''}</td>
+                                    <td>${formatPrice(item.price)}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${formatPrice(item.price * item.quantity)}</td>
+                                </tr>
+                            `).join('') : ''}
+                        </tbody>
+                        <tfoot>
+                            <tr class="total">
+                                <td colspan="3" style="text-align: right;">Tổng cộng:</td>
+                                <td>${formatPrice(order.total)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
+    // ========== INITIALIZATION ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        setupEventListeners();
+        
+        // Đóng menu khi click bên ngoài trên mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('admin-sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('active') && 
+                !sidebar.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        // Set default dates (last 30 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        
+        const startDateStr = startDate.toISOString().split('T')[0];
+        const endDateStr = endDate.toISOString().split('T')[0];
+        
+        document.getElementById('start-date').value = startDateStr;
+        document.getElementById('end-date').value = endDateStr;
+        
+        currentFilters.startDate = startDateStr;
+        currentFilters.endDate = endDateStr;
+    });
+</script>
+</body>
+</html>

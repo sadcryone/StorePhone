@@ -1,0 +1,276 @@
+    /* CSS cho trang quản lý ảnh - GIỮ NGUYÊN */
+    .admin-content {
+      padding: 20px;
+    }
+    
+    .image-upload-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .upload-area {
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .upload-area:hover {
+      border-color: #3b82f6;
+      background: #f8fafc;
+    }
+    
+    .upload-area.dragover {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+    
+    .upload-icon {
+      font-size: 48px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+    }
+    
+    .upload-hint {
+      color: #64748b;
+      font-size: 1.4rem;
+      margin: 10px 0;
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .upload-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    
+    .upload-btn:hover {
+      background: #2563eb;
+    }
+    
+    .url-import {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid #e2e8f0;
+    }
+    
+    .url-input-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .url-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1.4rem;
+    }
+    
+    .import-btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.4rem;
+      white-space: nowrap;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .import-btn:hover {
+      background: #059669;
+    }
+    
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .image-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .image-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .image-preview {
+      width: 100%;
+      height: 150px;
+      object-fit: contain;
+      background: #f8fafc;
+    }
+    
+    .image-info {
+      padding: 15px;
+    }
+    
+    .image-url {
+      font-size: 1.2rem;
+      color: #64748b;
+      word-break: break-all;
+      margin: 10px 0;
+      padding: 8px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      max-height: 60px;
+      overflow-y: auto;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .image-url:hover {
+      background: #e2e8f0;
+    }
+    
+    .image-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .copy-btn, .delete-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    
+    .copy-btn {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .copy-btn:hover {
+      background: #2563eb;
+    }
+    
+    .delete-btn {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .delete-btn:hover {
+      background: #dc2626;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      margin-top: 15px;
+      overflow: hidden;
+      display: none;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    
+    .status-message {
+      margin-top: 10px;
+      font-size: 1.4rem;
+      min-height: 24px;
+    }
+    
+    .success {
+      color: #10b981;
+    }
+    
+    .error {
+      color: #ef4444;
+    }
+    
+    .settings-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .api-key-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1.4rem;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    
+    .save-btn {
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 1.4rem;
+    }
+    
+    .save-btn:hover {
+      background: #7c3aed;
+    }
+
+    .migrate-btn {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .migrate-btn:hover {
+      background: #d97706;
+    }
+
+    .migrate-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }

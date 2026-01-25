@@ -1,0 +1,2871 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <link rel="stylesheet" href="./assets/css/admin.css">
+    <title>Thống kê & Báo cáo - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ========== STATS ROW ENHANCED ========== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .stat-box.revenue::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-box.orders::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .stat-box.customers::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .stat-box.products::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .stat-box.success::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-box.pending::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .stat-box.cancelled::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .stat-box.average::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 5px;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .stat-change.positive {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .stat-change.negative {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .stat-change.neutral {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .stat-change.hidden {
+            display: none;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .stat-icon {
+            font-size: 18px;
+        }
+        
+        .stat-detail {
+            font-size: 12px;
+            color: #9ca3af;
+            padding-top: 8px;
+            border-top: 1px solid #f3f4f6;
+            margin-top: 8px;
+        }
+        
+        /* ========== LAYOUT CONTROLS ========== */
+        .layout-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .layout-btn {
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .layout-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .layout-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        /* ========== CHARTS SECTION ENHANCED ========== */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .chart-header h3 {
+            font-size: 16px;
+            color: #111827;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .chart-header-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .chart-type-toggle {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 2px;
+        }
+        
+        .chart-type-btn {
+            padding: 4px 10px;
+            border: none;
+            background: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .chart-type-btn.active {
+            background: white;
+            color: #111827;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .chart-wrapper {
+            height: 280px;
+            position: relative;
+        }
+        
+        /* ========== TABLES SECTION ENHANCED ========== */
+        .tables-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .table-card h3 {
+            font-size: 16px;
+            color: #111827;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .view-all-link {
+            font-size: 13px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 400px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .compact-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 100%;
+            table-layout: fixed;
+        }
+        
+        .compact-table th {
+            background: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+            color: #374151;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .compact-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        
+        .compact-table tr:hover {
+            background: #f9fafb;
+        }
+        
+        .compact-table .product-items {
+            max-width: 200px;
+        }
+        
+        .compact-table .product-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .compact-table .product-item img {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        
+        .compact-table .product-item span {
+            font-size: 12px;
+            color: #374151;
+        }
+        
+        /* ========== FILTER BAR ENHANCED ========== */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .filter-group label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            min-width: 150px;
+            cursor: pointer;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .date-range-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 140px;
+        }
+        
+        .compare-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #374151;
+        }
+        
+        .compare-toggle.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        /* ========== ACTION BAR ========== */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .export-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .export-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        
+        .export-btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .export-btn.primary:hover {
+            background: #2563eb;
+        }
+        
+        /* ========== LOADING ENHANCED ========== */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ========== BADGES ENHANCED ========== */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .badge-success { background: #dcfce7; color: #15803d; }
+        .badge-warning { background: #fef3c7; color: #d97706; }
+        .badge-danger { background: #fee2e2; color: #dc2626; }
+        .badge-info { background: #dbeafe; color: #1d4ed8; }
+        .badge-primary { background: #e0e7ff; color: #4f46e5; }
+        .badge-secondary { background: #f3f4f6; color: #4b5563; }
+        
+        /* ========== TOOLTIPS ========== */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+        
+        /* ========== BRAND FILTER ========== */
+        .brand-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .brand-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 0 0 auto;
+        }
+        
+        .brand-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .brand-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .brand-btn.all {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+        
+        .brand-btn.all.active {
+            background: #7c3aed;
+        }
+        
+        /* ========== EMPTY STATE ========== */
+        .chart-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .chart-empty-state .material-symbols-outlined {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        /* ========== RESPONSIVE ENHANCED ========== */
+        @media (max-width: 1200px) {
+            .charts-section,
+            .tables-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-select {
+                width: 100%;
+            }
+            
+            .date-range-filter {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .date-input {
+                width: 100%;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .export-buttons {
+                justify-content: center;
+            }
+            
+            .layout-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .compact-table th,
+            .compact-table td {
+                max-width: 120px;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .chart-header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .chart-wrapper {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- MOBILE MENU TOGGLE -->
+    <button class="menu-toggle" id="menu-toggle">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>STORE PHONE</h2>
+                <p>Admin Dashboard</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    Sản phẩm
+                </a>
+                <a href="orders.html" class="menu-item">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    Đơn hàng
+                </a>
+                <a href="chats.html" class="menu-item">
+                    <span class="material-symbols-outlined">chat</span>
+                    Quản lý Chat
+                </a>
+                <a href="banners.html" class="menu-item">
+                    <span class="material-symbols-outlined">image</span>
+                    Banner
+                </a>
+                <a href="images.html" class="menu-item">
+                    <span class="material-symbols-outlined">photo_library</span>
+                    Quản lý ảnh
+                </a>
+                <a href="users.html" class="menu-item" id="users-menu-link">
+                    <span class="material-symbols-outlined">group</span>
+                    Người dùng
+                </a>
+                <a href="analytics.html" class="menu-item active">
+                    <span class="material-symbols-outlined">analytics</span>
+                    Thống kê
+                </a>
+                <a href="../index.html" class="menu-item">
+                    <span class="material-symbols-outlined">home</span>
+                    Về trang chủ
+                </a>
+                <a href="#" class="menu-item" id="logout-btn">
+                    <span class="material-symbols-outlined">logout</span>
+                    Đăng xuất
+                </a>
+            </nav>
+            
+            <div class="user-info">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="user-name" style="font-size: 1.4rem; font-weight: 500;"></span>
+                            <span id="user-role-badge" class="role-badge role-admin"></span>
+                        </div>
+                        <div id="user-email" style="font-size: 1.2rem; color: var(--gray-400);"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+            <!-- TOP BAR -->
+            <header class="admin-topbar">
+                <h1>Thống kê & Báo cáo chi tiết</h1>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="date-range-filter">
+                        <input type="date" id="start-date" class="date-input">
+                        <span>đến</span>
+                        <input type="date" id="end-date" class="date-input">
+                    </div>
+                    <select id="period-selector" class="filter-select">
+                        <option value="7">7 ngày qua</option>
+                        <option value="30" selected>30 ngày qua</option>
+                        <option value="90">90 ngày qua</option>
+                        <option value="365">1 năm qua</option>
+                        <option value="custom">Tùy chỉnh</option>
+                    </select>
+                    <button class="btn btn-primary" id="apply-filters-btn">
+                        <span class="material-symbols-outlined">filter_alt</span>
+                        Áp dụng
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <div class="admin-content">
+                <!-- ACTION BAR -->
+                <div class="action-bar">
+                    <div class="export-buttons">
+                        <button class="export-btn" id="export-pdf-btn">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">picture_as_pdf</span>
+                            Xuất PDF
+                        </button>
+                        <button class="export-btn" id="export-excel-btn">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">table_chart</span>
+                            Xuất Excel
+                        </button>
+                        <button class="export-btn primary" id="refresh-btn">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span>
+                            Làm mới
+                        </button>
+                    </div>
+                    <label class="compare-toggle" id="compare-toggle">
+                        <input type="checkbox" id="compare-checkbox" style="display: none;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">compare</span>
+                        So sánh với kỳ trước
+                    </label>
+                </div>
+
+                <!-- LOADING STATE -->
+                <div class="loading" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Đang tải dữ liệu thống kê...</p>
+                    <p style="color: #6b7280; font-size: 13px; margin-top: 10px;">Vui lòng đợi trong giây lát</p>
+                </div>
+
+                <!-- STATS CONTENT -->
+                <div id="stats-content" style="display: none;">
+                    <!-- LAYOUT CONTROLS -->
+                    <div class="layout-controls">
+                        <button class="layout-btn" id="layout-grid">
+                            <span class="material-symbols-outlined">grid_view</span>
+                            Grid
+                        </button>
+                        <button class="layout-btn" id="layout-list">
+                            <span class="material-symbols-outlined">view_list</span>
+                            List
+                        </button>
+                        <button class="layout-btn" id="layout-compact">
+                            <span class="material-symbols-outlined">view_compact</span>
+                            Compact
+                        </button>
+                        <button class="layout-btn" id="reset-layout">
+                            <span class="material-symbols-outlined">restart_alt</span>
+                            Reset Layout
+                        </button>
+                    </div>
+
+                    <!-- STATS ROW - ENHANCED -->
+                    <div class="stats-row" id="stats-container">
+                        <div class="stat-box revenue" data-id="revenue">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #10b981;">paid</span>
+                                Doanh thu
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-revenue">0 ₫</span>
+                                <span class="stat-change neutral" id="revenue-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-revenue-detail">
+                                <span class="tooltip" data-tooltip="Doanh thu từ các đơn thành công">
+                                    Từ <strong id="success-orders-count">0</strong> đơn thành công
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box orders" data-id="orders">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #3b82f6;">receipt_long</span>
+                                Tổng đơn hàng
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-orders">0</span>
+                                <span class="stat-change neutral" id="orders-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-orders-detail">
+                                <span class="tooltip" data-tooltip="Phân bổ theo trạng thái">
+                                    Thành công: <strong id="success-orders">0</strong> | Chờ: <strong id="pending-orders">0</strong>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box customers" data-id="customers">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #8b5cf6;">group</span>
+                                Khách hàng mới
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-users">0</span>
+                                <span class="stat-change neutral" id="users-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-users-detail">
+                                <span class="tooltip" data-tooltip="Tổng số khách hàng trong hệ thống">
+                                    Tổng: <strong id="total-users">0</strong> khách hàng
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box products" data-id="products">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #f59e0b;">inventory_2</span>
+                                Sản phẩm bán ra
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-products-sold">0</span>
+                                <span class="stat-change neutral" id="products-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-products-detail">
+                                <span class="tooltip" data-tooltip="Số lượng sản phẩm đã bán trong kỳ">
+                                    Từ <strong id="total-products">0</strong> sản phẩm
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box success" data-id="success">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #10b981;">check_circle</span>
+                                Tỷ lệ thành công
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-success-rate">0%</span>
+                                <span class="stat-change neutral" id="success-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-success-rate-detail">
+                                <span class="tooltip" data-tooltip="Tỷ lệ đơn hàng thành công/tổng đơn">
+                                    <strong id="success-orders-ratio">0</strong>/<strong id="total-orders-count">0</strong> đơn
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box pending" data-id="pending">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #f59e0b;">pending</span>
+                                Đang chờ xử lý
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-pending">0</span>
+                                <span class="stat-change neutral" id="pending-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-pending-detail">
+                                <span class="tooltip" data-tooltip="Các đơn hàng chưa được xử lý">
+                                    Chờ xác nhận: <strong id="pending-confirm">0</strong>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box cancelled" data-id="cancelled">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #ef4444;">cancel</span>
+                                Đã hủy
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-cancelled">0</span>
+                                <span class="stat-change neutral" id="cancelled-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-cancelled-detail">
+                                <span class="tooltip" data-tooltip="Đơn hàng bị hủy từ khách hàng">
+                                    Tỷ lệ hủy: <strong id="cancelled-rate">0%</strong>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box average" data-id="average">
+                            <div class="stat-label">
+                                <span class="material-symbols-outlined stat-icon" style="color: #8b5cf6;">avg_time</span>
+                                Trung bình/đơn
+                            </div>
+                            <div class="stat-value">
+                                <span id="stat-avg-order">0 ₫</span>
+                                <span class="stat-change neutral" id="avg-change">0%</span>
+                            </div>
+                            <div class="stat-detail" id="stat-avg-order-detail">
+                                <span class="tooltip" data-tooltip="Giá trị trung bình mỗi đơn hàng">
+                                    Cao nhất: <strong id="max-order">0 ₫</strong>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHARTS SECTION - ENHANCED -->
+                    <div class="charts-section">
+                        <!-- Revenue Chart -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Doanh thu theo thời gian</h3>
+                                <div class="chart-header-controls">
+                                    <div class="chart-type-toggle">
+                                        <button class="chart-type-btn active" data-chart="revenue-line" onclick="changeChartType('revenue', 'line')">Đường</button>
+                                        <button class="chart-type-btn" data-chart="revenue-bar" onclick="changeChartType('revenue', 'bar')">Cột</button>
+                                    </div>
+                                    <span style="font-size: 13px; color: #6b7280;" id="revenue-trend">
+                                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">trending_up</span>
+                                        Đang tải...
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="revenue-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Orders Distribution Chart -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Phân bổ đơn hàng</h3>
+                                <div class="chart-header-controls">
+                                    <div class="chart-type-toggle">
+                                        <button class="chart-type-btn active" data-chart="orders-doughnut" onclick="changeChartType('orders', 'doughnut')">Tròn</button>
+                                        <button class="chart-type-btn" data-chart="orders-bar" onclick="changeChartType('orders', 'bar')">Cột</button>
+                                        <button class="chart-type-btn" data-chart="orders-pie" onclick="changeChartType('orders', 'pie')">Bánh</button>
+                                    </div>
+                                    <span style="font-size: 13px; color: #6b7280;">
+                                        Tổng: <strong id="total-orders-chart">0</strong> đơn
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="orders-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Brand Revenue Chart (ĐIỆN THOẠI) -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Doanh thu theo thương hiệu (Điện thoại)</h3>
+                                <div class="chart-header-controls">
+                                    <div class="chart-type-toggle">
+                                        <button class="chart-type-btn active" data-chart="brand-bar" onclick="changeChartType('brand', 'bar')">Cột</button>
+                                        <button class="chart-type-btn" data-chart="brand-pie" onclick="changeChartType('brand', 'pie')">Bánh</button>
+                                    </div>
+                                    <span style="font-size: 13px; color: #6b7280;" id="top-brand">
+                                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">emoji_events</span>
+                                        Đang tải...
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="brand-filter" class="brand-filter-container">
+                                <!-- Brand buttons will be inserted here -->
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="brand-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Products Chart -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Top 10 sản phẩm bán chạy</h3>
+                                <div class="chart-header-controls">
+                                    <div class="chart-type-toggle">
+                                        <button class="chart-type-btn active" data-chart="products-bar" onclick="changeChartType('products', 'bar')">Cột</button>
+                                        <button class="chart-type-btn" data-chart="products-line" onclick="changeChartType('products', 'line')">Đường</button>
+                                    </div>
+                                    <span style="font-size: 13px; color: #6b7280;" id="top-product">
+                                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">star</span>
+                                        Đang tải...
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="products-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABLES SECTION - ENHANCED -->
+                    <div class="tables-section">
+                        <!-- Recent Orders with Details -->
+                        <div class="table-card">
+                            <h3>
+                                Đơn hàng gần đây
+                                <a href="orders.html" class="view-all-link">Xem tất cả →</a>
+                            </h3>
+                            <div class="table-wrapper">
+                                <table class="compact-table" id="recent-orders-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã đơn</th>
+                                            <th>Khách hàng</th>
+                                            <th>Sản phẩm</th>
+                                            <th>Ngày đặt</th>
+                                            <th>Thanh toán</th>
+                                            <th>Tổng tiền</th>
+                                            <th>Trạng thái</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Products with Details -->
+                        <div class="table-card">
+                            <h3>
+                                Sản phẩm bán chạy
+                                <a href="index.html" class="view-all-link">Xem tất cả →</a>
+                            </h3>
+                            <div class="table-wrapper">
+                                <table class="compact-table" id="top-products-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>Danh mục</th>
+                                            <th>Đã bán</th>
+                                            <th>Tồn kho</th>
+                                            <th>Doanh thu</th>
+                                            <th>Tỷ lệ bán</th>
+                                            <th>Đánh giá</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADDITIONAL TABLES -->
+                    <div class="tables-section">
+                        <!-- New Customers -->
+                        <div class="table-card">
+                            <h3>
+                                Khách hàng mới
+                                <a href="users.html" class="view-all-link">Xem tất cả →</a>
+                            </h3>
+                            <div class="table-wrapper">
+                                <table class="compact-table" id="new-customers-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên</th>
+                                            <th>Email</th>
+                                            <th>Số điện thoại</th>
+                                            <th>Ngày đăng ký</th>
+                                            <th>Số đơn</th>
+                                            <th>Tổng chi tiêu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Low Stock Products -->
+                        <div class="table-card">
+                            <h3>
+                                Sản phẩm sắp hết hàng
+                                <a href="index.html" class="view-all-link">Xem tất cả →</a>
+                            </h3>
+                            <div class="table-wrapper">
+                                <table class="compact-table" id="low-stock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>Danh mục</th>
+                                            <th>Tồn kho</th>
+                                            <th>Mức cảnh báo</th>
+                                            <th>Giá</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // ========== FIREBASE CONFIG ==========
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            query,
+            where,
+            orderBy,
+            Timestamp,
+            doc,
+            getDoc,
+            limit
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+            authDomain: "products-a39df.firebaseapp.com",
+            projectId: "products-a39df",
+            storageBucket: "products-a39df.firebasestorage.app",
+            messagingSenderId: "708345988066",
+            appId: "1:708345988066:web:b8011a4859285450162fbb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ========== GLOBAL VARIABLES ==========
+        let charts = {};
+        let days = 30;
+        let currentUserRole = '';
+        let ordersData = null;
+        let productsData = null;
+        let usersData = null;
+        let previousPeriodData = null;
+        let compareMode = false;
+        let startDate = new Date();
+        let endDate = new Date();
+        let currentLayout = 'grid';
+        let selectedBrand = 'all';
+
+        // Chart types
+        let chartTypes = {
+            revenue: 'line',
+            orders: 'doughnut',
+            brand: 'bar',
+            products: 'bar'
+        };
+
+        // Initialize dates
+        startDate.setDate(startDate.getDate() - days);
+        document.getElementById('start-date').valueAsDate = startDate;
+        document.getElementById('end-date').valueAsDate = endDate;
+
+        // ========== HÀM CHUẨN HÓA CATEGORY ==========
+        function normalizeCategory(category) {
+            if (!category) return 'uncategorized';
+            
+            const categoryStr = category.toString().toLowerCase().trim();
+            
+            const categoryMap = {
+                'điện thoại': 'dien-thoai',
+                'dienthoai': 'dien-thoai',
+                'dien thoai': 'dien-thoai',
+                'phone': 'dien-thoai',
+                'smartphone': 'dien-thoai',
+                'laptop': 'laptop',
+                'máy tính': 'laptop',
+                'may tinh': 'laptop',
+                'tablet': 'tablet',
+                'máy tính bảng': 'tablet',
+                'may tinh bang': 'tablet',
+                'smartwatch': 'smartwatch',
+                'đồng hồ thông minh': 'smartwatch',
+                'dong ho thong minh': 'smartwatch',
+                'watch': 'smartwatch',
+                'phụ kiện': 'phu-kien',
+                'phu kien': 'phu-kien',
+                'accessory': 'phu-kien',
+                'accessories': 'phu-kien'
+            };
+            
+            if (categoryMap[categoryStr]) {
+                return categoryMap[categoryStr];
+            }
+            
+            return categoryStr
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+        }
+
+        // ========== AUTH CHECK VÀ PHÂN QUYỀN ==========
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../a1b2c3-secret.html';
+                return;
+            }
+            
+            try {
+                const adminsRef = collection(db, "admins");
+                const q = query(adminsRef, where("email", "==", user.email));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                    await signOut(auth);
+                    alert("❌ Bạn không có quyền truy cập Admin Panel!");
+                    window.location.href = '../a1b2c3-secret.html';
+                    return;
+                }
+                
+                const userData = snapshot.docs[0].data();
+                currentUserRole = userData.role || 'admin';
+                
+                document.getElementById('user-name').textContent = userData.name || user.displayName || user.email.split('@')[0];
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('user-avatar').textContent = 
+                    (userData.name?.charAt(0) || user.email.charAt(0)).toUpperCase();
+                
+                const roleBadge = document.getElementById('user-role-badge');
+                if (currentUserRole === 'super_admin') {
+                    roleBadge.textContent = 'Super Admin';
+                    roleBadge.className = 'role-badge role-super_admin';
+                } else if (currentUserRole === 'admin') {
+                    roleBadge.textContent = 'Admin';
+                    roleBadge.className = 'role-badge role-admin';
+                } else if (currentUserRole === 'staff') {
+                    roleBadge.textContent = 'Nhân viên';
+                    roleBadge.className = 'role-badge role-staff';
+                }
+                
+                loadSavedLayout();
+                await loadStatistics();
+                
+            } catch (error) {
+                console.error("Auth check error:", error);
+                window.location.href = '../a1b2c3-secret.html';
+            }
+        });
+
+        // ========== LAYOUT MANAGEMENT ==========
+        function loadSavedLayout() {
+            const savedLayout = localStorage.getItem('analytics_layout');
+            if (savedLayout) {
+                currentLayout = savedLayout;
+                updateLayout(savedLayout);
+            }
+        }
+
+        function updateLayout(layout) {
+            currentLayout = layout;
+            const container = document.getElementById('stats-container');
+            
+            document.querySelectorAll('.layout-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`layout-${layout}`).classList.add('active');
+            
+            switch(layout) {
+                case 'grid':
+                    container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+                    container.style.gap = '15px';
+                    break;
+                case 'list':
+                    container.style.gridTemplateColumns = '1fr';
+                    container.style.gap = '10px';
+                    break;
+                case 'compact':
+                    container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
+                    container.style.gap = '10px';
+                    break;
+            }
+            
+            localStorage.setItem('analytics_layout', currentLayout);
+        }
+
+        // ========== LOAD STATISTICS ==========
+        async function loadStatistics() {
+            try {
+                showLoading(true);
+                
+                if (days === 'custom') {
+                    const startInput = document.getElementById('start-date').value;
+                    const endInput = document.getElementById('end-date').value;
+                    
+                    if (startInput && endInput) {
+                        startDate = new Date(startInput);
+                        endDate = new Date(endInput);
+                    }
+                } else {
+                    endDate = new Date();
+                    startDate = new Date();
+                    startDate.setDate(startDate.getDate() - parseInt(days));
+                }
+                
+                endDate.setHours(23, 59, 59, 999);
+                
+                console.log('Loading statistics...');
+                
+                [productsData, usersData] = await Promise.all([
+                    getProductsData(),
+                    getUsersData(startDate, endDate)
+                ]);
+                
+                ordersData = await getOrdersData(startDate, endDate, productsData);
+                
+                console.log('Orders data loaded:', ordersData);
+                console.log('Brand revenue:', ordersData.brandRevenue);
+                
+                if (compareMode) {
+                    const prevStartDate = new Date(startDate);
+                    const prevEndDate = new Date(endDate);
+                    const periodDiff = endDate.getTime() - startDate.getTime();
+                    
+                    prevStartDate.setTime(prevStartDate.getTime() - periodDiff);
+                    prevEndDate.setTime(prevEndDate.getTime() - periodDiff);
+                    
+                    previousPeriodData = await getOrdersData(prevStartDate, prevEndDate, productsData);
+                }
+                
+                updateStats();
+                renderCharts();
+                renderTables();
+                
+                document.getElementById('stats-content').style.display = 'block';
+                
+            } catch (error) {
+                console.error("Error loading statistics:", error);
+                showError("Lỗi tải thống kê: " + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ========== DATA COLLECTION ==========
+        async function getOrdersData(startDate, endDate, productsDataForBrand = null) {
+            try {
+                const ordersRef = collection(db, "orders");
+                const snapshot = await getDocs(ordersRef);
+                
+                const allOrders = [];
+                let totalRevenue = 0;
+                let totalOrders = 0;
+                let successOrders = 0;
+                let pendingOrders = 0;
+                let cancelledOrders = 0;
+                let maxOrderValue = 0;
+                let totalProductsSold = 0;
+                
+                const dailyRevenue = {};
+                const statusCount = {
+                    pending: 0,
+                    confirmed: 0,
+                    shipping: 0,
+                    delivering: 0,
+                    success: 0,
+                    cancelled: 0
+                };
+                
+                const brandRevenue = {};
+                const paymentMethods = {};
+                
+                const currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    const dateKey = currentDate.toISOString().split('T')[0];
+                    dailyRevenue[dateKey] = 0;
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                
+                let productsMap = {};
+                if (productsDataForBrand && productsDataForBrand.allProducts) {
+                    productsDataForBrand.allProducts.forEach(product => {
+                        productsMap[product.id] = {
+                            category: product.category || 'uncategorized',
+                            brand: product.brand || 'Không có thương hiệu',
+                            name: product.name
+                        };
+                    });
+                }
+                
+                snapshot.forEach(doc => {
+                    try {
+                        const data = doc.data();
+                        let orderDate;
+                        
+                        if (data.createdAt) {
+                            if (typeof data.createdAt.toDate === 'function') {
+                                orderDate = data.createdAt.toDate();
+                            } else if (data.createdAt.seconds) {
+                                orderDate = new Date(data.createdAt.seconds * 1000);
+                            } else if (typeof data.createdAt === 'string') {
+                                orderDate = new Date(data.createdAt);
+                            } else {
+                                orderDate = new Date();
+                            }
+                        } else {
+                            orderDate = new Date();
+                        }
+                        
+                        if (orderDate >= startDate && orderDate <= endDate) {
+                            const order = {
+                                id: doc.id,
+                                shortId: doc.id.substring(0, 8).toUpperCase(),
+                                ...data,
+                                createdAt: orderDate,
+                                total: Number(data.total) || 0,
+                                status: data.status || 'pending',
+                                paymentMethod: data.paymentMethod || 'cod',
+                                customerName: data.userName || data.customerName || data.email?.split('@')[0] || 'Khách hàng',
+                                customerEmail: data.userEmail || data.email || '',
+                                phone: data.userPhone || data.phone || '',
+                                address: data.userAddress || data.address || '',
+                                items: data.items || [],
+                                itemCount: data.items?.length || 0
+                            };
+                            
+                            allOrders.push(order);
+                            totalOrders++;
+                            
+                            const status = order.status;
+                            statusCount[status] = (statusCount[status] || 0) + 1;
+                            
+                            if (status === 'pending') pendingOrders++;
+                            if (status === 'cancelled') cancelledOrders++;
+                            
+                            const paymentMethod = order.paymentMethod;
+                            paymentMethods[paymentMethod] = (paymentMethods[paymentMethod] || 0) + 1;
+                            
+                            if (status === 'success') {
+                                successOrders++;
+                                totalRevenue += order.total;
+                                maxOrderValue = Math.max(maxOrderValue, order.total);
+                                
+                                if (order.items && Array.isArray(order.items)) {
+                                    order.items.forEach(item => {
+                                        const quantity = Number(item.quantity) || 1;
+                                        const price = Number(item.price) || 0;
+                                        totalProductsSold += quantity;
+                                        
+                                        let itemCategory = item.category;
+                                        if (!itemCategory && item.productId && productsMap[item.productId]) {
+                                            itemCategory = productsMap[item.productId].category;
+                                        }
+                                        
+                                        itemCategory = normalizeCategory(itemCategory);
+                                        
+                                        let itemBrand = item.brand;
+                                        if (!itemBrand && item.productId && productsMap[item.productId]) {
+                                            itemBrand = productsMap[item.productId].brand;
+                                        }
+                                        if (!itemBrand) {
+                                            itemBrand = 'Không có thương hiệu';
+                                        }
+                                        
+                                        const revenue = price * quantity;
+                                        
+                                        if (itemCategory === 'dien-thoai') {
+                                            brandRevenue[itemBrand] = (brandRevenue[itemBrand] || 0) + revenue;
+                                        }
+                                    });
+                                }
+                                
+                                const dayKey = orderDate.toISOString().split('T')[0];
+                                if (dailyRevenue[dayKey] !== undefined) {
+                                    dailyRevenue[dayKey] += order.total;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error processing order:", error);
+                    }
+                });
+                
+                allOrders.sort((a, b) => b.createdAt - a.createdAt);
+                
+                return {
+                    allOrders,
+                    recentOrders: allOrders.slice(0, 15),
+                    totalRevenue,
+                    totalOrders,
+                    successOrders,
+                    pendingOrders,
+                    cancelledOrders,
+                    maxOrderValue,
+                    totalProductsSold,
+                    dailyRevenue,
+                    statusCount,
+                    brandRevenue,
+                    paymentMethods,
+                    averageOrder: totalOrders > 0 ? totalRevenue / totalOrders : 0,
+                    successRate: totalOrders > 0 ? (successOrders / totalOrders * 100) : 0,
+                    cancellationRate: totalOrders > 0 ? (cancelledOrders / totalOrders * 100) : 0
+                };
+                
+            } catch (error) {
+                console.error("Error getting orders:", error);
+                return {
+                    allOrders: [],
+                    recentOrders: [],
+                    totalRevenue: 0,
+                    totalOrders: 0,
+                    successOrders: 0,
+                    pendingOrders: 0,
+                    cancelledOrders: 0,
+                    maxOrderValue: 0,
+                    totalProductsSold: 0,
+                    dailyRevenue: {},
+                    statusCount: {},
+                    brandRevenue: {},
+                    paymentMethods: {},
+                    averageOrder: 0,
+                    successRate: 0,
+                    cancellationRate: 0
+                };
+            }
+        }
+
+        async function getProductsData() {
+            try {
+                const productsRef = collection(db, "products");
+                const snapshot = await getDocs(productsRef);
+                
+                const allProducts = [];
+                const topProducts = [];
+                const lowStockProducts = [];
+                let totalStockValue = 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const product = {
+                        id: doc.id,
+                        name: data.name || 'Không có tên',
+                        category: normalizeCategory(data.category) || 'uncategorized',
+                        brand: data.brand || 'Không có thương hiệu',
+                        sold: Number(data.sold) || 0,
+                        stock: Number(data.stock) || 0,
+                        price: Number(data.price) || 0,
+                        image: data.image || data.gallery?.[0] || '',
+                        rating: Number(data.rating) || 0,
+                        revenue: (Number(data.sold) || 0) * (Number(data.price) || 0),
+                        stockValue: (Number(data.stock) || 0) * (Number(data.price) || 0)
+                    };
+                    
+                    allProducts.push(product);
+                    totalStockValue += product.stockValue;
+                    
+                    if (product.sold > 0) {
+                        topProducts.push(product);
+                    }
+                    
+                    if (product.stock <= 10 && product.stock > 0) {
+                        lowStockProducts.push(product);
+                    }
+                });
+                
+                topProducts.sort((a, b) => b.sold - a.sold);
+                lowStockProducts.sort((a, b) => a.stock - b.stock);
+                
+                return {
+                    allProducts,
+                    topProducts: topProducts.slice(0, 15),
+                    lowStockProducts: lowStockProducts.slice(0, 10),
+                    totalProducts: allProducts.length,
+                    totalStockValue
+                };
+                
+            } catch (error) {
+                console.error("Error getting products:", error);
+                return {
+                    allProducts: [],
+                    topProducts: [],
+                    lowStockProducts: [],
+                    totalProducts: 0,
+                    totalStockValue: 0
+                };
+            }
+        }
+
+        async function getUsersData(startDate, endDate) {
+            try {
+                const usersRef = collection(db, "users");
+                const snapshot = await getDocs(usersRef);
+                
+                let newUsers = 0;
+                let totalUsers = snapshot.size;
+                const newCustomersList = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    let userDate;
+                    
+                    if (data.createdAt) {
+                        if (typeof data.createdAt.toDate === 'function') {
+                            userDate = data.createdAt.toDate();
+                        } else if (data.createdAt.seconds) {
+                            userDate = new Date(data.createdAt.seconds * 1000);
+                        } else if (typeof data.createdAt === 'string') {
+                            userDate = new Date(data.createdAt);
+                        } else {
+                            userDate = new Date();
+                        }
+                    } else {
+                        userDate = new Date();
+                    }
+                    
+                    if (userDate >= startDate && userDate <= endDate) {
+                        newUsers++;
+                    }
+                    
+                    newCustomersList.push({
+                        id: doc.id,
+                        name: data.name || data.email?.split('@')[0] || 'User',
+                        email: data.email || '',
+                        phone: data.phone || '',
+                        createdAt: userDate,
+                        totalOrders: Number(data.totalOrders) || 0,
+                        totalSpent: Number(data.totalSpent) || 0
+                    });
+                });
+                
+                newCustomersList.sort((a, b) => b.totalSpent - a.totalSpent);
+                
+                return {
+                    newUsers,
+                    totalUsers,
+                    newCustomers: newCustomersList.slice(0, 10)
+                };
+                
+            } catch (error) {
+                console.error("Error getting users:", error);
+                return {
+                    newUsers: 0,
+                    totalUsers: 0,
+                    newCustomers: []
+                };
+            }
+        }
+
+        // ========== UPDATE STATS ==========
+        function updateStats() {
+            if (!ordersData || !productsData || !usersData) return;
+            
+            const formatPrice = (price) => {
+                if (!price) return '0 ₫';
+                if (price >= 1000000000) {
+                    return (price / 1000000000).toFixed(1) + ' tỷ ₫';
+                } else if (price >= 1000000) {
+                    return (price / 1000000).toFixed(1) + ' triệu ₫';
+                } else if (price >= 1000) {
+                    return (price / 1000).toFixed(0) + ' nghìn ₫';
+                }
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(price);
+            };
+            
+            document.getElementById('stat-revenue').textContent = formatPrice(ordersData.totalRevenue);
+            document.getElementById('success-orders-count').textContent = ordersData.successOrders;
+            
+            document.getElementById('stat-orders').textContent = ordersData.totalOrders;
+            document.getElementById('success-orders').textContent = ordersData.successOrders;
+            document.getElementById('pending-orders').textContent = ordersData.pendingOrders;
+            document.getElementById('total-orders-count').textContent = ordersData.totalOrders;
+            
+            document.getElementById('stat-users').textContent = usersData.newUsers;
+            document.getElementById('total-users').textContent = usersData.totalUsers;
+            
+            document.getElementById('stat-products-sold').textContent = ordersData.totalProductsSold;
+            document.getElementById('total-products').textContent = productsData.totalProducts;
+            
+            const successRate = ordersData.successRate.toFixed(1);
+            document.getElementById('stat-success-rate').textContent = successRate + '%';
+            document.getElementById('success-orders-ratio').textContent = ordersData.successOrders;
+            
+            document.getElementById('stat-pending').textContent = ordersData.pendingOrders;
+            document.getElementById('pending-confirm').textContent = ordersData.statusCount.pending || 0;
+            
+            document.getElementById('stat-cancelled').textContent = ordersData.cancelledOrders;
+            const cancelledRate = ordersData.cancellationRate.toFixed(1);
+            document.getElementById('cancelled-rate').textContent = cancelledRate + '%';
+            
+            const avgOrder = ordersData.averageOrder;
+            document.getElementById('stat-avg-order').textContent = formatPrice(avgOrder);
+            document.getElementById('max-order').textContent = formatPrice(ordersData.maxOrderValue);
+            
+            if (compareMode && previousPeriodData) {
+                updateChangeIndicators();
+            } else {
+                const changeIds = ['revenue-change', 'orders-change', 'users-change', 'products-change', 
+                                  'success-change', 'pending-change', 'cancelled-change', 'avg-change'];
+                changeIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.textContent = compareMode ? '0%' : '';
+                        el.className = compareMode ? 'stat-change neutral' : 'stat-change hidden';
+                    }
+                });
+            }
+        }
+
+        function updateChangeIndicators() {
+            if (!previousPeriodData) return;
+            
+            const calculateChange = (current, previous) => {
+                if (previous === 0 && current === 0) {
+                    return { value: 0, direction: 'neutral' };
+                }
+                if (previous === 0) {
+                    return { value: 100, direction: 'positive' };
+                }
+                const change = ((current - previous) / previous) * 100;
+                
+                if (Math.abs(change) < 0.1) {
+                    return { value: 0, direction: 'neutral' };
+                }
+                
+                return {
+                    value: Math.abs(change).toFixed(1),
+                    direction: change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral'
+                };
+            };
+            
+            const revenueChange = calculateChange(ordersData.totalRevenue, previousPeriodData.totalRevenue);
+            if (revenueChange.value === 0) {
+                document.getElementById('revenue-change').textContent = '0%';
+                document.getElementById('revenue-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.totalRevenue >= previousPeriodData.totalRevenue ? '+' : '-';
+                document.getElementById('revenue-change').textContent = `${sign}${revenueChange.value}%`;
+                document.getElementById('revenue-change').className = `stat-change ${revenueChange.direction}`;
+            }
+            
+            const ordersChange = calculateChange(ordersData.totalOrders, previousPeriodData.totalOrders);
+            if (ordersChange.value === 0) {
+                document.getElementById('orders-change').textContent = '0%';
+                document.getElementById('orders-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.totalOrders >= previousPeriodData.totalOrders ? '+' : '-';
+                document.getElementById('orders-change').textContent = `${sign}${ordersChange.value}%`;
+                document.getElementById('orders-change').className = `stat-change ${ordersChange.direction}`;
+            }
+            
+            document.getElementById('users-change').textContent = '0%';
+            document.getElementById('users-change').className = 'stat-change neutral';
+            
+            const productsChange = calculateChange(ordersData.totalProductsSold, previousPeriodData.totalProductsSold);
+            if (productsChange.value === 0) {
+                document.getElementById('products-change').textContent = '0%';
+                document.getElementById('products-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.totalProductsSold >= previousPeriodData.totalProductsSold ? '+' : '-';
+                document.getElementById('products-change').textContent = `${sign}${productsChange.value}%`;
+                document.getElementById('products-change').className = `stat-change ${productsChange.direction}`;
+            }
+            
+            const successChange = calculateChange(ordersData.successRate, previousPeriodData.successRate);
+            if (successChange.value === 0) {
+                document.getElementById('success-change').textContent = '0%';
+                document.getElementById('success-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.successRate >= previousPeriodData.successRate ? '+' : '-';
+                document.getElementById('success-change').textContent = `${sign}${successChange.value}%`;
+                document.getElementById('success-change').className = `stat-change ${successChange.direction}`;
+            }
+            
+            const pendingChange = calculateChange(ordersData.pendingOrders, previousPeriodData.pendingOrders);
+            if (pendingChange.value === 0) {
+                document.getElementById('pending-change').textContent = '0%';
+                document.getElementById('pending-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.pendingOrders >= previousPeriodData.pendingOrders ? '+' : '-';
+                document.getElementById('pending-change').textContent = `${sign}${pendingChange.value}%`;
+                document.getElementById('pending-change').className = `stat-change ${pendingChange.direction}`;
+            }
+            
+            const cancelledChange = calculateChange(ordersData.cancelledOrders, previousPeriodData.cancelledOrders);
+            if (cancelledChange.value === 0) {
+                document.getElementById('cancelled-change').textContent = '0%';
+                document.getElementById('cancelled-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.cancelledOrders >= previousPeriodData.cancelledOrders ? '+' : '-';
+                document.getElementById('cancelled-change').textContent = `${sign}${cancelledChange.value}%`;
+                document.getElementById('cancelled-change').className = `stat-change ${cancelledChange.direction}`;
+            }
+            
+            const avgChange = calculateChange(ordersData.averageOrder, previousPeriodData.averageOrder);
+            if (avgChange.value === 0) {
+                document.getElementById('avg-change').textContent = '0%';
+                document.getElementById('avg-change').className = 'stat-change neutral';
+            } else {
+                const sign = ordersData.averageOrder >= previousPeriodData.averageOrder ? '+' : '-';
+                document.getElementById('avg-change').textContent = `${sign}${avgChange.value}%`;
+                document.getElementById('avg-change').className = `stat-change ${avgChange.direction}`;
+            }
+        }
+
+        // ========== RENDER CHARTS ==========
+        function renderCharts() {
+            if (!ordersData || !productsData) return;
+            
+            Object.values(charts).forEach(chart => {
+                if (chart && chart.destroy) chart.destroy();
+            });
+            charts = {};
+            
+            renderRevenueChart();
+            renderOrdersChart();
+            renderBrandChart();
+            renderProductsChart();
+        }
+
+        function renderRevenueChart() {
+            const ctx = document.getElementById('revenue-chart').getContext('2d');
+            
+            const dates = Object.keys(ordersData.dailyRevenue).sort();
+            const revenueData = dates.map(date => ordersData.dailyRevenue[date]);
+            
+            const formattedDates = dates.map(date => {
+                const d = new Date(date);
+                return `${d.getDate()}/${d.getMonth() + 1}`;
+            });
+            
+            let trendText = "Ổn định";
+            let trendIcon = "trending_up";
+            if (revenueData.length >= 2) {
+                let sum = 0;
+                for (let i = 1; i < revenueData.length; i++) {
+                    sum += revenueData[i] - revenueData[i-1];
+                }
+                const avgChange = sum / (revenueData.length - 1);
+                
+                if (avgChange > 0) {
+                    trendText = `Tăng trung bình ${formatPriceShort(avgChange)}/ngày`;
+                    trendIcon = "trending_up";
+                } else if (avgChange < 0) {
+                    trendText = `Giảm trung bình ${formatPriceShort(Math.abs(avgChange))}/ngày`;
+                    trendIcon = "trending_down";
+                } else {
+                    trendText = `Ổn định`;
+                    trendIcon = "trending_flat";
+                }
+            }
+            
+            document.getElementById('revenue-trend').innerHTML = `
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">${trendIcon}</span>
+                ${trendText}
+            `;
+            
+            const chartType = chartTypes.revenue;
+            
+            charts.revenue = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: formattedDates,
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: revenueData,
+                        borderColor: '#10b981',
+                        backgroundColor: chartType === 'line' ? 'rgba(16, 185, 129, 0.1)' : '#10b981',
+                        borderWidth: 3,
+                        fill: chartType === 'line',
+                        tension: 0.4,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const date = dates[index];
+                            const revenue = revenueData[index];
+                            alert(`Doanh thu ngày ${date}: ${formatPrice(revenue)}`);
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `Doanh thu: ${formatPrice(context.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                callback: (value) => formatPriceShort(value)
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderOrdersChart() {
+            const ctx = document.getElementById('orders-chart').getContext('2d');
+            const statusLabels = ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao', 'Thành công', 'Đã hủy'];
+            const statusColors = ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#ef4444'];
+            
+            const statusData = [
+                ordersData.statusCount.pending || 0,
+                ordersData.statusCount.confirmed || 0,
+                (ordersData.statusCount.shipping || 0) + (ordersData.statusCount.delivering || 0),
+                ordersData.statusCount.success || 0,
+                ordersData.statusCount.cancelled || 0
+            ];
+            
+            document.getElementById('total-orders-chart').textContent = ordersData.totalOrders;
+            
+            const chartType = chartTypes.orders;
+            
+            charts.orders = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusData,
+                        backgroundColor: statusColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: chartType === 'doughnut' ? '70%' : undefined,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const status = statusLabels[index];
+                            const count = statusData[index];
+                            alert(`${status}: ${count} đơn hàng`);
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const total = statusData.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${context.raw} đơn (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBrandChart() {
+            const ctx = document.getElementById('brand-chart').getContext('2d');
+            
+            if (charts.brand) {
+                charts.brand.destroy();
+            }
+            
+            const brandRevenue = ordersData.brandRevenue || {};
+            
+            const allBrands = Object.keys(brandRevenue).filter(brand => brandRevenue[brand] > 0);
+            
+            const brandFilter = document.getElementById('brand-filter');
+            brandFilter.innerHTML = '';
+            
+            const allBtn = document.createElement('button');
+            allBtn.className = `brand-btn all ${selectedBrand === 'all' ? 'active' : ''}`;
+            allBtn.textContent = 'Tất cả';
+            allBtn.onclick = () => {
+                selectedBrand = 'all';
+                renderBrandChart();
+            };
+            brandFilter.appendChild(allBtn);
+            
+            allBrands.forEach(brand => {
+                const btn = document.createElement('button');
+                btn.className = `brand-btn ${selectedBrand === brand ? 'active' : ''}`;
+                btn.textContent = getBrandName(brand);
+                btn.onclick = () => {
+                    selectedBrand = brand;
+                    renderBrandChart();
+                };
+                brandFilter.appendChild(btn);
+            });
+            
+            let displayBrands = allBrands;
+            let displayRevenue = allBrands.map(brand => brandRevenue[brand]);
+            
+            if (selectedBrand !== 'all') {
+                displayBrands = [selectedBrand];
+                displayRevenue = [brandRevenue[selectedBrand] || 0];
+            }
+            
+            const combined = displayBrands.map((brand, index) => ({
+                brand: brand,
+                revenue: displayRevenue[index]
+            })).filter(item => item.revenue > 0)
+              .sort((a, b) => b.revenue - a.revenue);
+            
+            if (combined.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Không có dữ liệu doanh thu theo thương hiệu', 
+                            ctx.canvas.width / 2, 
+                            ctx.canvas.height / 2 - 20);
+                
+                ctx.font = '12px Arial';
+                ctx.fillText('Chưa có đơn hàng điện thoại thành công trong khoảng thời gian này', 
+                            ctx.canvas.width / 2, 
+                            ctx.canvas.height / 2 + 10);
+                
+                document.getElementById('top-brand').innerHTML = `
+                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">info</span>
+                    Chưa có dữ liệu
+                `;
+                return;
+            }
+            
+            displayBrands = combined.map(item => item.brand);
+            displayRevenue = combined.map(item => item.revenue);
+            
+            const topIndex = displayRevenue.indexOf(Math.max(...displayRevenue));
+            const topBrand = displayBrands[topIndex];
+            const topRevenue = formatPrice(displayRevenue[topIndex]);
+            
+            document.getElementById('top-brand').innerHTML = `
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">emoji_events</span>
+                ${getBrandName(topBrand)}: ${topRevenue}
+            `;
+            
+            const chartType = chartTypes.brand;
+            const brandColors = [
+                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                '#8b5cf6', '#ec4899', '#14b8a6', '#f97316',
+                '#06b6d4', '#84cc16', '#eab308', '#a855f7'
+            ];
+            
+            charts.brand = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: displayBrands.map(brand => getBrandName(brand)),
+                    datasets: [{
+                        label: 'Doanh thu (Điện thoại)',
+                        data: displayRevenue,
+                        backgroundColor: displayBrands.map((_, i) => 
+                            brandColors[i % brandColors.length]
+                        ),
+                        borderColor: displayBrands.map((_, i) => 
+                            brandColors[i % brandColors.length].replace('0.8', '1')
+                        ),
+                        borderWidth: 1,
+                        borderRadius: chartType === 'bar' ? 4 : 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const brand = displayBrands[index];
+                            const revenue = displayRevenue[index];
+                            alert(`${getBrandName(brand)}: ${formatPrice(revenue)}`);
+                        }
+                    },
+                    plugins: {
+                        legend: chartType === 'pie' || chartType === 'doughnut' ? {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 },
+                                usePointStyle: true
+                            }
+                        } : { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const total = displayRevenue.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? 
+                                        ((context.raw / total) * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${formatPrice(context.raw)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: chartType === 'bar' ? {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: {
+                                callback: (value) => formatPriceShort(value)
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    } : undefined
+                }
+            });
+        }
+
+        function renderProductsChart() {
+            const ctx = document.getElementById('products-chart').getContext('2d');
+            const topProducts = productsData.topProducts.slice(0, 10);
+            
+            if (topProducts.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Không có dữ liệu sản phẩm bán chạy', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+            
+            const topProduct = topProducts[0];
+            document.getElementById('top-product').innerHTML = `
+                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 16px;">star</span>
+                ${truncateText(topProduct.name, 20)}: ${topProduct.sold} sản phẩm
+            `;
+            
+            const chartType = chartTypes.products;
+            
+            charts.products = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: topProducts.map(p => truncateText(p.name, 15)),
+                    datasets: [{
+                        label: 'Số lượng bán',
+                        data: topProducts.map(p => p.sold),
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#2563eb',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        fill: chartType === 'line'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const product = topProducts[index];
+                            alert(`${product.name}: Đã bán ${product.sold} sản phẩm`);
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `Đã bán: ${context.raw} sản phẩm`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Số lượng bán'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========== RENDER TABLES ==========
+        function renderTables() {
+            if (!ordersData || !productsData || !usersData) return;
+            
+            renderRecentOrdersTable();
+            renderTopProductsTable();
+            renderNewCustomersTable();
+            renderLowStockTable();
+        }
+
+        function renderRecentOrdersTable() {
+            const table = document.querySelector('#recent-orders-table tbody');
+            table.innerHTML = '';
+            
+            if (ordersData.recentOrders.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px; color: #9ca3af;">
+                            <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 10px; display: block;">shopping_cart_off</span>
+                            Không có đơn hàng nào trong khoảng thời gian này
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            ordersData.recentOrders.forEach(order => {
+                const row = document.createElement('tr');
+                
+                const itemsHtml = order.items?.slice(0, 2).map(item => `
+                    <div class="product-item">
+                        <img src="${item.image || 'https://via.placeholder.com/32'}" 
+                             alt="${item.name}" 
+                             onerror="this.src='https://via.placeholder.com/32?text=No+Image'">
+                        <span>${truncateText(item.name, 20)} ×${item.quantity || 1}</span>
+                    </div>
+                `).join('') || '';
+                
+                const moreItems = order.items?.length > 2 ? 
+                    `<div style="font-size: 11px; color: #6b7280;">+${order.items.length - 2} sản phẩm khác</div>` : '';
+                
+                row.innerHTML = `
+                    <td><strong>${order.shortId}</strong></td>
+                    <td>
+                        <div style="font-weight: 500;">${order.customerName}</div>
+                        <div style="font-size: 11px; color: #6b7280;">${order.phone || 'Không có SĐT'}</div>
+                    </td>
+                    <td class="product-items">
+                        ${itemsHtml}
+                        ${moreItems}
+                    </td>
+                    <td>
+                        <div>${formatDate(order.createdAt)}</div>
+                        <div style="font-size: 11px; color: #6b7280;">${formatTime(order.createdAt)}</div>
+                    </td>
+                    <td>
+                        <span class="badge ${getPaymentBadgeClass(order.paymentMethod)}">
+                            ${getPaymentMethodText(order.paymentMethod)}
+                        </span>
+                    </td>
+                    <td><strong>${formatPrice(order.total)}</strong></td>
+                    <td>
+                        <span class="badge ${getStatusBadgeClass(order.status)}">
+                            ${getStatusText(order.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="viewOrderDetail('${order.id}')" 
+                                style="padding: 4px 8px; background: #f3f4f6; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            Chi tiết
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function renderTopProductsTable() {
+            const table = document.querySelector('#top-products-table tbody');
+            table.innerHTML = '';
+            
+            if (productsData.topProducts.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px; color: #9ca3af;">
+                            <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 10px; display: block;">inventory_2</span>
+                            Không có sản phẩm bán chạy
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            productsData.topProducts.forEach(product => {
+                const row = document.createElement('tr');
+                const sellRate = product.sold > 0 ? 
+                    (product.sold / (product.sold + product.stock) * 100).toFixed(1) : 0;
+                const stockStatus = getStockStatus(product.stock);
+                
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${product.image || 'https://via.placeholder.com/40'}" 
+                                 alt="${product.name}"
+                                 style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;"
+                                 onerror="this.src='https://via.placeholder.com/40?text=No+Image'">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 2px;">${truncateText(product.name, 25)}</div>
+                                <div style="font-size: 11px; color: #6b7280;">${getBrandName(product.brand)}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${getCategoryName(product.category)}</td>
+                    <td><strong style="color: #10b981;">${product.sold}</strong></td>
+                    <td>
+                        <span class="badge ${getStockBadgeClass(stockStatus)}">
+                            ${product.stock}
+                        </span>
+                    </td>
+                    <td><strong>${formatPrice(product.revenue)}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;">
+                                <div style="height: 100%; width: ${Math.min(sellRate, 100)}%; background: ${sellRate > 50 ? '#10b981' : '#3b82f6'};"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #6b7280; min-width: 35px;">${sellRate}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span class="material-symbols-outlined" style="font-size: 14px; color: #f59e0b;">star</span>
+                            <span style="font-size: 12px;">${product.rating.toFixed(1)}</span>
+                        </div>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function renderNewCustomersTable() {
+            const table = document.querySelector('#new-customers-table tbody');
+            table.innerHTML = '';
+            
+            if (usersData.newCustomers.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #9ca3af;">
+                            <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 10px; display: block;">group_off</span>
+                            Không có khách hàng mới
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            usersData.newCustomers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: 500;">${customer.name}</div>
+                        <div style="font-size: 11px; color: #6b7280;">ID: ${customer.id.substring(0, 8)}</div>
+                    </td>
+                    <td>
+                        <div>${customer.email}</div>
+                        ${customer.phone ? `<div style="font-size: 11px; color: #6b7280;">${customer.phone}</div>` : ''}
+                    </td>
+                    <td>${customer.phone || 'N/A'}</td>
+                    <td>
+                        <div>${formatDate(customer.createdAt)}</div>
+                        <div style="font-size: 11px; color: #6b7280;">${formatTime(customer.createdAt)}</div>
+                    </td>
+                    <td>
+                        <span class="badge ${customer.totalOrders > 0 ? 'badge-success' : 'badge-secondary'}">
+                            ${customer.totalOrders} đơn
+                        </span>
+                    </td>
+                    <td><strong>${formatPrice(customer.totalSpent)}</strong></td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function renderLowStockTable() {
+            const table = document.querySelector('#low-stock-table tbody');
+            table.innerHTML = '';
+            
+            if (productsData.lowStockProducts.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #9ca3af;">
+                            <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 10px; display: block;">inventory</span>
+                            Tất cả sản phẩm đều đủ hàng
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            productsData.lowStockProducts.forEach(product => {
+                const row = document.createElement('tr');
+                const warningLevel = getWarningLevel(product.stock);
+                
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${product.image || 'https://via.placeholder.com/40'}" 
+                                 alt="${product.name}"
+                                 style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;"
+                                 onerror="this.src='https://via.placeholder.com/40?text=No+Image'">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 2px;">${truncateText(product.name, 25)}</div>
+                                <div style="font-size: 11px; color: #6b7280;">${getBrandName(product.brand)}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${getCategoryName(product.category)}</td>
+                    <td>
+                        <span class="badge ${warningLevel === 'critical' ? 'badge-danger' : warningLevel === 'warning' ? 'badge-warning' : 'badge-info'}">
+                            ${product.stock}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-size: 12px; color: ${warningLevel === 'critical' ? '#dc2626' : warningLevel === 'warning' ? '#d97706' : '#4b5563'};">
+                            ${warningLevel === 'critical' ? '⚠️ Nguy cấp' : warningLevel === 'warning' ? '⚠️ Cảnh báo' : 'Sắp hết'}
+                        </div>
+                    </td>
+                    <td><strong>${formatPrice(product.price)}</strong></td>
+                    <td>
+                        <button onclick="restockProduct('${product.id}')" 
+                                style="padding: 4px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            Nhập hàng
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        // ========== HELPER FUNCTIONS ==========
+        function formatPrice(price) {
+            if (!price) return '0 ₫';
+            if (price >= 1000000000) {
+                return (price / 1000000000).toFixed(1) + ' tỷ ₫';
+            } else if (price >= 1000000) {
+                return (price / 1000000).toFixed(1) + ' triệu ₫';
+            } else if (price >= 1000) {
+                return (price / 1000).toFixed(0) + ' nghìn ₫';
+            }
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price);
+        }
+
+        function formatPriceShort(price) {
+            if (!price) return '0 ₫';
+            if (price >= 1000000000) {
+                return (price / 1000000000).toFixed(1) + ' tỷ';
+            } else if (price >= 1000000) {
+                return (price / 1000000).toFixed(1) + 'tr';
+            } else if (price >= 1000) {
+                return (price / 1000).toFixed(0) + 'k';
+            }
+            return price.toString();
+        }
+
+        function formatDate(date) {
+            if (!date) return '--';
+            const d = new Date(date);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        function formatTime(date) {
+            if (!date) return '--';
+            const d = new Date(date);
+            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function getCategoryName(category) {
+            if (!category) return 'Khác';
+            
+            const categoryMap = {
+                'dien-thoai': 'Điện thoại',
+                'phone': 'Điện thoại',
+                'smartphone': 'Điện thoại',
+                'laptop': 'Laptop',
+                'tablet': 'Tablet',
+                'smartwatch': 'Smartwatch',
+                'watch': 'Smartwatch',
+                'phu-kien': 'Phụ kiện',
+                'accessory': 'Phụ kiện',
+                'uncategorized': 'Khác',
+                'other': 'Khác',
+                'khac': 'Khác'
+            };
+            
+            const normalized = category.toLowerCase().trim();
+            return categoryMap[normalized] || 
+                   category.charAt(0).toUpperCase() + category.slice(1);
+        }
+
+        function getBrandName(brand) {
+            if (!brand) return 'Không có thương hiệu';
+            
+            const brandMap = {
+                'apple': 'Apple',
+                'samsung': 'Samsung',
+                'xiaomi': 'Xiaomi',
+                'oppo': 'OPPO',
+                'vivo': 'Vivo',
+                'realme': 'realme',
+                'nokia': 'Nokia',
+                'oneplus': 'OnePlus',
+                'google': 'Google',
+                'nothing': 'Nothing',
+                'huawei': 'Huawei',
+                'sony': 'Sony',
+                'lg': 'LG',
+                'motorola': 'Motorola',
+                'asus': 'ASUS',
+                'khong co thuong hieu': 'Không có thương hiệu',
+                'không có thương hiệu': 'Không có thương hiệu',
+                'no brand': 'Không có thương hiệu'
+            };
+            
+            const normalized = brand.toLowerCase().trim();
+            return brandMap[normalized] || brand;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Chờ xác nhận',
+                'confirmed': 'Đã xác nhận',
+                'shipping': 'Đang giao hàng',
+                'delivering': 'Đang vận chuyển',
+                'success': 'Thành công',
+                'cancelled': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getStatusBadgeClass(status) {
+            const classMap = {
+                'pending': 'badge-warning',
+                'confirmed': 'badge-info',
+                'shipping': 'badge-primary',
+                'delivering': 'badge-primary',
+                'success': 'badge-success',
+                'cancelled': 'badge-danger'
+            };
+            return classMap[status] || 'badge-secondary';
+        }
+
+        function getPaymentMethodText(method) {
+            const methods = {
+                'cod': 'Tiền mặt',
+                'banking': 'Chuyển khoản',
+                'momo': 'MoMo',
+                'zalopay': 'ZaloPay',
+                'credit': 'Thẻ tín dụng'
+            };
+            return methods[method] || method;
+        }
+
+        function getPaymentBadgeClass(method) {
+            const classMap = {
+                'cod': 'badge-secondary',
+                'banking': 'badge-info',
+                'momo': 'badge-primary',
+                'zalopay': 'badge-primary',
+                'credit': 'badge-success'
+            };
+            return classMap[method] || 'badge-secondary';
+        }
+
+        function getStockStatus(stock) {
+            if (stock <= 0) return 'out_of_stock';
+            if (stock <= 5) return 'critical';
+            if (stock <= 10) return 'low_stock';
+            return 'in_stock';
+        }
+
+        function getStockBadgeClass(status) {
+            const classMap = {
+                'out_of_stock': 'badge-danger',
+                'critical': 'badge-danger',
+                'low_stock': 'badge-warning',
+                'in_stock': 'badge-success'
+            };
+            return classMap[status] || 'badge-secondary';
+        }
+
+        function getWarningLevel(stock) {
+            if (stock <= 3) return 'critical';
+            if (stock <= 7) return 'warning';
+            return 'low';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading-state').style.display = show ? 'block' : 'none';
+            if (show) {
+                document.getElementById('stats-content').style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ef4444;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+                animation: slideIn 0.3s ease;
+            `;
+            errorDiv.innerHTML = `
+                <span class="material-symbols-outlined">error</span>
+                ${message}
+            `;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => {
+                errorDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => errorDiv.remove(), 300);
+            }, 5000);
+            
+            if (!document.querySelector('#error-animations')) {
+                const style = document.createElement('style');
+                style.id = 'error-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? '#10b981' : type === 'warning' ? '#f59e0b' : '#3b82f6';
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${bgColor};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const icon = type === 'success' ? 'check_circle' : type === 'warning' ? 'warning' : 'info';
+            notification.innerHTML = `
+                <span class="material-symbols-outlined">${icon}</span>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // ========== CHART TYPE CHANGE ==========
+        window.changeChartType = function(chartName, type) {
+            const buttons = document.querySelectorAll(`[data-chart^="${chartName}"]`);
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-chart="${chartName}-${type}"]`).classList.add('active');
+            
+            chartTypes[chartName] = type;
+            
+            if (charts[chartName]) {
+                charts[chartName].destroy();
+            }
+            
+            switch(chartName) {
+                case 'revenue':
+                    renderRevenueChart();
+                    break;
+                case 'orders':
+                    renderOrdersChart();
+                    break;
+                case 'brand':
+                    renderBrandChart();
+                    break;
+                case 'products':
+                    renderProductsChart();
+                    break;
+            }
+        };
+
+        // ========== GLOBAL WINDOW FUNCTIONS ==========
+        window.viewOrderDetail = function(orderId) {
+            window.location.href = `orders.html?orderId=${orderId}`;
+        };
+
+        window.restockProduct = function(productId) {
+            localStorage.setItem('editingProductId', productId);
+            window.location.href = 'index.html';
+        };
+
+        // ========== EVENT LISTENERS ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('admin-sidebar');
+                sidebar.classList.toggle('active');
+            });
+            
+            document.addEventListener('click', (e) => {
+                const sidebar = document.getElementById('admin-sidebar');
+                const menuToggle = document.getElementById('menu-toggle');
+                
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') && 
+                    !sidebar.contains(e.target) && 
+                    !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            const periodSelector = document.getElementById('period-selector');
+            periodSelector.addEventListener('change', function(e) {
+                if (e.target.value === 'custom') {
+                    document.querySelector('.date-range-filter').style.display = 'flex';
+                    days = 'custom';
+                } else {
+                    document.querySelector('.date-range-filter').style.display = 'none';
+                    days = e.target.value;
+                    const endDate = new Date();
+                    const startDate = new Date();
+                    startDate.setDate(startDate.getDate() - parseInt(days));
+                    document.getElementById('start-date').valueAsDate = startDate;
+                    document.getElementById('end-date').valueAsDate = endDate;
+                }
+            });
+            
+            document.getElementById('apply-filters-btn').addEventListener('click', () => {
+                loadStatistics();
+            });
+            
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                loadStatistics();
+                showNotification('Đã làm mới dữ liệu thống kê!', 'success');
+            });
+            
+            const compareToggle = document.getElementById('compare-toggle');
+            const compareCheckbox = document.getElementById('compare-checkbox');
+            
+            compareToggle.addEventListener('click', () => {
+                compareCheckbox.checked = !compareCheckbox.checked;
+                compareMode = compareCheckbox.checked;
+                compareToggle.classList.toggle('active', compareMode);
+                
+                if (compareMode) {
+                    showNotification('Đã bật chế độ so sánh với kỳ trước', 'info');
+                } else {
+                    showNotification('Đã tắt chế độ so sánh', 'info');
+                }
+                
+                loadStatistics();
+            });
+            
+            document.getElementById('layout-grid').addEventListener('click', () => {
+                updateLayout('grid');
+            });
+            
+            document.getElementById('layout-list').addEventListener('click', () => {
+                updateLayout('list');
+            });
+            
+            document.getElementById('layout-compact').addEventListener('click', () => {
+                updateLayout('compact');
+            });
+            
+            document.getElementById('reset-layout').addEventListener('click', () => {
+                localStorage.removeItem('analytics_layout');
+                location.reload();
+            });
+            
+            document.getElementById('export-pdf-btn').addEventListener('click', () => {
+                showNotification('Tính năng xuất PDF sẽ có trong phiên bản tiếp theo!', 'info');
+            });
+            
+            document.getElementById('export-excel-btn').addEventListener('click', () => {
+                showNotification('Tính năng xuất Excel sẽ có trong phiên bản tiếp theo!', 'info');
+            });
+            
+            document.getElementById('logout-btn').addEventListener('click', async () => {
+                if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                    try {
+                        await signOut(auth);
+                        window.location.href = '../a1b2c3-secret.html';
+                    } catch (error) {
+                        alert("Lỗi đăng xuất: " + error.message);
+                    }
+                }
+            });
+            
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            document.getElementById('start-date').valueAsDate = thirtyDaysAgo;
+            document.getElementById('end-date').valueAsDate = today;
+            
+            loadSavedLayout();
+            
+            setTimeout(() => {
+                if (auth.currentUser) {
+                    loadStatistics();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

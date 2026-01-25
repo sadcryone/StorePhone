@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập - Store Phone</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/login-register.css">
+  <!-- 🔥 THÊM reCAPTCHA SCRIPT -->
+  <script src="https://www.google.com/recaptcha/api.js?render=6LeAvkcsAAAAAF6nLftuY36VaEqwnl_RB-qRBglH"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="logo">
+        <div class="material-symbols-outlined logo-icon">shopping_bag</div>
+        <h1>Store Phone</h1>
+        <p>Đăng nhập tài khoản của bạn</p>
+      </div>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <span class="material-symbols-outlined">mail</span>
+            Email
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-input" 
+            placeholder="Nhập email của bạn"
+            required
+            autocomplete="username"
+            autofocus
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <span class="material-symbols-outlined">lock</span>
+            Mật khẩu
+          </label>
+          <div class="password-container">
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              placeholder="Nhập mật khẩu"
+              required
+              autocomplete="current-password"
+            >
+            <button type="button" class="toggle-password" id="togglePassword">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" id="rememberMe">
+            Ghi nhớ đăng nhập
+          </label>
+          <a href="forgot-password.html" class="forgot-password">
+            Quên mật khẩu?
+          </a>
+        </div>
+        
+        <!-- 🔥 reCAPTCHA Notice -->
+        <div class="recaptcha-notice" style="font-size: 1.2rem; color: #64748b; margin: 10px 0; text-align: center;">
+          <small>
+            Trang này được bảo vệ bởi reCAPTCHA
+          </small>
+        </div>
+        
+        <button type="submit" class="auth-btn" id="loginBtn">
+          <div class="spinner"></div>
+          <span>Đăng nhập</span>
+        </button>
+        
+        <!-- Nút Đăng nhập bằng Google -->
+        <div class="divider">
+          <span>hoặc</span>
+        </div>
+        
+        <button type="button" class="auth-btn google-btn" id="googleLoginBtn">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Đăng nhập với Google
+        </button>
+        
+        <div id="message" class="message"></div>
+      </form>
+      
+      <div class="auth-footer">
+        <p style="color: #64748b; font-size: 1.4rem; margin-bottom: 15px;">
+          Chưa có tài khoản?
+        </p>
+        <a href="register.html" class="auth-links">
+          <span class="material-symbols-outlined">person_add</span>
+          Đăng ký tài khoản mới
+        </a>
+        <div style="margin-top: 20px;">
+          <a href="index.html" class="auth-links">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Quay lại trang chủ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      signInWithEmailAndPassword,
+      signInWithPopup,           // THÊM: Đăng nhập bằng popup
+      GoogleAuthProvider,        // THÊM: Provider Google
+      setPersistence,
+      browserLocalPersistence,
+      browserSessionPersistence,
+      sendEmailVerification,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      updateDoc,
+      setDoc,
+      serverTimestamp,
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+      authDomain: "products-a39df.firebaseapp.com",
+      projectId: "products-a39df",
+      storageBucket: "products-a39df.firebasestorage.app",
+      messagingSenderId: "708345988066",
+      appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const message = document.getElementById('message');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const rememberMe = document.getElementById('rememberMe');
+
+    // 🔥 reCAPTCHA SITE KEY
+    const RECAPTCHA_SITE_KEY = '6LeAvkcsAAAAAF6nLftuY36VaEqwnl_RB-qRBglH';
+
+    // 🔥 HÀM LẤY reCAPTCHA TOKEN
+    async function getRecaptchaToken(action = 'login') {
+      return new Promise((resolve) => {
+        grecaptcha.ready(async () => {
+          try {
+            const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: action });
+            console.log('reCAPTCHA token received for', action);
+            resolve(token);
+          } catch (error) {
+            console.error('reCAPTCHA error:', error);
+            resolve(null);
+          }
+        });
+      });
+    }
+
+    // Hiển thị/ẩn mật khẩu
+    togglePassword.onclick = () => {
+      const icon = togglePassword.querySelector('.material-symbols-outlined');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        passwordInput.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    };
+
+    // Hàm hiển thị thông báo
+    function showMessage(text, type = 'error') {
+      message.innerHTML = text;
+      message.className = `message ${type} show`;
+    }
+
+    // Hàm hiển thị loading
+    function setLoading(isLoading) {
+      if (isLoading) {
+        loginBtn.disabled = true;
+        googleLoginBtn.disabled = true;
+        loginBtn.classList.add('loading');
+        googleLoginBtn.classList.add('loading');
+      } else {
+        loginBtn.disabled = false;
+        googleLoginBtn.disabled = false;
+        loginBtn.classList.remove('loading');
+        googleLoginBtn.classList.remove('loading');
+      }
+    }
+
+    // 🔥 HÀM KIỂM TRA TRẠNG THÁI TÀI KHOẢN
+    async function checkUserStatus(userId) {
+      try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        
+        if (!userDoc.exists()) {
+          console.warn("User không tồn tại trong Firestore");
+          return { exists: false, status: 'active' };
+        }
+        
+        const userData = userDoc.data();
+        return { 
+          exists: true, 
+          status: userData.status || 'active',
+          emailVerified: userData.emailVerified || false,
+          userType: userData.userType || 'customer'
+        };
+      } catch (error) {
+        console.error("Error checking user status:", error);
+        return { exists: false, status: 'active' };
+      }
+    }
+
+    // Tự động điền email nếu đã lưu
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('user_email');
+      
+      if (savedEmail) {
+        emailInput.value = savedEmail;
+        rememberMe.checked = true;
+      }
+    });
+
+    // Xử lý submit form với reCAPTCHA
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      // Reset message
+      message.className = 'message';
+      message.textContent = '';
+
+      // Validate
+      if (!email || !password) {
+        showMessage('Vui lòng nhập đầy đủ thông tin!');
+        return;
+      }
+
+      if (!email.includes('@')) {
+        showMessage('Email không hợp lệ!');
+        return;
+      }
+
+      try {
+        // Hiển thị loading
+        setLoading(true);
+        showMessage('Đang xác thực...');
+
+        // 🔥 LẤY reCAPTCHA TOKEN
+        const recaptchaToken = await getRecaptchaToken('login');
+        
+        if (!recaptchaToken) {
+          showMessage('Không thể xác thực bảo mật. Vui lòng tải lại trang!');
+          setLoading(false);
+          return;
+        }
+
+        // Thiết lập persistence (ghi nhớ đăng nhập)
+        const persistence = rememberMe.checked ? 
+          browserLocalPersistence : browserSessionPersistence;
+        await setPersistence(auth, persistence);
+
+        // Lưu email nếu chọn ghi nhớ
+        if (rememberMe.checked) {
+          localStorage.setItem('user_email', email);
+        } else {
+          localStorage.removeItem('user_email');
+        }
+
+        // Đăng nhập Firebase Auth
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 🔥 QUAN TRỌNG: KIỂM TRA TRẠNG THÁI TÀI KHOẢN TRONG FIRESTORE
+        const userStatus = await checkUserStatus(user.uid);
+        
+        console.log("User status check:", userStatus);
+        console.log("Firebase Auth emailVerified:", user.emailVerified);
+
+        // 🔥 QUAN TRỌNG: FIX LỖI ĐỒNG BỘ TRẠNG THÁI
+        // Nếu Firebase Auth đã xác thực email nhưng Firestore vẫn là pending
+        if (user.emailVerified && userStatus.status === 'pending') {
+          console.log("🔥 Phát hiện email đã xác thực nhưng Firestore vẫn pending. Đang cập nhật...");
+          try {
+            const userRef = doc(db, "users", user.uid);
+            await updateDoc(userRef, {
+              status: 'active',
+              emailVerified: true,
+              updatedAt: serverTimestamp()
+            });
+            userStatus.status = 'active'; // Cập nhật local variable
+            console.log("✅ Đã cập nhật Firestore thành active");
+          } catch (error) {
+            console.error("Error updating Firestore:", error);
+          }
+        }
+
+        // 🔥 KIỂM TRA NẾU TÀI KHOẢN BỊ KHÓA HOẶC VÔ HIỆU HÓA
+        if (userStatus.status === 'banned') {
+          await signOut(auth);
+          showMessage(`
+            <div style="text-align: left;">
+              <strong>❌ Tài khoản đã bị khóa!</strong><br><br>
+              Tài khoản của bạn đã bị khóa bởi quản trị viên.<br>
+              Vui lòng liên hệ hỗ tr trợ để được trợ giúp.
+            </div>
+          `, 'error');
+          setLoading(false);
+          return;
+        }
+
+        if (userStatus.status === 'inactive') {
+          await signOut(auth);
+          showMessage(`
+            <div style="text-align: left;">
+              <strong>❌ Tài khoản không hoạt động!</strong><br><br>
+              Tài khoản của bạn đã bị vô hiệu hóa.<br>
+              Vui lòng liên hệ quản trị viên để được hỗ trợ.
+            </div>
+          `, 'error');
+          setLoading(false);
+          return;
+        }
+
+        // 🔥 LOGIC MỚI: KIỂM TRA XÁC THỰC EMAIL
+        // 1. Nếu Firebase Auth chưa xác thực email
+        if (!user.emailVerified) {
+          // 1a. Nếu Firestore status là pending (chờ xác thực)
+          if (userStatus.status === 'pending') {
+            await signOut(auth);
+            showMessage(`
+              <div style="text-align: left;">
+                <strong>❌ Tài khoản chưa được kích hoạt!</strong><br><br>
+                Tài khoản của bạn đang chờ xác thực email.<br><br>
+                <button onclick="resendVerification('${email}', '${password}')" 
+                        style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1.4rem; width: 100%;">
+                  <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.8rem;">send</span>
+                  Gửi lại email xác thực
+                </button>
+              </div>
+            `, 'error');
+            setLoading(false);
+            return;
+          }
+          // 1b. Nếu Firestore status là active (trường hợp lỗi đồng bộ)
+          else if (userStatus.status === 'active') {
+            // Cho phép đăng nhập nhưng cảnh báo
+            console.log("⚠️ Cảnh báo: Firebase Auth chưa xác thực nhưng Firestore là active");
+          }
+          // 1c. Nếu Firestore status khác
+          else {
+            await signOut(auth);
+            showMessage(`
+              <div style="text-align: left;">
+                <strong>❌ Tài khoản chưa được xác thực!</strong><br><br>
+                Vui lòng kiểm tra email <strong>${email}</strong> và click vào liên kết xác thực.<br><br>
+                <button onclick="resendVerification('${email}', '${password}')" 
+                        style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1.4rem; width: 100%;">
+                  <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.8rem;">send</span>
+                  Gửi lại email xác thực
+                </button><br><br>
+                <small style="color: #64748b;">
+                  Chưa nhận được email? Kiểm tra thư mục spam hoặc gửi lại.
+                </small>
+              </div>
+            `, 'error');
+            setLoading(false);
+            return;
+          }
+        }
+        // 2. Nếu Firebase Auth đã xác thực email
+        else {
+          // 2a. Nếu Firestore status là pending (trường hợp lỗi đồng bộ)
+          if (userStatus.status === 'pending') {
+            // Đã xử lý ở trên, cập nhật thành active
+          }
+          // 2b. Nếu Firestore status là active (bình thường)
+          // Cho phép đăng nhập
+        }
+
+        // Cập nhật thông tin user trong Firestore
+        try {
+          const userRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userRef);
+          
+          if (userDoc.exists()) {
+            // Cập nhật lastLogin
+            await updateDoc(userRef, {
+              lastLogin: serverTimestamp(),
+              emailVerified: user.emailVerified,
+              status: user.emailVerified ? 'active' : userStatus.status // Giữ nguyên status nếu chưa xác thực
+            });
+          } else {
+            // Tạo mới nếu chưa có (cho user đăng ký cũ)
+            await setDoc(userRef, {
+              uid: user.uid,
+              email: user.email,
+              name: user.displayName || email.split('@')[0],
+              emailVerified: user.emailVerified,
+              userType: 'customer',
+              status: user.emailVerified ? 'active' : 'pending',
+              createdAt: serverTimestamp(),
+              lastLogin: serverTimestamp(),
+              totalOrders: 0,
+              totalSpent: 0
+            });
+          }
+        } catch (firestoreError) {
+          console.warn("Không thể cập nhật Firestore:", firestoreError);
+        }
+
+        // Thành công
+        showMessage(' Đăng nhập thành công! Đang chuyển hướng...', 'success');
+        
+        // Chuyển hướng sau 1.5 giây
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+
+      } catch (err) {
+        console.error("Lỗi đăng nhập:", err);
+        setLoading(false);
+        
+        let errorMsg = 'Đăng nhập thất bại!';
+        
+        switch (err.code) {
+          case 'auth/wrong-password':
+            errorMsg = 'Mật khẩu không chính xác!';
+            break;
+          case 'auth/user-not-found':
+            errorMsg = 'Tài khoản không tồn tại!';
+            break;
+          case 'auth/invalid-email':
+            errorMsg = 'Email không hợp lệ!';
+            break;
+          case 'auth/too-many-requests':
+            errorMsg = 'Quá nhiều lần thử. Tài khoản tạm thời bị khóa. Vui lòng thử lại sau 15 phút!';
+            break;
+          case 'auth/user-disabled':
+            errorMsg = 'Tài khoản đã bị khóa!';
+            break;
+          case 'auth/invalid-credential':
+            errorMsg = 'Thông tin đăng nhập không chính xác!';
+            break;
+        }
+        
+        showMessage(errorMsg);
+        passwordInput.value = '';
+        passwordInput.focus();
+      }
+    });
+
+    // 🔥 HÀM GỬI LẠI EMAIL XÁC THỰC
+    window.resendVerification = async function(email, password) {
+      try {
+        showMessage('Đang gửi lại email xác thực...');
+        
+        // Đăng nhập tạm để gửi email
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(userCredential.user);
+        await signOut(auth); // Đăng xuất ngay sau khi gửi
+        
+        showMessage(`
+          <div style="text-align: left;">
+            <strong>✅ Đã gửi lại email xác thực!</strong><br><br>
+            Vui lòng kiểm tra email <strong>${email}</strong><br>
+            (Kiểm tra cả thư mục spam nếu không thấy)
+          </div>
+        `, 'success');
+      } catch (error) {
+        console.error("Error resending verification:", error);
+        
+        let errorMsg = 'Không thể gửi lại email xác thực!';
+        if (error.code === 'auth/too-many-requests') {
+          errorMsg = 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau 60 giây.';
+        }
+        
+        showMessage(errorMsg);
+      }
+    };
+
+    // 🔥 HÀM XỬ LÝ ĐĂNG NHẬP BẰNG GOOGLE
+    async function signInWithGoogle() {
+      try {
+        setLoading(true);
+        showMessage('Đang kết nối với Google...', 'info');
+        
+        // Lấy reCAPTCHA token
+        const recaptchaToken = await getRecaptchaToken('google_login');
+        
+        if (!recaptchaToken) {
+          showMessage('Không thể xác thực bảo mật. Vui lòng thử lại!');
+          setLoading(false);
+          return;
+        }
+        
+        // Khởi tạo Google Provider
+        const googleProvider = new GoogleAuthProvider();
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+        
+        // Thiết lập persistence (luôn sử dụng local persistence cho Google)
+        await setPersistence(auth, browserLocalPersistence);
+        
+        // Đăng nhập bằng popup
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        // Kiểm tra tài khoản
+        const userStatus = await checkUserStatus(user.uid);
+        
+        // Xử lý tài khoản bị khóa
+        if (userStatus.status === 'banned') {
+          await signOut(auth);
+          showMessage(`
+            <div style="text-align: left;">
+              <strong>❌ Tài khoản đã bị khóa!</strong><br><br>
+              Tài khoản của bạn đã bị khóa bởi quản trị viên.
+            </div>
+          `, 'error');
+          setLoading(false);
+          return;
+        }
+        
+        // Xử lý tài khoản không hoạt động
+        if (userStatus.status === 'inactive') {
+          await signOut(auth);
+          showMessage(`
+            <div style="text-align: left;">
+              <strong>❌ Tài khoản không hoạt động!</strong><br><br>
+              Tài khoản của bạn đã bị vô hiệu hóa.
+            </div>
+          `, 'error');
+          setLoading(false);
+          return;
+        }
+        
+        // Lưu thông tin user vào Firestore
+        await saveOrUpdateUserInFirestore(user);
+        
+        // Thành công
+        showMessage('Đăng nhập bằng Google thành công! Đang chuyển hướng...', 'success');
+        
+        // Chuyển hướng sau 1.5 giây
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+        
+      } catch (error) {
+        console.error("Lỗi đăng nhập Google:", error);
+        setLoading(false);
+        
+        let errorMsg = 'Đăng nhập bằng Google thất bại!';
+        
+        switch (error.code) {
+          case 'auth/popup-closed-by-user':
+            errorMsg = 'Bạn đã đóng cửa sổ đăng nhập. Vui lòng thử lại!';
+            break;
+          case 'auth/popup-blocked':
+            errorMsg = 'Popup bị chặn. Vui lòng cho phép popup và thử lại!';
+            break;
+          case 'auth/cancelled-popup-request':
+            errorMsg = 'Yêu cầu đăng nhập đã bị hủy!';
+            break;
+          case 'auth/account-exists-with-different-credential':
+            errorMsg = 'Email này đã được đăng ký bằng phương thức khác. Vui lòng đăng nhập bằng email/mật khẩu!';
+            break;
+          case 'auth/unauthorized-domain':
+            errorMsg = 'Tên miền này không được phép đăng nhập Google!';
+            break;
+          case 'auth/operation-not-allowed':
+            errorMsg = 'Đăng nhập Google chưa được kích hoạt trong Firebase Console! Vui lòng liên hệ quản trị viên.';
+            break;
+        }
+        
+        showMessage(errorMsg);
+      }
+    }
+
+    // 🔥 HÀM LƯU/CẬP NHẬT USER VÀO FIRESTORE (CHO GOOGLE)
+    async function saveOrUpdateUserInFirestore(user) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+          // Tài khoản mới - Tạo document mới
+          await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || user.email.split('@')[0],
+            photoURL: user.photoURL || null,
+            emailVerified: true, // Google luôn true
+            userType: 'customer',
+            status: 'active', // Google user tự động active
+            provider: 'google',
+            createdAt: serverTimestamp(),
+            lastLogin: serverTimestamp(),
+            totalOrders: 0,
+            totalSpent: 0
+          });
+          console.log("✅ Đã tạo user mới từ Google");
+        } else {
+          // Tài khoản đã tồn tại - Cập nhật thông tin
+          await updateDoc(userRef, {
+            lastLogin: serverTimestamp(),
+            emailVerified: true,
+            name: user.displayName || userDoc.data().name,
+            photoURL: user.photoURL || userDoc.data().photoURL,
+            provider: 'google'
+          });
+          console.log("✅ Đã cập nhật user từ Google");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lưu user Google vào Firestore:", error);
+      }
+    }
+
+    // Gán sự kiện cho nút Google
+    googleLoginBtn.addEventListener('click', signInWithGoogle);
+
+    // Enter key support
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        loginForm.requestSubmit();
+      }
+    });
+
+    // Auto-focus
+    emailInput.focus();
+  </script>
+</body>
+</html>

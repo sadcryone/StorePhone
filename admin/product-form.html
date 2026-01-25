@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <link rel="stylesheet" href="./assets/css/admin.css" />
+  <link rel="stylesheet" href="./assets/css/product-form.css">
+  <title>Thêm / Sửa sản phẩm - Store Phone</title>
+  <style>
+    .html-editor-container {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    
+    .editor-toolbar {
+      background: #f8fafc;
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .editor-btn {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    
+    .editor-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    
+    .editor-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    
+    .code-editor {
+      font-family: 'Courier New', monospace;
+      font-size: 1.4rem;
+      padding: 15px;
+      min-height: 300px;
+      resize: vertical;
+      border: none;
+      width: 100%;
+      background: #f8fafc;
+    }
+    
+    .html-preview {
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      min-height: 100px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .editor-tabs {
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    
+    .editor-tab {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .editor-tab.active {
+      border-bottom: 2px solid #3b82f6;
+      color: #3b82f6;
+      font-weight: 500;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Màu sắc */
+    .color-tag {
+      background: #f3e8ff;
+      color: #7c3aed;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 1.4rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .remove-color {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 1.6rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Thông số chi tiết */
+    .specs-detail-section {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+    
+    .specs-detail-section h4 {
+      font-size: 1.8rem;
+      color: #1f2937;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .spec-items-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+    }
+    
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .spec-label {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: #4b5563;
+    }
+    
+    .spec-input,
+    .spec-textarea {
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1.4rem;
+      width: 100%;
+    }
+    
+    .spec-textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+    
+    /* Meta info */
+    .meta-info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 25px;
+      margin-top: 30px;
+    }
+    
+    .meta-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    
+    .meta-info-item {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .meta-info-item strong {
+      display: block;
+      font-size: 1.3rem;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+    
+    .meta-info-item span {
+      font-size: 1.4rem;
+      color: #1f2937;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* ========== FIXED MODAL STYLES ========== */
+    /* Modal image grid improvements */
+    .image-grid-select {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+        max-height: 60vh;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Ensure scroll works */
+    .image-grid-select::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .image-grid-select::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .image-grid-select::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+    
+    .image-grid-select::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    /* Make modal larger for better viewing */
+    .image-select-content {
+        background: white;
+        width: 95%;
+        max-width: 1400px;
+        height: 90%;
+        max-height: 90vh;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    /* Better image display */
+    .image-select-item {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        height: 220px;
+        position: relative;
+    }
+    
+    .image-select-item:hover {
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .image-select-item.selected {
+        border-color: #10b981;
+        border-width: 3px;
+        background: #f0fdf4;
+    }
+    
+    .image-select-item.selected::before {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #10b981;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 2;
+    }
+    
+    .image-select-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    .image-select-item div {
+        padding: 10px;
+        font-size: 1.2rem;
+        color: #64748b;
+        text-align: center;
+        border-top: 1px solid #f1f5f9;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+    }
+    
+    /* Modal header improvements */
+    .image-select-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: #f8fafc;
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .image-select-header h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: #1f2937;
+        font-weight: 600;
+    }
+    
+    /* Selected counter */
+    .selected-counter {
+        font-size: 1.4rem;
+        color: #64748b;
+        margin-left: 10px;
+        font-weight: normal;
+    }
+    
+    /* Image info */
+    .image-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 8px;
+        font-size: 1.1rem;
+        display: none;
+    }
+    
+    .image-select-item:hover .image-info {
+        display: block;
+    }
+    
+    /* Fix modal positioning */
+    .image-select-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    }
+    
+    /* Close button */
+    .image-select-header button {
+        background: none;
+        border: none;
+        font-size: 30px;
+        cursor: pointer;
+        color: #64748b;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+    
+    .image-select-header button:hover {
+        background: #e2e8f0;
+        color: #1f2937;
+    }
+    
+    /* Footer buttons */
+    .image-select-footer {
+        padding: 20px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: white;
+        border-radius: 0 0 12px 12px;
+    }
+    
+    /* Empty state */
+    .empty-library {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 50px;
+        color: #64748b;
+    }
+    
+    .empty-library .material-symbols-outlined {
+        font-size: 48px;
+        margin-bottom: 15px;
+        display: block;
+    }
+    
+    /* Date filter and sort controls */
+    .filter-container {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 1.4rem;
+        background: white;
+        color: #1f2937;
+        min-width: 150px;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .filter-label {
+        font-size: 1.4rem;
+        color: #4b5563;
+        font-weight: 500;
+    }
+    
+    /* Cải thiện hiển thị modal trên mobile */
+    @media (max-width: 768px) {
+        .image-select-content {
+            width: 95% !important;
+            height: 95% !important;
+            margin: 10px;
+        }
+        
+        .image-grid-select {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+            gap: 10px !important;
+            padding: 15px !important;
+        }
+        
+        .image-select-item {
+            height: 180px !important;
+        }
+        
+        .image-select-item img {
+            height: 120px !important;
+        }
+        
+        .image-select-header {
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+        }
+        
+        .filter-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-select {
+            width: 100%;
+            min-width: unset;
+        }
+    }
+    
+    /* Hiệu ứng loading */
+    .image-loading {
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    /* Cải thiện scrollbar */
+    .image-grid-select::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    .image-grid-select::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 5px;
+    }
+    
+    .image-grid-select::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+    }
+    
+    .image-grid-select::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    /* Textarea improvements */
+    .spec-textarea {
+        min-height: 80px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.5;
+    }
+    
+    .spec-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <h2>STORE PHONE</h2>
+      <p>Admin Dashboard</p>
+    </div>
+    <nav class="sidebar-menu">
+      <a href="index.html" class="menu-item">
+        <span class="material-symbols-outlined">inventory_2</span>
+        Sản phẩm
+      </a>
+      <a href="orders.html" class="menu-item">
+        <span class="material-symbols-outlined">shopping_bag</span>
+        Đơn hàng
+      </a>
+      <a href="chats.html" class="menu-item">
+        <span class="material-symbols-outlined">chat</span>
+        Quản lý Chat
+      </a>
+      <a href="banners.html" class="menu-item">
+        <span class="material-symbols-outlined">image</span>
+        Banner
+      </a>
+      <a href="images.html" class="menu-item">
+        <span class="material-symbols-outlined">photo_library</span>
+        Quản lý ảnh
+      </a>
+      <a href="users.html" class="menu-item" id="users-menu-link">
+        <span class="material-symbols-outlined">group</span>
+        Người dùng
+      </a>
+      <a href="analytics.html" class="menu-item">
+        <span class="material-symbols-outlined">analytics</span>
+        Thống kê
+      </a>
+      <a href="../index.html" class="menu-item">
+        <span class="material-symbols-outlined">home</span>
+        Về trang chủ
+      </a>
+      <a href="#" class="menu-item" id="logout-btn">
+        <span class="material-symbols-outlined">logout</span>
+        Đăng xuất
+      </a>
+    </nav>
+    
+    <div class="user-info">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="user-avatar" id="user-avatar"></div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="user-name" style="font-size: 1.4rem; font-weight: 500;"></span>
+            <span id="user-role-badge" class="role-badge role-admin"></span>
+          </div>
+          <div id="user-email" style="font-size: 1.2rem; color: var(--gray-400);"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <h1 id="form-title">Thêm sản phẩm mới</h1>
+        <p style="font-size: 1.4rem; color: var(--gray-500); margin-top: 0.5rem;">
+          Thêm hoặc chỉnh sửa thông tin sản phẩm
+        </p>
+      </div>
+      <a href="index.html" class="btn-back" style="
+        text-decoration: none;
+        color: var(--primary);
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      ">← Quay lại</a>
+    </header>
+
+    <div class="admin-content">
+      <form id="product-form" class="admin-form">
+        <label>Tên sản phẩm đầy đủ <span style="color:red">*</span></label>
+        <input type="text" id="name" placeholder="Ví dụ: iPhone 17 Pro 512GB Chính hãng VN/A" required />
+
+        <label>Hãng (brand) <span style="color:red">*</span></label>
+        <select id="brand" required>
+          <option value="">-- Chọn hãng --</option>
+          <option value="apple">Apple</option>
+          <option value="samsung">Samsung</option>
+          <option value="oppo">Oppo</option>
+          <option value="xiaomi">Xiaomi</option>
+          <option value="vivo">Vivo</option>
+          <option value="realme">Realme</option>
+          <option value="honor">Honor</option>
+          <option value="tecno">Tecno</option>
+          <option value="motorola">Motorola</option>
+          <option value="nokia">Nokia</option>
+        </select>
+
+        <label>Model chung (baseModel) <span style="color:red">*</span></label>
+        <input type="text" id="baseModel" placeholder="Ví dụ: iPhone 17 Pro" required />
+
+        <label>Dung lượng của bản này <span style="color:red">*</span></label>
+        <select id="storages-select" required>
+          <option value="">-- Chọn dung lượng --</option>
+          <option value="64GB">64GB</option>
+          <option value="128GB">128GB</option>
+          <option value="256GB">256GB</option>
+          <option value="512GB">512GB</option>
+          <option value="1TB">1TB</option>
+          <option value="2TB">2TB</option>
+        </select>
+        <input type="hidden" id="storages" />
+
+        <!-- Màu sắc nhập tự do -->
+        <label>Màu sắc của bản này</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <input type="text" id="color-input" placeholder="Ví dụ: Xanh dương " style="flex: 1;">
+          <button type="button" id="add-color-btn" class="btn-secondary">
+            <span class="material-symbols-outlined">add</span>
+            Thêm
+          </button>
+        </div>
+        <div id="colors-container" style="
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 15px;
+          padding: 10px;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          min-height: 40px;
+        "></div>
+        <input type="hidden" id="colors" />
+
+        <label>Giá bán (VNĐ) <span style="color:red">*</span></label>
+        <input type="number" id="price" min="0" required />
+
+        <label>Giá cũ</label>
+        <input type="number" id="oldPrice" min="0" />
+
+        <label>Ảnh đại diện</label>
+        <div class="image-selector">
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <input type="text" id="image" placeholder="Link ảnh chính" style="flex: 1;">
+            <button type="button" class="image-select-btn" onclick="openImageModal('image', false)">
+              <span class="material-symbols-outlined">photo_library</span>
+              Chọn ảnh
+            </button>
+          </div>
+        </div>
+
+        <label>Gallery ảnh (mỗi link 1 dòng)</label>
+        <div class="image-selector">
+          <button type="button" class="image-select-btn" onclick="openImageModal('gallery', true)">
+            <span class="material-symbols-outlined">photo_library</span>
+            Chọn nhiều ảnh từ thư viện
+          </button>
+          <textarea id="gallery" rows="6" placeholder="Mỗi link ảnh 1 dòng hoặc chọn từ thư viện"></textarea>
+        </div>
+
+        <label>Ảnh thông số</label>
+        <input type="text" id="specsImage" placeholder="Link ảnh thông số kỹ thuật (tùy chọn)" />
+
+        <!-- ẨN CÁC TRƯỜNG KHÔNG CẦN THIẾT -->
+        <input type="hidden" id="sold" value="0" />
+        <input type="hidden" id="rating" value="0" />
+
+        <label>Màn hình</label>
+        <input type="text" id="screen" placeholder="Ví dụ: Super Retina XDR 6.7 inch" />
+
+        <!-- EDITOR HTML CHO MÔ TẢ SẢN PHẨM -->
+        <label>Mô tả sản phẩm (Hỗ trợ HTML)</label>
+        <div class="html-editor-container">
+          <div class="editor-tabs">
+            <button type="button" class="editor-tab active" data-tab="code">Mã HTML</button>
+            <button type="button" class="editor-tab" data-tab="preview">Xem trước</button>
+          </div>
+          
+          <!-- Phần toolbar -->
+          <div class="editor-toolbar">
+            <button type="button" class="editor-btn" data-tag="p">P</button>
+            <button type="button" class="editor-btn" data-tag="h1">H1</button>
+            <button type="button" class="editor-btn" data-tag="h2">H2</button>
+            <button type="button" class="editor-btn" data-tag="h3">H3</button>
+            <button type="button" class="editor-btn" data-tag="strong">B</button>
+            <button type="button" class="editor-btn" data-tag="em">I</button>
+            <button type="button" class="editor-btn" data-tag="ul">UL</button>
+            <button type="button" class="editor-btn" data-tag="ol">OL</button>
+            <button type="button" class="editor-btn" data-tag="li">LI</button>
+            <button type="button" class="editor-btn" data-tag="br">BR</button>
+            <button type="button" class="editor-btn" data-tag="hr">HR</button>
+            <button type="button" class="editor-btn" data-tag="code">Code</button>
+            <button type="button" class="editor-btn" data-tag="pre">Pre</button>
+            <button type="button" class="editor-btn" data-tag="blockquote">Quote</button>
+          </div>
+          
+          <!-- Phần mã HTML -->
+          <div class="tab-content active" id="code-tab">
+            <textarea 
+              id="description" 
+              class="code-editor" 
+              placeholder="Nhập mô tả sản phẩm ở đây (có thể dùng HTML)..."
+              oninput="updatePreview()"
+            ></textarea>
+          </div>
+          
+          <!-- Phần xem trước -->
+          <div class="tab-content" id="preview-tab">
+            <div class="html-preview" id="html-preview">
+              <!-- Preview sẽ được hiển thị ở đây -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== THÔNG SỐ CHI TIẾT ========== -->
+        <div class="specs-detail-container">
+          <h3 style="font-size: 2rem; color: #1f2937; margin-bottom: 25px;">Thông số kỹ thuật</h3>
+          
+          <!-- CẤU HÌNH & BỘ NHỚ -->
+          <div class="specs-detail-section">
+            <h4>Cấu hình & Bộ nhớ</h4>
+            <div class="spec-items-list">
+              <div class="spec-item">
+                <span class="spec-label">Hệ điều hành:</span>
+                <textarea class="spec-textarea" id="spec-os" placeholder="Ví dụ: Android 15" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Chip xử lý (CPU):</span>
+                <textarea class="spec-textarea" id="spec-cpu" placeholder="Ví dụ: Exynos 1330" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Tốc độ CPU:</span>
+                <textarea class="spec-textarea" id="spec-cpu-speed" placeholder="Ví dụ: 2 nhân 2.4 GHz & 6 nhân 2 GHz" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Chip đồ họa (GPU):</span>
+                <textarea class="spec-textarea" id="spec-gpu" placeholder="Ví dụ: Đang cập nhật" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">RAM:</span>
+                <textarea class="spec-textarea" id="spec-ram" placeholder="Ví dụ: 8 GB" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Dung lượng lưu trữ:</span>
+                <textarea class="spec-textarea" id="spec-storage" placeholder="Ví dụ: 128 GB" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Dung lượng còn lại (khả dụng):</span>
+                <textarea class="spec-textarea" id="spec-available-storage" placeholder="Ví dụ: khoảng 107 GB" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Thẻ nhớ:</span>
+                <textarea class="spec-textarea" id="spec-memory-card" placeholder="Ví dụ: MicroSD, hỗ trợ tối đa 2 TB" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Danh bạ:</span>
+                <textarea class="spec-textarea" id="spec-contacts" placeholder="Ví dụ: Không giới hạn" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- CAMERA & MÀN HÌNH -->
+          <div class="specs-detail-section">
+            <h4>Camera & Màn hình</h4>
+            <div class="spec-items-list">
+              <div class="spec-item">
+                <span class="spec-label">Độ phân giải camera sau:</span>
+                <textarea class="spec-textarea" id="spec-rear-camera" placeholder="Ví dụ: Chính 50 MP & Phụ 5 MP, 2 MP" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Quay phim camera sau:</span>
+                <textarea class="spec-textarea" id="spec-rear-video" placeholder="Ví dụ: HD 720p@120fps, Full HD 1080p@30fps" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Đèn Flash camera sau:</span>
+                <textarea class="spec-textarea" id="spec-rear-flash" placeholder="Ví dụ: Có" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Tính năng camera sau:</span>
+                <textarea class="spec-textarea" id="spec-rear-features" placeholder="Ví dụ: Zoom kỹ thuật số, Xóa phông, Tự động lấy nét (AF)..." rows="3"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Độ phân giải camera trước:</span>
+                <textarea class="spec-textarea" id="spec-front-camera" placeholder="Ví dụ: 13 MP" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Tính năng camera trước:</span>
+                <textarea class="spec-textarea" id="spec-front-features" placeholder="Ví dụ: Xóa phông, Nhãn dán (AR Stickers), Làm đẹp" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Công nghệ màn hình:</span>
+                <textarea class="spec-textarea" id="spec-screen-tech" placeholder="Ví dụ: Super AMOLED" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Độ phân giải màn hình:</span>
+                <textarea class="spec-textarea" id="spec-screen-resolution" placeholder="Ví dụ: Full HD+ (1080 x 2340 Pixels)" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Màn hình rộng:</span>
+                <textarea class="spec-textarea" id="spec-screen-size" placeholder="Ví dụ: 6.7 inch – Tần số quét 90 Hz" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Độ sáng tối đa:</span>
+                <textarea class="spec-textarea" id="spec-screen-brightness" placeholder="Ví dụ: 800 nits" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Mặt kính cảm ứng:</span>
+                <textarea class="spec-textarea" id="spec-screen-glass" placeholder="Ví dụ: Corning Gorilla Glass Victus" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- PIN & SẠC -->
+          <div class="specs-detail-section">
+            <h4>Pin & Sạc</h4>
+            <div class="spec-items-list">
+              <div class="spec-item">
+                <span class="spec-label">Dung lượng pin:</span>
+                <textarea class="spec-textarea" id="spec-battery" placeholder="Ví dụ: 5000 mAh" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Loại pin:</span>
+                <textarea class="spec-textarea" id="spec-battery-type" placeholder="Ví dụ: Li-Ion" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Hỗ trợ sạc tối đa:</span>
+                <textarea class="spec-textarea" id="spec-charging" placeholder="Ví dụ: 25 W" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Sạc kèm theo máy:</span>
+                <textarea class="spec-textarea" id="spec-charger-included" placeholder="Ví dụ: 25W" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Công nghệ pin:</span>
+                <textarea class="spec-textarea" id="spec-battery-tech" placeholder="Ví dụ: Tiết kiệm pin, Sạc pin nhanh" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- TIỆN ÍCH -->
+          <div class="specs-detail-section">
+            <h4>Tiện ích</h4>
+            <div class="spec-items-list">
+              <div class="spec-item">
+                <span class="spec-label">Bảo mật nâng cao:</span>
+                <textarea class="spec-textarea" id="spec-security" placeholder="Ví dụ: Mở khóa vân tay cạnh viền, Mở khóa khuôn mặt" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Tính năng đặc biệt:</span>
+                <textarea class="spec-textarea" id="spec-special-features" placeholder="Ví dụ: Trợ lý ảo Google Gemini, Smart Switch, Khoanh tròn để tìm kiếm" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Kháng nước, bụi:</span>
+                <textarea class="spec-textarea" id="spec-waterproof" placeholder="Ví dụ: IP54" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Ghi âm:</span>
+                <textarea class="spec-textarea" id="spec-recording" placeholder="Ví dụ: Ghi âm mặc định, Ghi âm cuộc gọi" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Xem phim:</span>
+                <textarea class="spec-textarea" id="spec-video-formats" placeholder="Ví dụ: WEBM, MP4, MKV, M4V, FLV, AVI, 3GP, 3G2" rows="3"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Nghe nhạc:</span>
+                <textarea class="spec-textarea" id="spec-audio-formats" placeholder="Ví dụ: XMF, WAV, RTX, RTTTL, OTA, OGG, OGA, Midi, MXMF, MP3, M4A, IMY, FLAC, AWB, AMR, AAC, 3GA" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- KẾT NỐI -->
+          <div class="specs-detail-section">
+            <h4>Kết nối</h4>
+            <div class="spec-items-list">
+              <div class="spec-item">
+                <span class="spec-label">Mạng di động:</span>
+                <textarea class="spec-textarea" id="spec-network" placeholder="Ví dụ: Hỗ trợ 5G" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">SIM:</span>
+                <textarea class="spec-textarea" id="spec-sim" placeholder="Ví dụ: 2 Nano SIM" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Wi-Fi:</span>
+                <textarea class="spec-textarea" id="spec-wifi" placeholder="Ví dụ: Wi-Fi hotspot, Wi-Fi Direct, Wi-Fi 5, Dual-band (2.4 GHz / 5 GHz)" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">GPS:</span>
+                <textarea class="spec-textarea" id="spec-gps" placeholder="Ví dụ: QZSS, GPS, GLONASS, GALILEO, BEIDOU" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Bluetooth:</span>
+                <textarea class="spec-textarea" id="spec-bluetooth" placeholder="Ví dụ: v5.3" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Cổng kết nối / sạc:</span>
+                <textarea class="spec-textarea" id="spec-port" placeholder="Ví dụ: Type-C" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Jack tai nghe:</span>
+                <textarea class="spec-textarea" id="spec-headphone-jack" placeholder="Ví dụ: Type-C" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Kết nối khác:</span>
+                <textarea class="spec-textarea" id="spec-other-connectivity" placeholder="Ví dụ: NFC" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- THIẾT KẾ & CHẤT LIỆU -->
+          <div class="specs-detail-section">
+            <h4>Thiết kế & Chất liệu</h4>
+            <div class="spec-items-list">
+              <div class="spec-item">
+                <span class="spec-label">Thiết kế:</span>
+                <textarea class="spec-textarea" id="spec-design" placeholder="Ví dụ: Nguyên khối" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Chất liệu:</span>
+                <textarea class="spec-textarea" id="spec-material" placeholder="Ví dụ: Khung & mặt lưng nhựa" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Kích thước:</span>
+                <textarea class="spec-textarea" id="spec-dimensions" placeholder="Ví dụ: Dài 164.4 mm – Ngang 77.9 mm – Dày 7.5 mm" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Khối lượng:</span>
+                <textarea class="spec-textarea" id="spec-weight" placeholder="Ví dụ: 192 g" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Thời điểm ra mắt:</span>
+                <textarea class="spec-textarea" id="spec-release-date" placeholder="Ví dụ: 10/2025" rows="2"></textarea>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Hãng:</span>
+                <textarea class="spec-textarea" id="spec-brand" placeholder="Ví dụ: OPPO" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- THÔNG TIN META - CHỈ HIỂN THỊ KHI SỬA -->
+        <div id="product-meta-info" class="meta-info-box" style="display: none;">
+          <h3 style="font-size: 1.8rem; color: #1f2937; margin-bottom: 20px;">Thông tin hệ thống</h3>
+          <div class="meta-info-grid">
+            <div class="meta-info-item">
+              <strong>Người tạo:</strong>
+              <span id="meta-created-by">N/A</span>
+            </div>
+            <div class="meta-info-item">
+              <strong>Thời gian tạo:</strong>
+              <span id="meta-created-at">N/A</span>
+            </div>
+            <div class="meta-info-item">
+              <strong>Người cập nhật cuối:</strong>
+              <span id="meta-updated-by">N/A</span>
+            </div>
+            <div class="meta-info-item">
+              <strong>Thời gian cập nhật:</strong>
+              <span id="meta-updated-at">N/A</span>
+            </div>
+            <div class="meta-info-item">
+              <strong>Đã bán:</strong>
+              <span id="meta-sold-count">0</span> sản phẩm
+            </div>
+            <div class="meta-info-item">
+              <strong>Đánh giá trung bình:</strong>
+              <span id="meta-rating">0</span>/5
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:40px">
+          <button type="submit" class="btn-primary" style="padding:18px 50px;font-size:2rem">
+            Lưu sản phẩm
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- Modal chọn ảnh -->
+<div id="image-select-modal" class="image-select-modal">
+  <div class="image-select-content">
+    <div class="image-select-header">
+      <div style="flex: 1;">
+        <h3 style="margin: 0; display: flex; align-items: center;">
+          Chọn ảnh từ thư viện
+          <span class="selected-counter">(0 đã chọn)</span>
+        </h3>
+        <div class="filter-container">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="filter-label">Lọc theo ngày:</span>
+            <select id="date-filter" class="filter-select">
+              <option value="all">Tất cả ảnh</option>
+              <option value="today">Hôm nay</option>
+              <option value="yesterday">Hôm qua</option>
+              <option value="week">Tuần này</option>
+              <option value="month">Tháng này</option>
+              <option value="last7days">7 ngày qua</option>
+              <option value="last30days">30 ngày qua</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="filter-label">Sắp xếp:</span>
+            <select id="sort-order" class="filter-select">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <button onclick="closeImageModal()" style="
+        background: none;
+        border: none;
+        font-size: 30px;
+        cursor: pointer;
+        color: #64748b;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+      ">&times;</button>
+    </div>
+    
+    <div id="modal-image-grid" class="image-grid-select">
+      <!-- Ảnh sẽ được load ở đây -->
+    </div>
+    
+    <div class="image-select-footer">
+      <button onclick="closeImageModal()" class="btn-secondary" style="
+        background: #64748b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.4rem;
+      ">Hủy</button>
+      <button onclick="confirmImageSelection()" class="btn-primary" style="
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.4rem;
+      ">Chọn</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ========== FIREBASE CONFIG ==========
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { 
+    getAuth, 
+    onAuthStateChanged, 
+    signOut 
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { 
+    getFirestore, 
+    collection, 
+    getDocs, 
+    query,
+    where,
+    doc,
+    updateDoc,
+    addDoc,
+    orderBy,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+    authDomain: "products-a39df.firebaseapp.com",
+    projectId: "products-a39df",
+    storageBucket: "products-a39df.firebasestorage.app",
+    messagingSenderId: "708345988066",
+    appId: "1:708345988066:web:b8011a4859285450162fbb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ========== GLOBAL VARIABLES ==========
+  let allImages = [];
+  let selectedImageUrls = [];
+  let currentImageTarget = null;
+  let isMultipleSelection = false;
+  let editingFirebaseId = null;
+  let products = [];
+  let currentDateFilter = 'all';
+  let currentSortOrder = 'newest';
+
+  // ========== HTML EDITOR FUNCTIONS ==========
+  function initHTMLEditor() {
+    // Tab switching
+    document.querySelectorAll('.editor-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        // Update tabs
+        document.querySelectorAll('.editor-tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        const tabContent = document.getElementById(`${tabId}-tab`);
+        if (tabContent) tabContent.classList.add('active');
+        
+        // Update preview if needed
+        if (tabId === 'preview') {
+          updatePreview();
+        }
+      });
+    });
+    
+    // Toolbar buttons
+    document.querySelectorAll('.editor-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tag = this.dataset.tag;
+        const textarea = document.getElementById('description');
+        if (!textarea) return;
+        
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        
+        let newText = '';
+        
+        switch(tag) {
+          case 'p':
+            newText = `<p>${selectedText || 'Nội dung đoạn văn'}</p>`;
+            break;
+          case 'h1':
+            newText = `<h1>${selectedText || 'Tiêu đề chính'}</h1>`;
+            break;
+          case 'h2':
+            newText = `<h2>${selectedText || 'Tiêu đề phụ'}</h2>`;
+            break;
+          case 'h3':
+            newText = `<h3>${selectedText || 'Tiêu đề nhỏ'}</h3>`;
+            break;
+          case 'strong':
+            newText = `<strong>${selectedText || 'văn bản in đậm'}</strong>`;
+            break;
+          case 'em':
+            newText = `<em>${selectedText || 'văn bản in nghiêng'}</em>`;
+            break;
+          case 'ul':
+            newText = `<ul>\n  <li>Mục 1</li>\n  <li>Mục 2</li>\n</ul>`;
+            break;
+          case 'ol':
+            newText = `<ol>\n  <li>Mục 1</li>\n  <li>Mục 2</li>\n</ol>`;
+            break;
+          case 'li':
+            newText = `<li>${selectedText || 'Mục danh sách'}</li>`;
+            break;
+          case 'br':
+            newText = '<br>';
+            break;
+          case 'hr':
+            newText = '<hr>';
+            break;
+          case 'code':
+            newText = `<code>${selectedText || 'code'}</code>`;
+            break;
+          case 'pre':
+            newText = `<pre><code>${selectedText || '// Code ở đây'}</code></pre>`;
+            break;
+          case 'blockquote':
+            newText = `<blockquote>${selectedText || 'Trích dẫn'}</blockquote>`;
+            break;
+        }
+        
+        // Insert new text
+        textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+        textarea.focus();
+        
+        // Update preview
+        updatePreview();
+      });
+    });
+    
+    // Auto update preview when typing
+    const descriptionTextarea = document.getElementById('description');
+    if (descriptionTextarea) {
+      descriptionTextarea.addEventListener('input', updatePreview);
+    }
+  }
+  
+  // Update HTML preview
+  function updatePreview() {
+    const textarea = document.getElementById('description');
+    const preview = document.getElementById('html-preview');
+    
+    if (!textarea || !preview) return;
+    
+    const html = textarea.value;
+    
+    // Create a safe preview by sanitizing HTML
+    preview.innerHTML = html || '<p style="color: #9ca3af; font-style: italic;">Xem trước sẽ hiển thị ở đây...</p>';
+    
+    // Add event listeners to images for modal
+    preview.querySelectorAll('img').forEach(img => {
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+      img.style.borderRadius = '4px';
+      img.style.margin = '10px 0';
+      
+      img.onerror = function() {
+        this.src = 'https://via.placeholder.com/300x200?text=Ảnh+không+tồn+tại';
+      };
+    });
+  }
+
+  // ========== AUTH CHECK ==========
+  onAuthStateChanged(auth, async (user) => {
+    console.log("Product form page auth check - User:", user ? user.email : "No user");
+    
+    if (!user) {
+      window.location.href = '../a1b2c3-secret.html';
+      return;
+    }
+    
+    try {
+      console.log("✅ Đã đăng nhập, kiểm tra quyền admin...");
+      
+      const adminsRef = collection(db, "admins");
+      const q = query(adminsRef, where("email", "==", user.email));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        await signOut(auth);
+        alert("❌ Bạn không có quyền truy cập Admin Panel!");
+        window.location.href = '../a1b2c3-secret.html';
+        return;
+      }
+      
+      const adminData = snapshot.docs[0].data();
+      const userNameElem = document.getElementById('user-name');
+      const userEmailElem = document.getElementById('user-email');
+      const userAvatarElem = document.getElementById('user-avatar');
+      
+      if (userNameElem) userNameElem.textContent = adminData.name || user.displayName || 'Admin';
+      if (userEmailElem) userEmailElem.textContent = user.email;
+      if (userAvatarElem) {
+        userAvatarElem.textContent = 
+          (adminData.name?.charAt(0) || user.email.charAt(0)).toUpperCase();
+      }
+      
+      // Hiển thị role badge
+      const roleBadge = document.getElementById('user-role-badge');
+      if (roleBadge) {
+        if (adminData.role === 'super_admin') {
+          roleBadge.textContent = 'Super Admin';
+          roleBadge.className = 'role-badge role-super_admin';
+        } else if (adminData.role === 'admin') {
+          roleBadge.textContent = 'Admin';
+          roleBadge.className = 'role-badge role-admin';
+        } else if (adminData.role === 'staff') {
+          roleBadge.textContent = 'Nhân viên';
+          roleBadge.className = 'role-badge role-staff';
+        }
+      }
+      
+      await preloadImages();
+      await initForm();
+      initHTMLEditor();
+      
+    } catch (error) {
+      console.error("❌ Admin check error:", error);
+      window.location.href = '../a1b2c3-secret.html';
+    }
+  });
+
+  // ========== LOGOUT ==========
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+        try {
+          await signOut(auth);
+          window.location.href = '../a1b2c3-secret.html';
+        } catch (error) {
+          console.error("Error logging out:", error);
+          alert("Lỗi đăng xuất: " + error.message);
+        }
+      }
+    });
+  }
+
+  // ========== COLOR MANAGEMENT ==========
+  const addColorBtn = document.getElementById('add-color-btn');
+  if (addColorBtn) {
+    addColorBtn.addEventListener('click', addColorFromInput);
+  }
+  
+  const colorInput = document.getElementById('color-input');
+  if (colorInput) {
+    colorInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addColorFromInput();
+      }
+    });
+  }
+
+  function addColorFromInput() {
+    const input = document.getElementById('color-input');
+    if (!input) return;
+    
+    const color = input.value.trim();
+    
+    if (!color) {
+      alert('Vui lòng nhập tên màu');
+      return;
+    }
+    
+    // Format: viết hoa chữ cái đầu mỗi từ
+    const formattedColor = color
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    addColorTag(formattedColor);
+    input.value = '';
+    updateHiddenColors();
+  }
+
+  function addColorTag(color) {
+    const container = document.getElementById('colors-container');
+    if (!container) return;
+    
+    // Kiểm tra màu đã tồn tại chưa
+    const existing = Array.from(container.querySelectorAll('.color-tag span'))
+      .map(span => span.textContent);
+    
+    if (existing.includes(color)) {
+      alert('Màu này đã được thêm');
+      return;
+    }
+    
+    const tag = document.createElement('div');
+    tag.className = 'color-tag';
+    tag.innerHTML = `
+      <span>${color}</span>
+      <button type="button" class="remove-color">&times;</button>
+    `;
+    
+    tag.querySelector('.remove-color').addEventListener('click', function() {
+      tag.remove();
+      updateHiddenColors();
+    });
+    
+    container.appendChild(tag);
+    updateHiddenColors();
+  }
+
+  function updateHiddenColors() {
+    const container = document.getElementById('colors-container');
+    const hiddenField = document.getElementById('colors');
+    
+    if (!container || !hiddenField) return;
+    
+    const colors = Array.from(container.querySelectorAll('.color-tag span'))
+      .map(span => span.textContent);
+    
+    hiddenField.value = JSON.stringify(colors);
+  }
+
+  // ========== PRELOAD IMAGES ==========
+  async function preloadImages() {
+    try {
+      const imagesRef = collection(db, "images");
+      const q = query(imagesRef, orderBy("uploadedAt", "desc"));
+      const snapshot = await getDocs(q);
+      
+      allImages = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        allImages.push({
+          id: docSnap.id,
+          url: data.url,
+          thumb: data.thumb || data.url,
+          name: data.name || 'Ảnh không tên',
+          uploadedAt: data.uploadedAt?.toDate?.() || new Date()
+        });
+      });
+      
+      console.log(`✅ Đã tải ${allImages.length} ảnh`);
+      
+      localStorage.setItem('store_images_cache', JSON.stringify(allImages));
+      
+    } catch (error) {
+      console.error("❌ Lỗi tải ảnh:", error);
+      
+      const cache = localStorage.getItem('store_images_cache');
+      if (cache) {
+        allImages = JSON.parse(cache);
+      } else {
+        const oldImages = JSON.parse(localStorage.getItem('store_images') || '[]');
+        allImages = oldImages;
+      }
+    }
+  }
+
+  // ========== FORMAT DATE TIME ==========
+  function formatDateTime(date) {
+    if (!date) return 'N/A';
+    try {
+      if (typeof date.toDate === 'function') {
+        date = date.toDate();
+      }
+      const d = new Date(date);
+      return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
+    } catch (error) {
+      return 'N/A';
+    }
+  }
+
+  // ========== FORM INITIALIZATION ==========
+  async function initForm() {
+    await loadProducts();
+    
+    editingFirebaseId = localStorage.getItem('editingProductFirebaseId');
+    if (editingFirebaseId && editingFirebaseId !== 'null' && editingFirebaseId !== 'undefined') {
+      // Đang chỉnh sửa sản phẩm
+      document.getElementById('form-title').textContent = 'Sửa sản phẩm';
+      const p = products.find(p => p.firebaseId === editingFirebaseId);
+      
+      if (p) {
+        // Điền các trường cơ bản
+        document.getElementById('name').value = p.name || '';
+        document.getElementById('brand').value = p.brand || '';
+        document.getElementById('baseModel').value = p.baseModel || '';
+        document.getElementById('price').value = p.price || '';
+        document.getElementById('oldPrice').value = p.oldPrice || '';
+        document.getElementById('image').value = p.image || '';
+        document.getElementById('screen').value = p.screen || '';
+        document.getElementById('gallery').value = p.gallery?.join('\n') || '';
+        document.getElementById('specsImage').value = p.specsImage || '';
+        document.getElementById('description').value = p.description || '';
+
+        // Đã bán và rating
+        document.getElementById('sold').value = p.sold || 0;
+        document.getElementById('rating').value = p.rating || 0;
+
+        // Dung lượng
+        if (p.storages && p.storages.length > 0) {
+          document.getElementById('storages-select').value = p.storages[0];
+        }
+
+        // Load màu sắc vào tags
+        if (p.colors && p.colors.length > 0) {
+          p.colors.forEach(color => addColorTag(color));
+        }
+
+        // Load thông số chi tiết
+        if (p.detailedSpecs) {
+          loadDetailedSpecs(p.detailedSpecs);
+        }
+
+        // HIỂN THỊ THÔNG TIN META
+        const metaInfoBox = document.getElementById('product-meta-info');
+        if (metaInfoBox) metaInfoBox.style.display = 'block';
+        
+        const metaCreatedBy = document.getElementById('meta-created-by');
+        if (metaCreatedBy) metaCreatedBy.textContent = 
+          p.createdBy ? `${p.createdBy.name} (${p.createdBy.email})` : 'N/A';
+          
+        const metaCreatedAt = document.getElementById('meta-created-at');
+        if (metaCreatedAt) metaCreatedAt.textContent = 
+          p.createdAt ? formatDateTime(p.createdAt) : 'N/A';
+          
+        const metaUpdatedBy = document.getElementById('meta-updated-by');
+        if (metaUpdatedBy) metaUpdatedBy.textContent = 
+          p.updatedBy ? `${p.updatedBy.name} (${p.updatedBy.email})` : 'N/A';
+          
+        const metaUpdatedAt = document.getElementById('meta-updated-at');
+        if (metaUpdatedAt) metaUpdatedAt.textContent = 
+          p.updatedAt ? formatDateTime(p.updatedAt) : 'N/A';
+          
+        const metaSoldCount = document.getElementById('meta-sold-count');
+        if (metaSoldCount) metaSoldCount.textContent = p.sold || 0;
+        
+        const metaRating = document.getElementById('meta-rating');
+        if (metaRating) metaRating.textContent = p.rating || 0;
+        
+        // Update preview
+        updatePreview();
+      }
+    } else {
+      // Nếu là thêm mới, CLEAR FORM HOÀN TOÀN
+      clearForm();
+    }
+  }
+
+  // ========== LOAD PRODUCTS FUNCTION ==========
+  async function loadProducts() {
+    try {
+      const q = query(collection(db, "products"), orderBy("name"));
+      const querySnapshot = await getDocs(q);
+      
+      products = [];
+      querySnapshot.forEach((docSnap) => {
+        products.push({
+          firebaseId: docSnap.id,
+          ...docSnap.data()
+        });
+      });
+
+      console.log(`✅ Load thành công ${products.length} sản phẩm`);
+      return true;
+    } catch (err) {
+      console.error("❌ Lỗi load sản phẩm:", err);
+      alert("Lỗi kết nối Firebase: " + err.message);
+      return false;
+    }
+  }
+
+  // ========== CLEAR FORM KHI THÊM MỚI ==========
+  function clearForm() {
+    const formTitle = document.getElementById('form-title');
+    if (formTitle) formTitle.textContent = 'Thêm sản phẩm mới';
+    
+    const metaInfoBox = document.getElementById('product-meta-info');
+    if (metaInfoBox) metaInfoBox.style.display = 'none';
+    
+    // Reset tất cả input, textarea, select trong form
+    const form = document.getElementById('product-form');
+    if (form) form.reset();
+    
+    // Clear colors container
+    const colorsContainer = document.getElementById('colors-container');
+    if (colorsContainer) colorsContainer.innerHTML = '';
+    
+    const colorInput = document.getElementById('color-input');
+    if (colorInput) colorInput.value = '';
+    
+    updateHiddenColors();
+    
+    // Clear detailed specs
+    const specInputs = document.querySelectorAll('.spec-textarea');
+    specInputs.forEach(input => {
+      input.value = '';
+    });
+    
+    // Reset storage select
+    const storageSelect = document.getElementById('storages-select');
+    if (storageSelect) storageSelect.selectedIndex = 0;
+    
+    const storagesHidden = document.getElementById('storages');
+    if (storagesHidden) storagesHidden.value = '';
+    
+    // Clear description
+    const description = document.getElementById('description');
+    if (description) description.value = '';
+    
+    updatePreview();
+  }
+
+  // Helper function để set giá trị cho textarea
+  function setTextareaValue(id, value) {
+    const element = document.getElementById(id);
+    if (element && value !== undefined && value !== null) {
+      element.value = value;
+    }
+  }
+
+  function loadDetailedSpecs(specs) {
+    // Đảm bảo specs tồn tại
+    if (!specs) return;
+    
+    // Cấu hình & Bộ nhớ
+    if (specs.config) {
+      setTextareaValue('spec-os', specs.config.os);
+      setTextareaValue('spec-cpu', specs.config.cpu);
+      setTextareaValue('spec-cpu-speed', specs.config.cpuSpeed);
+      setTextareaValue('spec-gpu', specs.config.gpu);
+      setTextareaValue('spec-ram', specs.config.ram);
+      setTextareaValue('spec-storage', specs.config.storage);
+      setTextareaValue('spec-available-storage', specs.config.availableStorage);
+      setTextareaValue('spec-memory-card', specs.config.memoryCard);
+      setTextareaValue('spec-contacts', specs.config.contacts);
+    }
+    
+    // Camera & Màn hình
+    if (specs.camera) {
+      setTextareaValue('spec-rear-camera', specs.camera.rearCamera);
+      setTextareaValue('spec-rear-video', specs.camera.rearVideo);
+      setTextareaValue('spec-rear-flash', specs.camera.rearFlash);
+      setTextareaValue('spec-rear-features', specs.camera.rearFeatures);
+      setTextareaValue('spec-front-camera', specs.camera.frontCamera);
+      setTextareaValue('spec-front-features', specs.camera.frontFeatures);
+      setTextareaValue('spec-screen-tech', specs.camera.screenTech);
+      setTextareaValue('spec-screen-resolution', specs.camera.screenResolution);
+      setTextareaValue('spec-screen-size', specs.camera.screenSize);
+      setTextareaValue('spec-screen-brightness', specs.camera.screenBrightness);
+      setTextareaValue('spec-screen-glass', specs.camera.screenGlass);
+    }
+    
+    // Pin & Sạc
+    if (specs.battery) {
+      setTextareaValue('spec-battery', specs.battery.battery);
+      setTextareaValue('spec-battery-type', specs.battery.batteryType);
+      setTextareaValue('spec-charging', specs.battery.charging);
+      setTextareaValue('spec-charger-included', specs.battery.chargerIncluded);
+      setTextareaValue('spec-battery-tech', specs.battery.batteryTech);
+    }
+    
+    // Tiện ích
+    if (specs.utilities) {
+      setTextareaValue('spec-security', specs.utilities.security);
+      setTextareaValue('spec-special-features', specs.utilities.specialFeatures);
+      setTextareaValue('spec-waterproof', specs.utilities.waterproof);
+      setTextareaValue('spec-recording', specs.utilities.recording);
+      setTextareaValue('spec-video-formats', specs.utilities.videoFormats);
+      setTextareaValue('spec-audio-formats', specs.utilities.audioFormats);
+    }
+    
+    // Kết nối
+    if (specs.connectivity) {
+      setTextareaValue('spec-network', specs.connectivity.network);
+      setTextareaValue('spec-sim', specs.connectivity.sim);
+      setTextareaValue('spec-wifi', specs.connectivity.wifi);
+      setTextareaValue('spec-gps', specs.connectivity.gps);
+      setTextareaValue('spec-bluetooth', specs.connectivity.bluetooth);
+      setTextareaValue('spec-port', specs.connectivity.port);
+      setTextareaValue('spec-headphone-jack', specs.connectivity.headphoneJack);
+      setTextareaValue('spec-other-connectivity', specs.connectivity.otherConnectivity);
+    }
+    
+    // Thiết kế & Chất liệu
+    if (specs.design) {
+      setTextareaValue('spec-design', specs.design.design);
+      setTextareaValue('spec-material', specs.design.material);
+      setTextareaValue('spec-dimensions', specs.design.dimensions);
+      setTextareaValue('spec-weight', specs.design.weight);
+      setTextareaValue('spec-release-date', specs.design.releaseDate);
+      setTextareaValue('spec-brand', specs.design.brand);
+    }
+  }
+
+  // ========== SAVE PRODUCT ==========
+  async function saveProduct(productData, firebaseId = null) {
+    console.log("Đang lưu sản phẩm:", productData);
+    
+    try {
+      // Lấy thông tin user hiện tại (nhân viên đang thao tác)
+      const user = auth.currentUser;
+      if (user) {
+        if (!firebaseId) {
+          // Thêm mới: thêm thông tin người tạo
+          productData.createdBy = {
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || document.getElementById('user-name')?.textContent || 'Admin',
+            timestamp: serverTimestamp()
+          };
+        }
+        
+        // Cập nhật: thêm thông tin người cập nhật
+        productData.updatedBy = {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || document.getElementById('user-name')?.textContent || 'Admin',
+          timestamp: serverTimestamp()
+        };
+      }
+      
+      if (firebaseId) {
+        const docRef = doc(db, "products", firebaseId);
+        await updateDoc(docRef, productData);
+        console.log("✅ Cập nhật thành công!");
+      } else {
+        const docRef = await addDoc(collection(db, "products"), productData);
+        console.log("✅ Thêm thành công! ID:", docRef.id);
+      }
+      
+      return true;
+    } catch (err) {
+      console.error("❌ Lỗi chi tiết:", err);
+      alert("Lỗi lưu sản phẩm: " + err.message);
+      return false;
+    }
+  }
+
+  // ========== FORM SUBMIT ==========
+  const productForm = document.getElementById('product-form');
+  if (productForm) {
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Lấy giá trị từ các field
+      const selectedStorage = document.getElementById('storages-select')?.value || '';
+      const colorsContainer = document.getElementById('colors-container');
+      const colors = colorsContainer ? 
+        Array.from(colorsContainer.querySelectorAll('.color-tag span'))
+          .map(span => span.textContent) : [];
+
+      // Thu thập thông số chi tiết
+      const detailedSpecs = {
+        config: {
+          os: document.getElementById('spec-os')?.value.trim() || '',
+          cpu: document.getElementById('spec-cpu')?.value.trim() || '',
+          cpuSpeed: document.getElementById('spec-cpu-speed')?.value.trim() || '',
+          gpu: document.getElementById('spec-gpu')?.value.trim() || '',
+          ram: document.getElementById('spec-ram')?.value.trim() || '',
+          storage: document.getElementById('spec-storage')?.value.trim() || '',
+          availableStorage: document.getElementById('spec-available-storage')?.value.trim() || '',
+          memoryCard: document.getElementById('spec-memory-card')?.value.trim() || '',
+          contacts: document.getElementById('spec-contacts')?.value.trim() || ''
+        },
+        camera: {
+          rearCamera: document.getElementById('spec-rear-camera')?.value.trim() || '',
+          rearVideo: document.getElementById('spec-rear-video')?.value.trim() || '',
+          rearFlash: document.getElementById('spec-rear-flash')?.value.trim() || '',
+          rearFeatures: document.getElementById('spec-rear-features')?.value.trim() || '',
+          frontCamera: document.getElementById('spec-front-camera')?.value.trim() || '',
+          frontFeatures: document.getElementById('spec-front-features')?.value.trim() || '',
+          screenTech: document.getElementById('spec-screen-tech')?.value.trim() || '',
+          screenResolution: document.getElementById('spec-screen-resolution')?.value.trim() || '',
+          screenSize: document.getElementById('spec-screen-size')?.value.trim() || '',
+          screenBrightness: document.getElementById('spec-screen-brightness')?.value.trim() || '',
+          screenGlass: document.getElementById('spec-screen-glass')?.value.trim() || ''
+        },
+        battery: {
+          battery: document.getElementById('spec-battery')?.value.trim() || '',
+          batteryType: document.getElementById('spec-battery-type')?.value.trim() || '',
+          charging: document.getElementById('spec-charging')?.value.trim() || '',
+          chargerIncluded: document.getElementById('spec-charger-included')?.value.trim() || '',
+          batteryTech: document.getElementById('spec-battery-tech')?.value.trim() || ''
+        },
+        utilities: {
+          security: document.getElementById('spec-security')?.value.trim() || '',
+          specialFeatures: document.getElementById('spec-special-features')?.value.trim() || '',
+          waterproof: document.getElementById('spec-waterproof')?.value.trim() || '',
+          recording: document.getElementById('spec-recording')?.value.trim() || '',
+          videoFormats: document.getElementById('spec-video-formats')?.value.trim() || '',
+          audioFormats: document.getElementById('spec-audio-formats')?.value.trim() || ''
+        },
+        connectivity: {
+          network: document.getElementById('spec-network')?.value.trim() || '',
+          sim: document.getElementById('spec-sim')?.value.trim() || '',
+          wifi: document.getElementById('spec-wifi')?.value.trim() || '',
+          gps: document.getElementById('spec-gps')?.value.trim() || '',
+          bluetooth: document.getElementById('spec-bluetooth')?.value.trim() || '',
+          port: document.getElementById('spec-port')?.value.trim() || '',
+          headphoneJack: document.getElementById('spec-headphone-jack')?.value.trim() || '',
+          otherConnectivity: document.getElementById('spec-other-connectivity')?.value.trim() || ''
+        },
+        design: {
+          design: document.getElementById('spec-design')?.value.trim() || '',
+          material: document.getElementById('spec-material')?.value.trim() || '',
+          dimensions: document.getElementById('spec-dimensions')?.value.trim() || '',
+          weight: document.getElementById('spec-weight')?.value.trim() || '',
+          releaseDate: document.getElementById('spec-release-date')?.value.trim() || '',
+          brand: document.getElementById('spec-brand')?.value.trim() || ''
+        }
+      };
+
+      // Sử dụng serverTimestamp cho createdAt/updatedAt
+      const productData = {
+        name: document.getElementById('name')?.value.trim() || '',
+        brand: document.getElementById('brand')?.value.trim().toLowerCase() || '',
+        baseModel: document.getElementById('baseModel')?.value.trim() || '',
+        price: Number(document.getElementById('price')?.value) || 0,
+        oldPrice: document.getElementById('oldPrice')?.value ? Number(document.getElementById('oldPrice').value) : null,
+        image: document.getElementById('image')?.value.trim() || '',
+        sold: Number(document.getElementById('sold')?.value) || 0,
+        rating: Number(document.getElementById('rating')?.value) || 0,
+        screen: document.getElementById('screen')?.value.trim() || '',
+        storages: selectedStorage ? [selectedStorage] : [],
+        colors: colors,
+        gallery: document.getElementById('gallery')?.value.split('\n').map(l => l.trim()).filter(Boolean) || [],
+        specsImage: document.getElementById('specsImage')?.value.trim() || '',
+        description: document.getElementById('description')?.value.trim() || '',
+        detailedSpecs: detailedSpecs,
+        category: 'dien-thoai',
+        updatedAt: serverTimestamp()
+      };
+
+      // Thêm createdAt nếu là sản phẩm mới
+      if (!editingFirebaseId) {
+        productData.createdAt = serverTimestamp();
+      }
+
+      try {
+        await saveProduct(productData, editingFirebaseId);
+        localStorage.removeItem('editingProductFirebaseId');
+        localStorage.removeItem('editingProductId');
+        alert("✅ Lưu thành công!");
+        window.location.href = 'index.html';
+      } catch (err) {
+        alert("❌ Lỗi: " + err.message);
+      }
+    });
+  }
+
+  // ========== DATE FILTERING FUNCTIONS ==========
+  function filterImagesByDate(images, dateFilter) {
+    if (dateFilter === 'all') return images;
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Chủ nhật là đầu tuần
+    
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    return images.filter(img => {
+      const uploadDate = img.uploadedAt ? new Date(img.uploadedAt) : new Date(0);
+      
+      switch(dateFilter) {
+        case 'today':
+          return uploadDate >= today;
+        case 'yesterday':
+          return uploadDate >= yesterday && uploadDate < today;
+        case 'week':
+          return uploadDate >= startOfWeek;
+        case 'month':
+          return uploadDate >= startOfMonth;
+        case 'last7days':
+          return uploadDate >= sevenDaysAgo;
+        case 'last30days':
+          return uploadDate >= thirtyDaysAgo;
+        default:
+          return true;
+      }
+    });
+  }
+  
+  function sortImages(images, sortOrder) {
+    return [...images].sort((a, b) => {
+      const dateA = a.uploadedAt ? new Date(a.uploadedAt) : new Date(0);
+      const dateB = b.uploadedAt ? new Date(b.uploadedAt) : new Date(0);
+      
+      if (sortOrder === 'newest') {
+        return dateB - dateA; // Mới nhất trước
+      } else {
+        return dateA - dateB; // Cũ nhất trước
+      }
+    });
+  }
+  
+  function applyFiltersAndSort() {
+    // Lấy giá trị từ dropdown
+    currentDateFilter = document.getElementById('date-filter').value;
+    currentSortOrder = document.getElementById('sort-order').value;
+    
+    // Lọc ảnh theo ngày
+    let filteredImages = filterImagesByDate(allImages, currentDateFilter);
+    
+    // Sắp xếp ảnh
+    filteredImages = sortImages(filteredImages, currentSortOrder);
+    
+    // Hiển thị ảnh đã lọc và sắp xếp
+    renderImageGrid(filteredImages);
+  }
+
+  // ========== IMAGE SELECTION MODAL FUNCTIONS ==========
+  window.openImageModal = async function(target, multiple = false) {
+    console.log("Opening image modal for target:", target, "multiple:", multiple);
+    
+    currentImageTarget = target;
+    isMultipleSelection = multiple;
+    selectedImageUrls = [];
+    
+    // Đảm bảo ảnh đã được tải
+    if (allImages.length === 0) {
+      await preloadImages();
+    }
+    
+    // Lấy URL hiện tại từ input/textarea
+    const currentElement = document.getElementById(target);
+    if (currentElement) {
+      if (multiple) {
+        const urls = currentElement.value
+          .split('\n')
+          .map(url => url.trim())
+          .filter(url => url !== '');
+        selectedImageUrls = [...urls];
+        console.log("Current gallery URLs:", selectedImageUrls);
+      } else {
+        if (currentElement.value) {
+          selectedImageUrls = [currentElement.value];
+          console.log("Current single image URL:", selectedImageUrls);
+        }
+      }
+    }
+    
+    // Hiển thị modal
+    const modal = document.getElementById('image-select-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+    
+    // Reset filters về mặc định
+    document.getElementById('date-filter').value = 'all';
+    document.getElementById('sort-order').value = 'newest';
+    currentDateFilter = 'all';
+    currentSortOrder = 'newest';
+    
+    // Tải và hiển thị ảnh
+    loadModalImages();
+    
+    // Thêm sự kiện cho dropdown lọc và sắp xếp
+    document.getElementById('date-filter').onchange = applyFiltersAndSort;
+    document.getElementById('sort-order').onchange = applyFiltersAndSort;
+  };
+  
+  // Hàm render grid ảnh
+  function renderImageGrid(images) {
+    const grid = document.getElementById('modal-image-grid');
+    if (!grid) return;
+    
+    if (images.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-library">
+          <span class="material-symbols-outlined">photo_library</span>
+          <p style="font-size: 1.6rem; margin-bottom: 10px;">Không có ảnh nào</p>
+          <p style="font-size: 1.4rem; color: #94a3b8;">
+            Vui lòng thử lọc với khoảng thời gian khác
+          </p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Cập nhật header với số lượng
+    const header = document.querySelector('.image-select-header h3');
+    if (header) {
+      const counter = header.querySelector('.selected-counter');
+      if (counter) {
+        counter.textContent = `(${selectedImageUrls.length} đã chọn / ${images.length} ảnh)`;
+      }
+    }
+    
+    // Tạo HTML cho grid
+    grid.innerHTML = images.map((img) => {
+      const isSelected = selectedImageUrls.includes(img.url);
+      const uploadDate = img.uploadedAt ? 
+        new Date(img.uploadedAt).toLocaleDateString('vi-VN') : 'Không rõ';
+      
+      return `
+        <div class="image-select-item ${isSelected ? 'selected' : ''}" 
+             data-url="${img.url.replace(/"/g, '&quot;')}"
+             onclick="toggleImageSelection(this)"
+             title="${(img.name || 'Ảnh không tên').replace(/"/g, '&quot;')}">
+          <img src="${img.thumb || img.url}" 
+               alt="${img.name || 'Ảnh'}" 
+               loading="lazy"
+               onerror="this.onerror=null; this.src='https://via.placeholder.com/180x150?text=Ảnh'">
+          <div style="
+            padding: 8px;
+            font-size: 1.2rem;
+            color: #64748b;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            overflow: hidden;
+            gap: 4px;
+          ">
+            <span style="
+              display: block;
+              width: 100%;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              padding: 0 5px;
+              font-weight: 500;
+            ">
+              ${img.name ? img.name.substring(0, 20) : 'Ảnh không tên'}
+              ${img.name && img.name.length > 20 ? '...' : ''}
+            </span>
+            <span style="
+              display: block;
+              font-size: 1.1rem;
+              color: #94a3b8;
+            ">
+              ${uploadDate}
+            </span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  // Hàm load ảnh vào modal
+  function loadModalImages() {
+    const grid = document.getElementById('modal-image-grid');
+    if (!grid) return;
+    
+    if (allImages.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-library">
+          <span class="material-symbols-outlined">photo_library</span>
+          <p style="font-size: 1.6rem; margin-bottom: 10px;">Thư viện ảnh trống</p>
+          <p style="font-size: 1.4rem; color: #94a3b8;">
+            Vào trang <a href="images.html" style="color: #3b82f6; text-decoration: underline;">Quản lý ảnh</a> để upload ảnh
+          </p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Áp dụng filter và sort mặc định
+    applyFiltersAndSort();
+  }
+  
+  // Hàm toggle chọn ảnh
+  window.toggleImageSelection = function(element) {
+    if (!element) return;
+    
+    const url = element.getAttribute('data-url');
+    if (!url) return;
+    
+    if (isMultipleSelection) {
+      const index = selectedImageUrls.indexOf(url);
+      if (index > -1) {
+        selectedImageUrls.splice(index, 1);
+        element.classList.remove('selected');
+      } else {
+        selectedImageUrls.push(url);
+        element.classList.add('selected');
+      }
+    } else {
+      // Bỏ chọn tất cả các ảnh khác
+      document.querySelectorAll('.image-select-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      selectedImageUrls = [url];
+      element.classList.add('selected');
+    }
+    
+    // Cập nhật counter
+    const header = document.querySelector('.image-select-header h3');
+    if (header) {
+      const counter = header.querySelector('.selected-counter');
+      if (counter) {
+        // Lấy lại danh sách ảnh hiện tại (đã lọc)
+        let filteredImages = filterImagesByDate(allImages, currentDateFilter);
+        filteredImages = sortImages(filteredImages, currentSortOrder);
+        counter.textContent = `(${selectedImageUrls.length} đã chọn / ${filteredImages.length} ảnh)`;
+      } else {
+        const newCounter = document.createElement('span');
+        newCounter.className = 'selected-counter';
+        newCounter.textContent = `(${selectedImageUrls.length} đã chọn)`;
+        header.appendChild(newCounter);
+      }
+    }
+  };
+  
+  // Xác nhận chọn ảnh
+  window.confirmImageSelection = function() {
+    console.log("Confirming selection:", selectedImageUrls);
+    
+    if (selectedImageUrls.length === 0) {
+      alert("Vui lòng chọn ít nhất một ảnh!");
+      return;
+    }
+    
+    const targetElement = document.getElementById(currentImageTarget);
+    if (targetElement) {
+      if (isMultipleSelection) {
+        // Lấy URLs hiện tại (không trùng lặp)
+        const currentUrls = targetElement.value
+          .split('\n')
+          .map(url => url.trim())
+          .filter(url => url !== '');
+        
+        // Thêm URLs mới (không trùng)
+        selectedImageUrls.forEach(url => {
+          if (!currentUrls.includes(url)) {
+            currentUrls.push(url);
+          }
+        });
+        
+        targetElement.value = currentUrls.join('\n');
+      } else {
+        targetElement.value = selectedImageUrls[0];
+      }
+      
+      // Kích hoạt sự kiện input để cập nhật preview (nếu cần)
+      targetElement.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    
+    closeImageModal();
+  };
+  
+  // Đóng modal
+  window.closeImageModal = function() {
+    const modal = document.getElementById('image-select-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+    
+    // Reset state
+    selectedImageUrls = [];
+    currentImageTarget = null;
+    isMultipleSelection = false;
+    
+    // Khôi phục scroll cho body
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    
+    console.log("Image modal closed");
+  };
+</script>
+</body>
+</html>

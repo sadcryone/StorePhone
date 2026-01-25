@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <title>Quản lý Chat - Admin Dashboard</title>
+    <link rel="stylesheet" href="./assets/css/admin.css">
+    <link rel="stylesheet" href="./assets/css/chats.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>STORE PHONE</h2>
+                <p>Admin Dashboard</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    Sản phẩm
+                </a>
+                <a href="orders.html" class="menu-item">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    Đơn hàng
+                </a>
+                <a href="chats.html" class="menu-item active">
+                    <span class="material-symbols-outlined">chat</span>
+                    Quản lý Chat
+                </a>
+                <a href="banners.html" class="menu-item">
+                    <span class="material-symbols-outlined">image</span>
+                    Banner
+                </a>
+                <a href="images.html" class="menu-item">
+                    <span class="material-symbols-outlined">photo_library</span>
+                    Quản lý ảnh
+                </a>
+                <a href="users.html" class="menu-item" id="users-menu-link">
+                    <span class="material-symbols-outlined">group</span>
+                    Người dùng
+                </a>
+                <a href="analytics.html" class="menu-item">
+                    <span class="material-symbols-outlined">analytics</span>
+                    Thống kê
+                </a>
+                <a href="../index.html" class="menu-item">
+                    <span class="material-symbols-outlined">home</span>
+                    Về trang chủ
+                </a>
+                <a href="#" class="menu-item" id="logout-btn">
+                    <span class="material-symbols-outlined">logout</span>
+                    Đăng xuất
+                </a>
+            </nav>
+            
+            <div class="user-info">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="user-name" style="font-size: 1.4rem; font-weight: 500;"></span>
+                            <span id="user-role-badge" class="role-badge role-admin"></span>
+                        </div>
+                        <div id="user-email" style="font-size: 1.2rem; color: var(--gray-400);"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+            <!-- TOP BAR -->
+            <header class="admin-topbar">
+                <h1>Quản lý Chat Hỗ trợ</h1>
+                <button class="btn btn-primary" onclick="refreshChats()">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Làm mới
+                </button>
+            </header>
+
+            <!-- CHAT STATS -->
+            <div class="chat-stats">
+                <div class="chat-stat-card">
+                    <div class="chat-stat-icon">
+                        <span class="material-symbols-outlined">chat</span>
+                    </div>
+                    <div class="chat-stat-info">
+                        <h3>Tổng số chat</h3>
+                        <p id="total-chats">0</p>
+                    </div>
+                </div>
+                <div class="chat-stat-card">
+                    <div class="chat-stat-icon">
+                        <span class="material-symbols-outlined">schedule</span>
+                    </div>
+                    <div class="chat-stat-info">
+                        <h3>Chat đang mở</h3>
+                        <p id="open-chats">0</p>
+                    </div>
+                </div>
+                <div class="chat-stat-card">
+                    <div class="chat-stat-icon">
+                        <span class="material-symbols-outlined">check_circle</span>
+                    </div>
+                    <div class="chat-stat-info">
+                        <h3>Chat đã đóng</h3>
+                        <p id="closed-chats">0</p>
+                    </div>
+                </div>
+                <div class="chat-stat-card">
+                    <div class="chat-stat-icon">
+                        <span class="material-symbols-outlined">warning</span>
+                    </div>
+                    <div class="chat-stat-info">
+                        <h3>Tin nhắn chưa đọc</h3>
+                        <p id="unread-messages">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT MANAGEMENT -->
+            <div class="chat-management">
+                <div class="chat-header-section">
+                    <h2>Hỗ trợ khách hàng</h2>
+                </div>
+
+                <!-- BULK ACTIONS -->
+                <div class="chat-bulk-actions" id="chat-bulk-actions">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="select-all-chats">
+                        Chọn tất cả (<span id="selected-chats-count">0</span>)
+                    </label>
+                    <button class="btn btn-success" onclick="bulkMarkAsRead()">
+                        <span class="material-symbols-outlined">mark_email_read</span>
+                        Đánh dấu đã đọc
+                    </button>
+                    <button class="btn btn-danger" onclick="bulkDeleteChats()">
+                        <span class="material-symbols-outlined">delete</span>
+                        Xoá chat đã chọn
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearChatSelection()">
+                        <span class="material-symbols-outlined">close</span>
+                        Bỏ chọn
+                    </button>
+                </div>
+
+                <!-- MAIN LAYOUT -->
+                <div class="chat-main-layout">
+                    <!-- LEFT SIDEBAR: CHAT LIST -->
+                    <div class="chat-list-sidebar">
+                        <div class="chat-list-header">
+                            <div class="chat-search-box">
+                                <span class="material-symbols-outlined" style="color: var(--gray-500);">search</span>
+                                <input 
+                                    type="text" 
+                                    id="chat-search-input" 
+                                    placeholder="Tìm kiếm người dùng..." 
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="chat-filters">
+                            <button class="chat-filter-btn active" data-status="all">Tất cả</button>
+                            <button class="chat-filter-btn" data-status="open">Đang mở</button>
+                            <button class="chat-filter-btn" data-status="closed">Đã đóng</button>
+                            <button class="chat-filter-btn" data-status="unread">Chưa đọc</button>
+                        </div>
+
+                        <div class="chat-list-container" id="chat-list">
+                            <div class="chat-loading">
+                                <div class="chat-loading-spinner"></div>
+                                <p>Đang tải danh sách chat...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT AREA: CHAT WINDOWS -->
+                    <div class="chat-windows-container" id="chat-windows-container">
+                        <div class="chat-empty-state">
+                            <span class="material-symbols-outlined">chat</span>
+                            <h3>Chưa có chat nào được chọn</h3>
+                            <p>Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+<script type="module">
+    // ========== FIREBASE CONFIG ==========
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+        getAuth, 
+        onAuthStateChanged, 
+        signOut 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        getDoc,
+        query,
+        where,
+        orderBy,
+        limit,
+        doc,
+        updateDoc,
+        addDoc,
+        deleteDoc,
+        serverTimestamp,
+        onSnapshot,
+        writeBatch
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+        authDomain: "products-a39df.firebaseapp.com",
+        projectId: "products-a39df",
+        storageBucket: "products-a39df.firebasestorage.app",
+        messagingSenderId: "708345988066",
+        appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ========== GLOBAL VARIABLES ==========
+    let allChats = [];
+    let filteredChats = [];
+    let selectedChats = new Set();
+    let openedChats = new Map();
+    let messageListeners = {};
+    let currentUserRole = '';
+    let currentFilters = {
+        status: 'all',
+        search: ''
+    };
+
+    // ========== DRAG AND DROP FUNCTIONS ==========
+    function setupDragAndDrop(chatWindow) {
+        const header = chatWindow.querySelector('.chat-window-header');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        header.addEventListener('mousedown', dragStart);
+        header.addEventListener('mouseup', dragEnd);
+        document.addEventListener('mousemove', drag);
+
+        function dragStart(e) {
+            // Chỉ kéo khi click vào header, không phải vào nút
+            if (e.target.closest('.chat-window-btn')) {
+                return;
+            }
+            
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            
+            if (e.target === header || header.contains(e.target)) {
+                isDragging = true;
+                chatWindow.style.zIndex = '1000'; // Đảm bảo cửa sổ đang kéo ở trên cùng
+                chatWindow.classList.add('dragging');
+            }
+        }
+
+        function dragEnd(e) {
+            if (!isDragging) return;
+            
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+            chatWindow.classList.remove('dragging');
+            
+            // Lưu vị trí mới
+            chatWindow.setAttribute('data-x', xOffset);
+            chatWindow.setAttribute('data-y', yOffset);
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+            
+            xOffset = currentX;
+            yOffset = currentY;
+            
+            setTranslate(currentX, currentY, chatWindow);
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+        }
+    }
+
+    // ========== AUTH CHECK VÀ PHÂN QUYỀN ==========
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = '../a1b2c3-secret.html';
+            return;
+        }
+        
+        try {
+            const adminsRef = collection(db, "admins");
+            const q = query(adminsRef, where("email", "==", user.email));
+            const snapshot = await getDocs(q);
+            
+            if (snapshot.empty) {
+                await signOut(auth);
+                alert("❌ Bạn không có quyền truy cập Admin Panel!");
+                window.location.href = '../a1b2c3-secret.html';
+                return;
+            }
+            
+            const userData = snapshot.docs[0].data();
+            currentUserRole = userData.role || 'admin';
+            
+            document.getElementById('user-name').textContent = userData.name || user.displayName || 'Admin';
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-avatar').textContent = 
+                (userData.name?.charAt(0) || user.email.charAt(0)).toUpperCase();
+            
+            const roleBadge = document.getElementById('user-role-badge');
+            if (currentUserRole === 'super_admin') {
+                roleBadge.textContent = 'Super Admin';
+                roleBadge.className = 'role-badge role-super_admin';
+            } else if (currentUserRole === 'admin') {
+                roleBadge.textContent = 'Admin';
+                roleBadge.className = 'role-badge role-admin';
+            } else if (currentUserRole === 'staff') {
+                roleBadge.textContent = 'Nhân viên';
+                roleBadge.className = 'role-badge role-staff';
+            }
+            
+            await loadChats();
+            setupChatListener();
+            setupMenuPermissions();
+            
+        } catch (error) {
+            showError(`Lỗi xác thực: ${error.message}`);
+            window.location.href = '../a1b2c3-secret.html';
+        }
+    });
+
+    // ========== KIỂM TRA QUYỀN TRUY CẬP MENU ==========
+    function setupMenuPermissions() {
+        const usersMenuLink = document.getElementById('users-menu-link');
+        
+        if (usersMenuLink) {
+            usersMenuLink.addEventListener('click', function(e) {
+                if (currentUserRole === 'staff') {
+                    e.preventDefault();
+                    alert("❌ Chỉ quản trị viên mới được truy cập trang Quản lý Người dùng!");
+                    return false;
+                }
+                return true;
+            });
+        }
+    }
+
+    async function testFirebaseConnection() {
+        try {
+            const testRef = collection(db, "chats");
+            const testSnapshot = await getDocs(query(testRef, limit(1)));
+            return true;
+        } catch (error) {
+            showError(`Lỗi kết nối Firebase: ${error.code || error.message}`);
+            return false;
+        }
+    }
+
+    // ========== HÀM LẤY THÔNG TIN NGƯỜI DÙNG TỪ COLLECTION users ==========
+    async function getUsersInfo(userIds) {
+        if (!userIds || userIds.length === 0) return {};
+        
+        try {
+            const usersInfo = {};
+            
+            // Chia thành các batch 10 userId để tránh query quá lớn
+            const batchSize = 10;
+            for (let i = 0; i < userIds.length; i += batchSize) {
+                const batch = userIds.slice(i, i + batchSize);
+                
+                // Query users collection với các userId trong batch
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("__name__", "in", batch));
+                const snapshot = await getDocs(q);
+                
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    usersInfo[doc.id] = {
+                        name: userData.name || '',
+                        email: userData.email || '',
+                        // Có thể thêm các trường khác nếu cần
+                    };
+                });
+            }
+            
+            return usersInfo;
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            return {};
+        }
+    }
+
+    // ========== HÀM CẬP NHẬT THÔNG TIN USER CHO CHAT ==========
+    async function updateChatWithUserInfo(chatId, userId) {
+        try {
+            const userDoc = await getDoc(doc(db, "users", userId));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                
+                // Cập nhật thông tin user vào chat
+                await updateDoc(doc(db, "chats", chatId), {
+                    userName: userData.name || userData.email.split('@')[0],
+                    userEmail: userData.email
+                });
+                
+                // Cập nhật local data
+                const chatIndex = allChats.findIndex(c => c.id === chatId);
+                if (chatIndex !== -1) {
+                    allChats[chatIndex].userName = userData.name || userData.email.split('@')[0];
+                    allChats[chatIndex].userEmail = userData.email;
+                }
+            }
+        } catch (error) {
+            console.error("Lỗi cập nhật thông tin user cho chat:", error);
+        }
+    }
+
+    // ========== CHAT MANAGEMENT ==========
+    async function loadChats() {
+        try {
+            const chatsRef = collection(db, "chats");
+            const q = query(chatsRef, orderBy("lastUpdated", "desc"));
+            const snapshot = await getDocs(q);
+            
+            allChats = [];
+            const userIds = new Set(); // Sử dụng Set để lưu các userId duy nhất
+            
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                allChats.push({
+                    id: docSnap.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.() || new Date(),
+                    lastUpdated: data.lastUpdated?.toDate?.() || new Date()
+                });
+                
+                // Lấy userId từ participants (bỏ 'admin')
+                const userId = data.participants?.find(p => p !== 'admin');
+                if (userId) {
+                    userIds.add(userId);
+                }
+            });
+
+            // LẤY THÔNG TIN NGƯỜI DÙNG TỪ COLLECTION users
+            const usersInfo = await getUsersInfo(Array.from(userIds));
+            
+            // CẬP NHẬT TÊN NGƯỜI DÙNG TRONG allChats
+            allChats.forEach(chat => {
+                const userId = chat.participants?.find(p => p !== 'admin');
+                if (userId && usersInfo[userId]) {
+                    // Ưu tiên lấy tên từ collection users
+                    chat.userName = usersInfo[userId].name || chat.userEmail?.split('@')[0] || 'Người dùng';
+                } else if (!chat.userName) {
+                    // Fallback: lấy từ email nếu không có trong usersInfo
+                    chat.userName = chat.userEmail ? chat.userEmail.split('@')[0] : 'Người dùng';
+                }
+            });
+
+            applyChatFilters();
+            renderChatList();
+            updateChatStats();
+            
+        } catch (error) {
+            showError(`Lỗi tải danh sách chat: ${error.code || error.message}`);
+            
+            document.getElementById('chat-list').innerHTML = `
+                <div class="chat-empty-state">
+                    <span class="material-symbols-outlined">error</span>
+                    <h3>Không thể tải danh sách chat</h3>
+                    <p>${error.message || "Lỗi kết nối"}</p>
+                    <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Thử lại
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    function setupChatListener() {
+        try {
+            const chatsRef = collection(db, "chats");
+            const q = query(chatsRef, orderBy("lastUpdated", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                loadChats();
+            }, (error) => {
+            });
+            
+        } catch (error) {
+        }
+    }
+
+    function applyChatFilters() {
+        filteredChats = [...allChats];
+
+        if (currentFilters.status !== 'all') {
+            if (currentFilters.status === 'unread') {
+                filteredChats = filteredChats.filter(chat => chat.unreadCount > 0);
+            } else {
+                filteredChats = filteredChats.filter(chat => chat.status === currentFilters.status);
+            }
+        }
+
+        if (currentFilters.search) {
+            const searchTerm = currentFilters.search.toLowerCase();
+            filteredChats = filteredChats.filter(chat => {
+                const userEmail = chat.userEmail || '';
+                const userName = chat.userName || '';
+                return userEmail.toLowerCase().includes(searchTerm) || 
+                       userName.toLowerCase().includes(searchTerm);
+            });
+        }
+
+        filteredChats.sort((a, b) => {
+            if (b.unreadCount !== a.unreadCount) {
+                return b.unreadCount - a.unreadCount;
+            }
+            return (b.lastUpdated?.getTime?.() || 0) - (a.lastUpdated?.getTime?.() || 0);
+        });
+    }
+
+    function renderChatList() {
+        const chatList = document.getElementById('chat-list');
+        
+        if (filteredChats.length === 0) {
+            chatList.innerHTML = `
+                <div class="chat-empty-state">
+                    <span class="material-symbols-outlined">search_off</span>
+                    <h3>Không tìm thấy chat nào</h3>
+                    <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+                </div>
+            `;
+            return;
+        }
+        
+        chatList.innerHTML = filteredChats.map(chat => {
+            const userId = chat.participants?.find(p => p !== 'admin') || 'unknown';
+            
+            // ƯU TIÊN: Lấy tên từ chat.userName (đã được cập nhật từ collection users)
+            const userName = chat.userName || 'Người dùng';
+            const userInitial = userName.charAt(0).toUpperCase();
+            
+            const lastMessage = chat.lastMessage || 'Chưa có tin nhắn';
+            const lastUpdated = formatTimeAgo(chat.lastUpdated);
+            const unreadCount = chat.unreadCount || 0;
+            const statusClass = chat.status === 'open' ? 'status-open' : 'status-closed';
+            const statusText = chat.status === 'open' ? 'Mở' : 'Đóng';
+            
+            const isOpened = openedChats.has(chat.id);
+            const hasUnread = unreadCount > 0;
+            const isSelected = selectedChats.has(chat.id);
+            
+            return `
+                <div class="chat-item ${isOpened ? 'active' : ''} ${hasUnread ? 'unread' : ''} ${isSelected ? 'selected' : ''}" 
+                     data-chat-id="${chat.id}">
+                    <div class="chat-user-avatar">${userInitial}</div>
+                    <div class="chat-user-info">
+                        <div class="chat-user-header">
+                            <div class="chat-user-name" title="${userName}">${userName}</div>
+                            <div class="chat-time">${lastUpdated}</div>
+                        </div>
+                        <div class="chat-last-message" title="${lastMessage}">${truncateText(lastMessage, 40)}</div>
+                        <div class="chat-status-badge ${statusClass}">${statusText}</div>
+                    </div>
+                    ${unreadCount > 0 ? `<div class="chat-unread-count">${unreadCount}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        
+        chatList.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.type === 'checkbox') return;
+                
+                const chatId = item.dataset.chatId;
+                
+                if (chatId && !openedChats.has(chatId)) {
+                    openChatWindow(chatId);
+                } else if (openedChats.has(chatId)) {
+                    const chatWindow = openedChats.get(chatId).element;
+                    chatWindow.classList.remove('minimized');
+                    chatWindow.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                    
+                    markChatAsRead(chatId);
+                }
+            });
+        });
+    }
+
+    // Trong function openChatWindow của chats.html
+    async function openChatWindow(chatId) {
+        try {
+            if (openedChats.has(chatId)) {
+                return;
+            }
+            
+            const chat = allChats.find(c => c.id === chatId);
+            if (!chat) {
+                showError("Không tìm thấy chat!");
+                return;
+            }
+            
+            const chatWindow = createChatWindowElement(chat);
+            const windowsContainer = document.getElementById('chat-windows-container');
+            
+            const emptyState = windowsContainer.querySelector('.chat-empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            windowsContainer.appendChild(chatWindow);
+            
+            openedChats.set(chatId, {
+                element: chatWindow,
+                minimized: false
+            });
+            
+            // TỰ ĐỘNG MỞ CHAT KHI NGƯỜI DÙNG VÀO LẠI
+            if (chat.status === 'closed') {
+                await updateDoc(doc(db, "chats", chatId), {
+                    status: 'open',
+                    lastUpdated: serverTimestamp()
+                });
+            }
+            
+            await loadChatMessages(chatId, chatWindow);
+            setupMessageListener(chatId, chatWindow);
+            await markChatAsRead(chatId);
+            updateChatListActiveState();
+            
+            chatWindow.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            
+        } catch (error) {
+            showError(`Lỗi mở chat: ${error.message}`);
+        }
+    }
+
+    function createChatWindowElement(chat) {
+        const userId = chat.participants?.find(p => p !== 'admin') || 'unknown';
+        
+        // ƯU TIÊN: Lấy tên từ chat.userName (đã được cập nhật từ collection users)
+        const userName = chat.userName || 'Người dùng';
+        const userInitial = userName.charAt(0).toUpperCase();
+        
+        const chatWindow = document.createElement('div');
+        chatWindow.className = 'chat-window';
+        chatWindow.dataset.chatId = chat.id;
+        
+        chatWindow.innerHTML = `
+            <div class="chat-window-header">
+                <div class="chat-window-user">
+                    <div class="chat-window-avatar">${userInitial}</div>
+                    <div class="chat-window-user-info">
+                        <div class="chat-window-user-name" title="${userName}">${userName}</div>
+                        <div class="chat-window-user-status">
+                            <span class="status-dot"></span>
+                            <span>${chat.status === 'open' ? 'Đang trực tuyến' : 'Đã đóng'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-window-actions">
+                    <button class="chat-window-btn delete" title="Xoá chat">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <button class="chat-window-btn minimize" title="Thu nhỏ">
+                        <span class="material-symbols-outlined">minimize</span>
+                    </button>
+                    <button class="chat-window-btn close" title="Đóng cửa sổ">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="chat-messages-container" data-messages-container>
+                <div class="chat-loading">
+                    <div class="chat-loading-spinner"></div>
+                    <p>Đang tải tin nhắn...</p>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <textarea 
+                    placeholder="Nhập tin nhắn phản hồi..." 
+                    rows="2"
+                    maxlength="1000"
+                    data-chat-input
+                ></textarea>
+                <button class="chat-send-btn" data-send-btn disabled>
+                    <span class="material-symbols-outlined">send</span>
+                </button>
+            </div>
+        `;
+        
+        const closeBtn = chatWindow.querySelector('.chat-window-btn.close');
+        const minimizeBtn = chatWindow.querySelector('.chat-window-btn.minimize');
+        const deleteBtn = chatWindow.querySelector('.chat-window-btn.delete');
+        const sendBtn = chatWindow.querySelector('[data-send-btn]');
+        const input = chatWindow.querySelector('[data-chat-input]');
+        
+        closeBtn.addEventListener('click', () => closeChatWindow(chat.id));
+        minimizeBtn.addEventListener('click', () => toggleMinimizeChatWindow(chat.id));
+        deleteBtn.addEventListener('click', () => deleteChat(chat.id));
+        
+        sendBtn.addEventListener('click', () => sendMessageToChat(chat.id, input));
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessageToChat(chat.id, input);
+            }
+        });
+        
+        input.addEventListener('input', () => {
+            sendBtn.disabled = input.value.trim() === '';
+            input.style.height = 'auto';
+            input.style.height = (input.scrollHeight) + 'px';
+        });
+        
+        // Thêm tính năng kéo di chuyển
+        setupDragAndDrop(chatWindow);
+        
+        return chatWindow;
+    }
+
+    async function loadChatMessages(chatId, chatWindow) {
+        try {
+            const messagesContainer = chatWindow.querySelector('[data-messages-container]');
+            
+            const messagesRef = collection(db, "chats", chatId, "messages");
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+            const snapshot = await getDocs(q);
+            
+            const messages = [];
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                messages.push({
+                    id: docSnap.id,
+                    ...data,
+                    timestamp: data.timestamp?.toDate?.() || new Date()
+                });
+            });
+            
+            renderChatMessages(chatId, messages, chatWindow);
+            
+        } catch (error) {
+            const messagesContainer = chatWindow.querySelector('[data-messages-container]');
+            messagesContainer.innerHTML = `
+                <div class="chat-empty-state">
+                    <span class="material-symbols-outlined">error</span>
+                    <h3>Lỗi tải tin nhắn</h3>
+                    <p>${error.message || "Không thể tải tin nhắn"}</p>
+                </div>
+            `;
+        }
+    }
+
+    function renderChatMessages(chatId, messages, chatWindow) {
+        const messagesContainer = chatWindow.querySelector('[data-messages-container]');
+        
+        if (messages.length === 0) {
+            messagesContainer.innerHTML = `
+                <div class="chat-empty-state">
+                    <span class="material-symbols-outlined">chat</span>
+                    <h3>Chưa có tin nhắn nào</h3>
+                    <p>Hãy bắt đầu cuộc trò chuyện</p>
+                </div>
+            `;
+            return;
+        }
+        
+        messagesContainer.innerHTML = messages.map(msg => {
+            const isAdmin = msg.senderId === 'admin' || msg.senderId === 'system';
+            const time = msg.timestamp?.toDate?.() 
+                ? formatTime(msg.timestamp.toDate()) 
+                : 'Vừa xong';
+            
+            return `
+                <div class="chat-message ${isAdmin ? 'admin' : 'user'}">
+                    <div class="message-content">
+                        ${msg.text || ''}
+                    </div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+        }).join('');
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function setupMessageListener(chatId, chatWindow) {
+        if (messageListeners[chatId]) {
+            messageListeners[chatId]();
+            delete messageListeners[chatId];
+        }
+        
+        try {
+            const messagesRef = collection(db, "chats", chatId, "messages");
+            const q = query(messagesRef, orderBy("timestamp"));
+            
+            messageListeners[chatId] = onSnapshot(q, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    messages.push({
+                        id: docSnap.id,
+                        ...data,
+                        timestamp: data.timestamp?.toDate?.() || new Date()
+                    });
+                });
+                
+                messages.sort((a, b) => 
+                    (a.timestamp?.getTime?.() || 0) - (b.timestamp?.getTime?.() || 0)
+                );
+                
+                renderChatMessages(chatId, messages, chatWindow);
+                
+                if (openedChats.has(chatId) && !openedChats.get(chatId).minimized) {
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage && 
+                        lastMessage.senderId !== 'admin' && 
+                        lastMessage.senderId !== 'system' && 
+                        !lastMessage.read) {
+                        markChatAsRead(chatId);
+                    }
+                }
+                
+                if (messages.length > 0) {
+                    const lastMsg = messages[messages.length - 1];
+                    updateChatListLastMessage(chatId, lastMsg.text);
+                }
+                
+                updateChatUnreadCount(chatId);
+                
+            }, (error) => {
+            });
+            
+        } catch (error) {
+        }
+    }
+
+    function updateChatListLastMessage(chatId, lastMessage) {
+        const chatItem = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
+        if (chatItem) {
+            const lastMessageEl = chatItem.querySelector('.chat-last-message');
+            if (lastMessageEl) {
+                lastMessageEl.textContent = truncateText(lastMessage, 40);
+                lastMessageEl.title = lastMessage;
+            }
+            
+            const chatIndex = allChats.findIndex(c => c.id === chatId);
+            if (chatIndex !== -1) {
+                allChats[chatIndex].lastMessage = lastMessage;
+            }
+        }
+    }
+
+    async function sendMessageToChat(chatId, inputElement) {
+        const messageText = inputElement.value.trim();
+        
+        if (!messageText) {
+            alert("Vui lòng nhập tin nhắn!");
+            return;
+        }
+        
+        try {
+            const messagesRef = collection(db, "chats", chatId, "messages");
+            
+            await addDoc(messagesRef, {
+                senderId: 'admin',
+                text: messageText,
+                timestamp: serverTimestamp(),
+                read: true
+            });
+            
+            await updateDoc(doc(db, "chats", chatId), {
+                lastMessage: messageText,
+                lastUpdated: serverTimestamp()
+            });
+            
+            inputElement.value = '';
+            inputElement.style.height = '50px';
+            inputElement.focus();
+            
+            const sendBtn = inputElement.nextElementSibling;
+            sendBtn.disabled = true;
+            
+        } catch (error) {
+            showError(`Lỗi gửi tin nhắn: ${error.message}`);
+        }
+    }
+
+    async function markChatAsRead(chatId) {
+        try {
+            await updateDoc(doc(db, "chats", chatId), {
+                unreadCount: 0,
+                lastUpdated: serverTimestamp()
+            });
+            
+            updateChatUnreadCount(chatId);
+            
+        } catch (error) {
+            showError(`Không thể đánh dấu đã đọc: ${error.code || error.message}`);
+        }
+    }
+
+    function updateChatUnreadCount(chatId) {
+        const chatItem = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
+        if (chatItem) {
+            const chat = allChats.find(c => c.id === chatId);
+            const unreadCount = chat?.unreadCount || 0;
+            
+            const unreadBadge = chatItem.querySelector('.chat-unread-count');
+            if (unreadCount > 0) {
+                if (!unreadBadge) {
+                    const badge = document.createElement('div');
+                    badge.className = 'chat-unread-count';
+                    badge.textContent = unreadCount;
+                    chatItem.appendChild(badge);
+                } else {
+                    unreadBadge.textContent = unreadCount;
+                }
+                chatItem.classList.add('unread');
+            } else {
+                if (unreadBadge) unreadBadge.remove();
+                chatItem.classList.remove('unread');
+            }
+        }
+        
+        updateChatStats();
+    }
+
+    async function closeChatWindow(chatId) {
+        const chatData = openedChats.get(chatId);
+        if (chatData) {
+            try {
+                await updateDoc(doc(db, "chats", chatId), {
+                    status: 'closed',
+                    lastUpdated: serverTimestamp()
+                });
+            } catch (error) {
+            }
+            
+            if (messageListeners[chatId]) {
+                messageListeners[chatId]();
+                delete messageListeners[chatId];
+            }
+            
+            chatData.element.remove();
+            openedChats.delete(chatId);
+            updateChatListActiveState();
+            
+            const windowsContainer = document.getElementById('chat-windows-container');
+            if (openedChats.size === 0) {
+                windowsContainer.innerHTML = `
+                    <div class="chat-empty-state">
+                        <span class="material-symbols-outlined">chat</span>
+                        <h3>Chưa có chat nào được chọn</h3>
+                        <p>Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function toggleMinimizeChatWindow(chatId) {
+        const chatData = openedChats.get(chatId);
+        if (chatData) {
+            chatData.minimized = !chatData.minimized;
+            chatData.element.classList.toggle('minimized', chatData.minimized);
+        }
+    }
+
+    function updateChatListActiveState() {
+        document.querySelectorAll('.chat-item').forEach(item => {
+            const chatId = item.dataset.chatId;
+            item.classList.toggle('active', openedChats.has(chatId));
+        });
+    }
+
+    // ========== XOÁ CHAT ==========
+    async function deleteChatWithMessages(chatId) {
+        try {
+            const batch = writeBatch(db);
+            
+            // Xoá tất cả messages trong subcollection
+            const messagesRef = collection(db, "chats", chatId, "messages");
+            const messagesSnapshot = await getDocs(messagesRef);
+            messagesSnapshot.docs.forEach(docSnap => {
+                batch.delete(docSnap.ref);
+            });
+            
+            // Xoá chat chính
+            batch.delete(doc(db, "chats", chatId));
+            
+            await batch.commit();
+            return true;
+        } catch (error) {
+            console.error("Lỗi xoá chat:", error);
+            
+            // Fallback: thử chỉ xoá chat chính nếu batch không thành công
+            try {
+                await deleteDoc(doc(db, "chats", chatId));
+                return true;
+            } catch (deleteError) {
+                console.error("Lỗi xoá chat chính:", deleteError);
+                return false;
+            }
+        }
+    }
+
+    async function deleteChat(chatId) {
+        if (!confirm('Bạn có chắc muốn xoá toàn bộ cuộc trò chuyện này? Hành động này không thể hoàn tác.')) {
+            return;
+        }
+        
+        try {
+            // Đóng cửa sổ chat nếu đang mở
+            if (openedChats.has(chatId)) {
+                closeChatWindow(chatId);
+            }
+            
+            // Xoá chat và tất cả messages
+            const success = await deleteChatWithMessages(chatId);
+            
+            if (!success) {
+                // Fallback: chỉ xoá chat chính nếu batch không thành công
+                await deleteDoc(doc(db, "chats", chatId));
+            }
+            
+            // Xoá khỏi danh sách local
+            allChats = allChats.filter(chat => chat.id !== chatId);
+            filteredChats = filteredChats.filter(chat => chat.id !== chatId);
+            
+            // Xoá khỏi selected chats nếu có
+            if (selectedChats.has(chatId)) {
+                selectedChats.delete(chatId);
+                document.getElementById('selected-chats-count').textContent = selectedChats.size;
+            }
+            
+            // Cập nhật giao diện
+            renderChatList();
+            updateChatStats();
+        } catch (error) {
+            if (error.code === 'permission-denied') {
+                showError(`Lỗi quyền: Bạn không có quyền xoá chat! Vui lòng kiểm tra Firestore Rules.`);
+            } else {
+                showError(`Lỗi xoá chat: ${error.message}`);
+            }
+        }
+    }
+
+    // ========== XOÁ NHIỀU CHAT ==========
+    window.bulkDeleteChats = async function() {
+        if (selectedChats.size === 0) {
+            alert("Vui lòng chọn ít nhất một chat để xoá!");
+            return;
+        }
+        
+        if (!confirm(`Bạn có chắc muốn xoá ${selectedChats.size} cuộc trò chuyện? Hành động này không thể hoàn tác.`)) {
+            return;
+        }
+        
+        try {
+            const promises = [];
+            for (const chatId of selectedChats) {
+                // Đóng cửa sổ nếu đang mở
+                if (openedChats.has(chatId)) {
+                    closeChatWindow(chatId);
+                }
+                
+                // Xoá chat và messages
+                promises.push(deleteChatWithMessages(chatId));
+            }
+            
+            await Promise.all(promises);
+            
+            // Xoá khỏi danh sách local
+            allChats = allChats.filter(chat => !selectedChats.has(chat.id));
+            filteredChats = filteredChats.filter(chat => !selectedChats.has(chat.id));
+            
+            // Xoá selection
+            selectedChats.clear();
+            
+            // Cập nhật giao diện
+            renderChatList();
+            updateChatStats();
+            document.getElementById('selected-chats-count').textContent = '0';
+            document.getElementById('chat-bulk-actions').classList.remove('active');
+            document.getElementById('select-all-chats').checked = false;
+            
+            alert(`✅ Đã xoá ${promises.length} cuộc trò chuyện!`);
+            
+        } catch (error) {
+            if (error.code === 'permission-denied') {
+                showError(`Lỗi quyền: Bạn không có quyền xoá chat! Vui lòng kiểm tra Firestore Rules.`);
+            } else {
+                showError(`Lỗi xoá nhiều chat: ${error.message}`);
+            }
+        }
+    };
+
+    window.deleteChat = deleteChat;
+
+    // ========== UTILITY FUNCTIONS ==========
+    function updateChatStats() {
+        const totalChats = allChats.length;
+        const openChats = allChats.filter(c => c.status === 'open').length;
+        const closedChats = allChats.filter(c => c.status === 'closed').length;
+        const unreadMessages = allChats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+        
+        document.getElementById('total-chats').textContent = totalChats;
+        document.getElementById('open-chats').textContent = openChats;
+        document.getElementById('closed-chats').textContent = closedChats;
+        document.getElementById('unread-messages').textContent = unreadMessages;
+    }
+
+    function formatTimeAgo(date) {
+        if (!date) return 'Vừa xong';
+        
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Vừa xong';
+        if (diffMins < 60) return `${diffMins} phút`;
+        if (diffHours < 24) return `${diffHours} giờ`;
+        if (diffDays < 7) return `${diffDays} ngày`;
+        
+        return formatDate(date);
+    }
+
+    function formatDate(date) {
+        if (!date) return 'N/A';
+        return date.toLocaleDateString('vi-VN');
+    }
+
+    function formatTime(date) {
+        if (!date) return '';
+        return date.toLocaleTimeString('vi-VN', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    }
+
+    function truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-size: 14px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        errorDiv.textContent = message;
+        document.body.appendChild(errorDiv);
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    // ========== BULK ACTIONS ==========
+    window.bulkMarkAsRead = async function() {
+        if (selectedChats.size === 0) return;
+        
+        try {
+            const promises = [];
+            for (const chatId of selectedChats) {
+                promises.push(
+                    updateDoc(doc(db, "chats", chatId), {
+                        unreadCount: 0,
+                        lastUpdated: serverTimestamp()
+                    })
+                );
+            }
+            
+            if (promises.length > 0) {
+                await Promise.all(promises);
+            }
+            
+            alert(`✅ Đã đánh dấu ${selectedChats.size} chat là đã đọc!`);
+            selectedChats.clear();
+            await loadChats();
+            
+        } catch (error) {
+            showError(`Lỗi đánh dấu đã đọc: ${error.message}`);
+        }
+    };
+
+    window.clearChatSelection = function() {
+        selectedChats.clear();
+        document.getElementById('selected-chats-count').textContent = '0';
+        document.getElementById('chat-bulk-actions').classList.remove('active');
+        document.getElementById('select-all-chats').checked = false;
+        
+        document.querySelectorAll('.chat-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+    };
+
+    window.refreshChats = async function() {
+        await loadChats();
+        alert("✅ Đã làm mới danh sách chat!");
+    };
+
+    // ========== EVENT LISTENERS ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('chat-search-input').addEventListener('input', (e) => {
+            currentFilters.search = e.target.value;
+            applyChatFilters();
+            renderChatList();
+        });
+        
+        document.querySelectorAll('.chat-filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.chat-filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                currentFilters.status = e.target.dataset.status;
+                applyChatFilters();
+                renderChatList();
+            });
+        });
+        
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = '../a1b2c3-secret.html';
+                } catch (error) {
+                    alert(`Lỗi đăng xuất: ${error.message}`);
+                }
+            }
+        });
+        
+        document.getElementById('select-all-chats').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                selectedChats.clear();
+                filteredChats.forEach(chat => {
+                    selectedChats.add(chat.id);
+                });
+                
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.add('selected');
+                });
+            } else {
+                selectedChats.clear();
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+            }
+            
+            document.getElementById('selected-chats-count').textContent = selectedChats.size;
+            document.getElementById('chat-bulk-actions').classList.toggle('active', selectedChats.size > 0);
+        });
+        
+        document.addEventListener('click', (e) => {
+            const chatItem = e.target.closest('.chat-item');
+            if (chatItem && e.ctrlKey) {
+                const chatId = chatItem.dataset.chatId;
+                if (selectedChats.has(chatId)) {
+                    selectedChats.delete(chatId);
+                    chatItem.classList.remove('selected');
+                } else {
+                    selectedChats.add(chatId);
+                    chatItem.classList.add('selected');
+                }
+                
+                document.getElementById('selected-chats-count').textContent = selectedChats.size;
+                document.getElementById('chat-bulk-actions').classList.toggle('active', selectedChats.size > 0);
+            }
+        });
+        
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                loadChats();
+            }
+        }, 30000);
+    });
+
+    window.debugChats = function() {
+    };
+    
+    window.createTestChat = async function() {
+        try {
+            const testChat = {
+                participants: ["test_user_id", "admin"],
+                userName: "Test User",
+                userEmail: "test@example.com",
+                status: "open",
+                unreadCount: 5,
+                lastMessage: "This is a test message from the debug function",
+                createdAt: serverTimestamp(),
+                lastUpdated: serverTimestamp()
+            };
+            
+            const docRef = await addDoc(collection(db, "chats"), testChat);
+            alert(`Test chat created! ID: ${docRef.id}`);
+            await loadChats();
+            return docRef.id;
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+            return null;
+        }
+    };
+
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xác thực Email - Store Phone</title>
+  <link rel="stylesheet" href="./assets/css/login-register.css">
+  <style>
+    .verification-steps {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .step:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .step-number {
+      background: #3b82f6;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    .step-content {
+      flex: 1;
+    }
+    
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #1e293b;
+    }
+    
+    .step-description {
+      color: #64748b;
+      font-size: 1.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="logo">
+        <div class="material-symbols-outlined logo-icon">mark_email_read</div>
+        <h1>Xác thực Email</h1>
+      </div>
+      
+      <div id="verificationStatus" class="message">
+        <p>Đang kiểm tra trạng thái xác thực...</p>
+      </div>
+      
+      <div class="verification-steps" id="stepsContainer" style="display: none;">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <div class="step-title">Kiểm tra email</div>
+            <div class="step-description">Mở email chúng tôi đã gửi đến bạn</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <div class="step-title">Click liên kết xác thực</div>
+            <div class="step-description">Nhấp vào nút hoặc liên kết "Xác thực Email"</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <div class="step-title">Tài khoản đã sẵn sàng</div>
+            <div class="step-description">Quay lại đăng nhập và bắt đầu mua sắm</div>
+          </div>
+        </div>
+      </div>
+      
+      <button id="resendBtn" class="auth-btn" style="margin-top: 20px; display: none;">
+        <span class="material-symbols-outlined">send</span>
+        Gửi lại email xác thực
+      </button>
+      
+      <div class="auth-footer" style="margin-top: 20px;">
+        <a href="login.html" class="auth-links">
+          <span class="material-symbols-outlined">login</span>
+          Đăng nhập
+        </a>
+        <div style="margin-top: 10px;">
+          <a href="index.html" class="auth-links">
+            <span class="material-symbols-outlined">home</span>
+            Về trang chủ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged,
+      sendEmailVerification,
+      applyActionCode,
+      checkActionCode
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      updateDoc,
+      getDoc,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+      authDomain: "products-a39df.firebaseapp.com",
+      projectId: "products-a39df",
+      storageBucket: "products-a39df.firebasestorage.app",
+      messagingSenderId: "708345988066",
+      appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const statusDiv = document.getElementById('verificationStatus');
+    const resendBtn = document.getElementById('resendBtn');
+    const stepsContainer = document.getElementById('stepsContainer');
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const oobCode = urlParams.get('oobCode');
+
+    // 🔥 HÀM TÌM USER TRONG FIRESTORE BẰNG EMAIL
+    async function findUserByEmail(email) {
+      try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", email.toLowerCase()));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0];
+          return { 
+            id: userDoc.id, 
+            ...userDoc.data() 
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error("Error finding user by email:", error);
+        return null;
+      }
+    }
+
+    // 🔥 HÀM CẬP NHẬT TRẠNG THÁI USER TRONG FIRESTORE
+    async function updateUserStatusInFirestore(userId, status) {
+      try {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          await updateDoc(userRef, {
+            status: status,
+            emailVerified: true,
+            updatedAt: new Date()
+          });
+          console.log(`✅ Đã cập nhật user ${userId} thành ${status}`);
+          return true;
+        } else {
+          console.warn("User không tồn tại trong Firestore:", userId);
+          return false;
+        }
+      } catch (error) {
+        console.error("Lỗi cập nhật trạng thái trong Firestore:", error);
+        return false;
+      }
+    }
+
+    // Kiểm tra nếu user click link từ email
+    if (mode === 'verifyEmail' && oobCode) {
+      try {
+        statusDiv.innerHTML = `
+          <div style="text-align: center;">
+            <div class="spinner" style="margin: 0 auto 15px;"></div>
+            <p>Đang xác thực email...</p>
+          </div>
+        `;
+        
+        // 🔥 LẤY THÔNG TIN TỪ ACTION CODE
+        const info = await checkActionCode(auth, oobCode);
+        const email = info.data.email;
+        
+        console.log("Email cần xác thực:", email);
+        
+        // 🔥 TÌM USER TRONG FIRESTORE BẰNG EMAIL
+        const user = await findUserByEmail(email);
+        
+        if (!user) {
+          throw new Error("Không tìm thấy tài khoản với email: " + email);
+        }
+        
+        console.log("Tìm thấy user:", user.id);
+        
+        // 🔥 XÁC THỰC EMAIL TRONG FIREBASE AUTH
+        await applyActionCode(auth, oobCode);
+        
+        // 🔥 CẬP NHẬT FIRESTORE - QUAN TRỌNG!
+        await updateUserStatusInFirestore(user.id, 'active');
+        
+        statusDiv.innerHTML = `
+          <div class="message success">
+            <h3>🎉 Xác thực thành công!</h3>
+            <p>Tài khoản của bạn đã được kích hoạt thành công.</p>
+            <p>Email: <strong>${email}</strong></p>
+            <p>Bây giờ bạn có thể đăng nhập và bắt đầu mua sắm.</p>
+          </div>
+        `;
+        
+        stepsContainer.style.display = 'none';
+        resendBtn.style.display = 'none';
+        
+        // Tự động chuyển hướng sau 5 giây
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 5000);
+
+      } catch (error) {
+        console.error("Lỗi xác thực email:", error);
+        statusDiv.innerHTML = `
+          <div class="message error">
+            <h3>❌ Xác thực thất bại</h3>
+            <p>${error.message}</p>
+            <p>Vui lòng yêu cầu gửi lại email xác thực.</p>
+          </div>
+        `;
+        stepsContainer.style.display = 'block';
+        resendBtn.style.display = 'block';
+      }
+    }
+
+    // Kiểm tra trạng thái user khi đã đăng nhập
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        if (user.emailVerified) {
+          // 🔥 TỰ ĐỘNG CẬP NHẬT FIRESTORE NẾU NGƯỜI DÙNG ĐÃ XÁC THỰC
+          await updateUserStatusInFirestore(user.uid, 'active');
+          
+          statusDiv.innerHTML = `
+            <div class="message success">
+              <h3>✅ Email đã được xác thực</h3>
+              <p>Email <strong>${user.email}</strong> đã được xác thực thành công.</p>
+              <p>Tài khoản của bạn đã sẵn sàng để sử dụng.</p>
+            </div>
+          `;
+          stepsContainer.style.display = 'none';
+          resendBtn.style.display = 'none';
+        } else {
+          statusDiv.innerHTML = `
+            <div class="message warning">
+              <h3>📧 Email chưa được xác thực</h3>
+              <p>Vui lòng kiểm tra hộp thư của <strong>${user.email}</strong></p>
+              <p>Click vào liên kết xác thực trong email để kích hoạt tài khoản.</p>
+              <p><small style="color: #64748b;">Kiểm tra cả thư mục spam nếu không thấy email.</small></p>
+            </div>
+          `;
+          stepsContainer.style.display = 'block';
+          resendBtn.style.display = 'block';
+        }
+      } else {
+        statusDiv.innerHTML = `
+          <div class="message">
+            <p>Vui lòng đăng nhập để xác thực email.</p>
+            <p>Nếu bạn vừa click liên kết từ email, vui lòng chờ trong giây lát...</p>
+          </div>
+        `;
+        resendBtn.style.display = 'none';
+      }
+    });
+
+    // Gửi lại email xác thực
+    resendBtn.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (user && !user.emailVerified) {
+        try {
+          resendBtn.disabled = true;
+          resendBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Đang gửi...';
+          
+          await sendEmailVerification(user);
+          
+          statusDiv.innerHTML += `
+            <div class="message success" style="margin-top: 10px;">
+              <p>✅ Đã gửi lại email xác thực!</p>
+              <p>Vui lòng kiểm tra hộp thư của bạn.</p>
+            </div>
+          `;
+          
+          // Đếm ngược 60 giây trước khi cho phép gửi lại
+          let countdown = 60;
+          const countdownInterval = setInterval(() => {
+            resendBtn.innerHTML = `<span class="material-symbols-outlined">timer</span> Gửi lại sau ${countdown}s`;
+            countdown--;
+            
+            if (countdown < 0) {
+              clearInterval(countdownInterval);
+              resendBtn.disabled = false;
+              resendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Gửi lại email xác thực';
+            }
+          }, 1000);
+          
+        } catch (error) {
+          console.error("Lỗi gửi lại email xác thực:", error);
+          statusDiv.innerHTML += `
+            <div class="message error" style="margin-top: 10px;">
+              <p>❌ Lỗi: ${error.message}</p>
+            </div>
+          `;
+          resendBtn.disabled = false;
+          resendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Gửi lại email xác thực';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

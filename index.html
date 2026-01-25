@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="stylesheet" href="./assets/css/chat.css">
+  <title>Store Phone</title>
+  <style>
+    /* Thêm loading cho index page */
+    .page-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    
+    .page-loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .page-loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1.2s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    .page-loading-text {
+      font-size: 1.6rem;
+      color: #4b5563;
+      font-weight: 500;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Thêm style cho product list loading */
+    .product-list-loading {
+      text-align: center;
+      padding: 40px;
+      grid-column: 1 / -1;
+    }
+    
+    .product-list-loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    
+    .product-list-loading-text {
+      font-size: 1.4rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div class="page-loading" id="page-loading">
+      <div class="page-loading-spinner"></div>
+      <div class="page-loading-text">Đang tải trang...</div>
+    </div>
+    
+    <div class="app">
+        <div class="header">
+            <div class="header-top-banner">
+                <div class="grid">
+                    <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/67/93/6793515f0766fca28be4dac7b831acd2.png" alt="" width="1200px">
+                </div>
+            </div>
+            <div class="main-header">
+                <div class="main-header-container">
+                    <div class="header-top grid">
+                        <div class="header-logo-top">
+                            
+                        </div>
+                        <div class="search-bar">
+                            <form action="" class="form-search-bar">
+                                <span class="material-symbols-outlined search-icon">search</span>
+                                <input type="text" placeholder="Nhận ngay mã giảm 1 triệu" class="search-bar-input">
+                            </form>
+                        </div>
+
+                        <div class="header-actions">
+                            <div class="header-action-person" id="auth-section">
+                                <!-- Nội dung sẽ được cập nhật bằng JavaScript -->
+                                <span class="material-symbols-outlined">person</span>
+                                <a href="./login.html"><p>Đăng Nhập</p></a>
+                            </div>
+                        </div>
+                        <div class="header-cart">
+                            <a href="./cart.html" style="text-decoration: none; color: inherit;">
+                                <div class="header-action-cart" style="position: relative;">
+                                    <span class="material-symbols-outlined">shopping_cart</span> 
+                                    <p>Giỏ Hàng</p>
+                                    <span class="cart-count" style="
+                                        position: absolute;
+                                        top: -8px;
+                                        right: -8px;
+                                        background: #ef4444;
+                                        color: white;
+                                        width: 20px;
+                                        height: 20px;
+                                        border-radius: 50%;
+                                        font-size: 1.2rem;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                    ">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <nav class="main-navigation grid">
+                        <ul>
+                            <li><img src="https://cdn.tgdd.vn/content/phonne-24x24.png" alt=""><a href="#">Điện thoại</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/laptop-24x24.png" alt=""><a href="#">Laptop</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/phu-kien-24x24.png" alt=""><a href="#">Phụ kiện</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/smartwatch-24x24.png" alt=""><a href="#">Smartwatch</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/watch-24x24.png" alt=""><a href="#">Đồng hồ</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/tablet-24x24.png" alt=""><a href="#">Tablet</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/may-cu-24x24.png" alt=""><a href="#">Máy cũ, Thu cũ</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/PC-24x24.png" alt=""><a href="#">Màn hình, Máy in</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/sim-24x24.png" alt=""><a href="#">Sim, Thẻ cào</a></li>
+                            <li><img src="https://cdn.tgdd.vn/content/tien-ich-24x24.png" alt=""><a href="#">Dịch vụ tiện ích</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="main-container">
+                <!-- BREADCRUMB ĐÃ ĐƯỢC CẬP NHẬT -->
+                <div class="breadcrumb grid">
+                    <div class="breadcrumb flex">
+                        <p>Trang chủ >  </p>  <span id="product-count"> Đang tải...</span>
+                    </div>
+                </div>
+                
+                <div class="page-content">
+                    <div class="hero-banner grid">
+                        <div class="hero-banner-inner">
+                            <!-- Banner sẽ được load bằng JavaScript -->
+                            <div class="banner-loading">
+                                <div class="banner-loading-spinner"></div>
+                                <p>Đang tải banner...</p>
+                                <img src="" alt="">
+                            </div>
+                        </div>
+                        <div class="owl-nav">
+                            <button type="button" aria-label="button" class="material-symbols-outlined left">arrow_back_ios</button>
+                            <button type="button" aria-label="button" class="material-symbols-outlined right">arrow_forward_ios</button>
+                        </div>
+                        <div class="carousel-dots"></div>
+                    </div>
+                </div>
+                <div class="main-product">
+                    <div class="product-filter grid">
+                        <div class="product-filter__top">
+                            <div class="filter-btn">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/filter.png" alt="">
+                                Lọc
+                            </div>
+                            <div class="quick-item" data-brand="apple">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/57/03/5703d996359650c57421b72f3f7ff5cd.png">
+                            </div>
+                            <div class="quick-item" data-brand="samsung">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/9d/f7/9df70915705114c97ae7be059d2c7887.png">
+                            </div>
+                            <div class="quick-item " data-brand="oppo">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/2c/ea/2cea467041fb9effb3a6d3dcc88f38f8.png">
+                            </div>
+
+                            <div class="quick-item" data-brand="xiaomi">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/e9/df/e9df3ae9fb60a1460e9030975d0e024a.png">
+                            </div>
+                            <div class="quick-item" data-brand="vivo">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/78/38/783870ef310908b123c50cb43b8f6f92.png">
+                            </div>
+                            <div class="quick-item" data-brand="realme">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/54/2a/542a235b0e366a11fd855108dd9c499c.png">
+                            </div>
+                            <div class="quick-item" data-brand="honor">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/00/e8/00e815b2c60b6f494ec1e19560976fcc.png">
+                            </div>
+                            <div class="quick-item" data-brand="tecno">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/4b/96/4b96267b7ea4d22dbc7ea89644c90fc8.png">
+                            </div>
+
+                            <div class="quick-item" data-brand="motorola">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/ab/06/ab0673379fddfb72b4e621725ebfdf16.png">
+                            </div>
+                            <div class="quick-item" data-brand="nokia">
+                                <img src="https://cdnv2.tgdd.vn/webmwg/2024/ContentMwg/images/category_v2/icon-quick-link.png">
+                                <img src="https://cdnv2.tgdd.vn/mwg-static/common/Category/73/06/730663be525b891d4c3052155ca1c29f.png">
+                            </div>
+                        </div>
+                        <div class="sort-options">
+                            <div class="sort-options-container">
+                                Sắp xếp theo: 
+                                <li data-sort="feature">Nổi bật</li>
+                                <li data-sort="bestseller">Bán chạy</li>
+                                <li data-sort="new">Mới</li>
+
+                                <li class="sort-price">
+                                    Giá
+                                    <ul class="dropdown">
+                                        <li data-sort="price-asc">Giá thấp → cao</li>
+                                        <li data-sort="price-desc">Giá cao → thấp</li>
+                                    </ul>
+                                </li>
+                            </div>
+
+                        </div>
+                        <div class="product-list">
+                            <!-- Thêm loading cho product list -->
+                            <div class="product-list-loading">
+                                <div class="product-list-loading-spinner"></div>
+                                <div class="product-list-loading-text">Đang tải sản phẩm...</div>
+                            </div>
+                        </div>
+
+                        <button id="load-more" class="load-more-btn" style="display: none;">Xem thêm</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Support Widget -->
+    <div class="chat-support-widget" id="chat-widget">
+      <div class="chat-bubble" id="chat-bubble">
+        <span class="material-symbols-outlined">chat</span>
+        <div class="chat-badge" id="chat-badge" style="display: none;">0</div>
+      </div>
+      
+      <div class="chat-container" id="chat-container">
+        <div class="chat-header">
+          <div class="chat-title">
+            <span class="material-symbols-outlined">support_agent</span>
+            <h3>Hỗ trợ khách hàng</h3>
+            <div class="chat-status">
+              <span class="status-dot"></span>
+              <span>Online</span>
+            </div>
+          </div>
+          <button class="chat-close" id="chat-close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+          <!-- Welcome message -->
+          <div class="welcome-message">
+            <p>👋 Chào bạn! Tôi có thể giúp gì cho bạn? Hãy gửi tin nhắn và chúng tôi sẽ trả lời sớm nhất!</p>
+          </div>
+          
+          <!-- Messages will be loaded here -->
+        </div>
+        
+        <div class="chat-input-container">
+          <input 
+            type="text" 
+            class="chat-input" 
+            id="chat-input" 
+            placeholder="Nhập tin nhắn của bạn..." 
+            maxlength="500"
+          >
+          <button class="chat-send-btn" id="chat-send" disabled>
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/js/main.js" defer></script>
+    
+    <script type="module">
+    import cart from './assets/js/cart.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+      getFirestore,
+      collection,
+      query,
+      where,
+      orderBy,
+      getDocs,
+      getDoc,
+      addDoc,
+      updateDoc,
+      doc,
+      serverTimestamp,
+      onSnapshot,
+      limit
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+        authDomain: "products-a39df.firebaseapp.com",
+        projectId: "products-a39df",
+        storageBucket: "products-a39df.firebasestorage.app",
+        messagingSenderId: "708345988066",
+        appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // SET FIREBASE CHO CART
+    cart.setFirebase(app, auth, db);
+
+    const authSection = document.getElementById('auth-section');
+    const pageLoading = document.getElementById('page-loading');
+
+    // HÀM CẬP NHẬT PHẦN AUTH SECTION
+    function updateAuthSection(user) {
+        if (!authSection) return;
+        
+        if (user) {
+            let username = user.email.split('@')[0];
+            if (username.length > 15) {
+                username = username.substring(0, 12) + '...';
+            }
+            
+            authSection.innerHTML = `
+                <a href="./profile.html" style="text-decoration: none; color: inherit;">
+                    <div style="display: flex; align-items: center; cursor: pointer;">
+                        <span class="material-symbols-outlined">person</span>
+                        <p style="white-space: nowrap;">${username}</p>
+                    </div>
+                </a>
+            `;
+        } else {
+            authSection.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <span class="material-symbols-outlined">person</span>
+                    <a href="./login.html" style="text-decoration: none; color: black"><p>Đăng Nhập</p></a>
+                </div>
+            `;
+        }
+    }
+
+    // Ẩn loading sau khi mọi thứ đã load
+    function hidePageLoading() {
+        setTimeout(() => {
+            if (pageLoading) {
+                pageLoading.classList.add('hidden');
+                setTimeout(() => {
+                    if (pageLoading.parentNode) {
+                        pageLoading.style.display = 'none';
+                    }
+                }, 500);
+            }
+        }, 800);
+    }
+
+    // THEO DÕI TRẠNG THÁI ĐĂNG NHẬP
+    onAuthStateChanged(auth, async (user) => {
+        updateAuthSection(user);
+        
+        if (user) {
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    
+                    if (userData.status === 'banned' || userData.status === 'inactive') {
+                        await signOut(auth);
+                        alert('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+                        window.location.reload();
+                        return;
+                    }
+                    
+                    let username = userData.name || user.displayName || user.email.split('@')[0];
+                    if (username.length > 15) {
+                        username = username.substring(0, 12) + '...';
+                    }
+                    
+                    authSection.innerHTML = `
+                        <a href="./profile.html" style="text-decoration: none; color: inherit;">
+                            <div style="display: flex; align-items: center; cursor: pointer;">
+                                <span class="material-symbols-outlined">person</span>
+                                <p style="white-space: nowrap;">${username}</p>
+                            </div>
+                        </a>
+                    `;
+                }
+            } catch (error) {
+                console.error("Lỗi khi kiểm tra trạng thái user:", error);
+            }
+        } else {
+            authSection.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <span class="material-symbols-outlined">person</span>
+                    <a href="./login.html" style="text-decoration: none; color: black"><p>Đăng Nhập</p></a>
+                </div>
+            `;
+        }
+    });
+
+    // === CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG ===
+    document.addEventListener('DOMContentLoaded', () => {
+        cart.updateBadge();
+        
+        cart.onCartLoaded(() => {
+            cart.updateBadge();
+        });
+        
+        setTimeout(() => {
+            const productCountElement = document.getElementById('product-count');
+            if (productCountElement) {
+                setTimeout(() => {
+                    const productItems = document.querySelectorAll('.product-item');
+                    if (productItems.length > 0) {
+                        productCountElement.textContent = `${productItems.length} sản phẩm `;
+                    }
+                }, 1000);
+            }
+        }, 500);
+        
+        // Khởi tạo chat UI
+        initChatUI();
+    });
+
+    // CẬP NHẬT GIỎ HÀNG SAU 2 GIÂY
+    setTimeout(() => {
+        cart.updateBadge();
+    }, 2000);
+    
+    window.addEventListener('load', () => {
+        setTimeout(hidePageLoading, 500);
+    });
+    
+    setTimeout(hidePageLoading, 3000);
+    
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            cart.updateBadge();
+        }
+    });
+
+   // ================= CHAT SUPPORT SYSTEM =================
+import { initChatSupport } from './assets/js/chat.js';
+
+let chatInstance = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing cart initialization code ...
+    
+    // Khởi tạo chat support
+    chatInstance = initChatSupport(auth, db);
+});
+    </script>
+</body>
+</html>

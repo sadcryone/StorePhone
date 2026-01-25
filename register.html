@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký - Store Phone</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/login-register.css">
+  <!-- 🔥 THÊM reCAPTCHA SCRIPT -->
+  <script src="https://www.google.com/recaptcha/api.js?render=6LeAvkcsAAAAAF6nLftuY36VaEqwnl_RB-qRBglH"></script>
+  <style>
+    /* Thêm style cho trạng thái số điện thoại */
+    .phone-status {
+      font-size: 1.2rem;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .phone-status.available {
+      color: #10b981;
+    }
+    
+    .phone-status.taken {
+      color: #ef4444;
+    }
+    
+    .phone-status.loading {
+      color: #64748b;
+    }
+    
+    .phone-status .material-symbols-outlined {
+      font-size: 1.6rem;
+    }
+    
+    .form-input.invalid {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    }
+    
+    .form-input.valid {
+      border-color: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="logo">
+        <div class="material-symbols-outlined logo-icon">person_add</div>
+        <h1>Tạo tài khoản mới</h1>
+        <p>Đăng ký để mua sắm dễ dàng hơn</p>
+      </div>
+      
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name" class="form-label">
+            <span class="material-symbols-outlined">person</span>
+            Họ và tên
+          </label>
+          <input 
+            type="text" 
+            id="name" 
+            class="form-input" 
+            placeholder="Nhập họ và tên của bạn"
+            autocomplete="name"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="phone" class="form-label">
+            <span class="material-symbols-outlined">phone</span>
+            Số điện thoại
+          </label>
+          <input 
+            type="tel" 
+            id="phone" 
+            class="form-input" 
+            placeholder="Nhập số điện thoại"
+            autocomplete="tel"
+            pattern="[0-9]{10,11}"
+            maxlength="11"
+          >
+          <!-- Thêm thẻ hiển thị trạng thái số điện thoại -->
+          <div id="phone-status" class="phone-status" style="display: none;">
+            <span class="material-symbols-outlined">info</span>
+            <span id="phone-status-text"></span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <span class="material-symbols-outlined">mail</span>
+            Email *
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-input" 
+            placeholder="Nhập email của bạn"
+            required
+            autocomplete="username"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <span class="material-symbols-outlined">lock</span>
+            Mật khẩu *
+          </label>
+          <div class="password-container">
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              placeholder="Tối thiểu 6 ký tự"
+              required
+              autocomplete="new-password"
+              minlength="6"
+            >
+            <button type="button" class="toggle-password" id="togglePassword">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+          <div class="password-hint" style="font-size: 1.2rem; color: #64748b; margin-top: 5px;">
+            <span id="passwordStrength"></span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">
+            <span class="material-symbols-outlined">lock_reset</span>
+            Xác nhận mật khẩu *
+          </label>
+          <div class="password-container">
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              class="form-input" 
+              placeholder="Nhập lại mật khẩu"
+              required
+              autocomplete="new-password"
+            >
+            <button type="button" class="toggle-password" id="toggleConfirmPassword">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 🔥 reCAPTCHA Notice -->
+        <div class="recaptcha-notice" style="font-size: 1.2rem; color: #64748b; margin: 10px 0; text-align: center;">
+          <small>
+            Trang này được bảo vệ bởi reCAPTCHA và áp dụng
+            <a href="https://policies.google.com/privacy" target="_blank" style="color: #3b82f6;">Chính sách quyền riêng tư</a> và
+            <a href="https://policies.google.com/terms" target="_blank" style="color: #3b82f6;">Điều khoản dịch vụ</a> của Google.
+          </small>
+        </div>
+        
+        <div class="terms-checkbox">
+          <input type="checkbox" id="agreeTerms" required>
+          <label for="agreeTerms">
+            Tôi đồng ý với <a href="#">điều khoản dịch vụ</a>
+          </label>
+        </div>
+        
+        <div class="email-notice" style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 1.3rem; color: #0369a1;">
+          <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.8rem;">info</span>
+          Sau khi đăng ký, vui lòng kiểm tra email để xác thực tài khoản. Bạn phải xác thực email trước khi đăng nhập.
+        </div>
+        
+        <button type="submit" class="auth-btn" id="registerBtn">
+          <div class="spinner"></div>
+          <span>Đăng ký tài khoản</span>
+        </button>
+        
+        <div id="message" class="message"></div>
+      </form>
+      
+      <div class="auth-footer">
+        <p style="color: #64748b; font-size: 1.4rem; margin-bottom: 15px;">
+          Đã có tài khoản?
+        </p>
+        <a href="login.html" class="auth-links">
+          <span class="material-symbols-outlined">login</span>
+          Đăng nhập ngay
+        </a>
+        <div style="margin-top: 20px;">
+          <a href="index.html" class="auth-links">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Quay lại trang chủ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword,
+      sendEmailVerification
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc,
+      serverTimestamp,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
+      authDomain: "products-a39df.firebaseapp.com",
+      projectId: "products-a39df",
+      storageBucket: "products-a39df.firebasestorage.app",
+      messagingSenderId: "708345988066",
+      appId: "1:708345988066:web:b8011a4859285450162fbb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const message = document.getElementById('message');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const phoneInput = document.getElementById('phone');
+    const phoneStatus = document.getElementById('phone-status');
+    const phoneStatusText = document.getElementById('phone-status-text');
+
+    // 🔥 reCAPTCHA SITE KEY
+    const RECAPTCHA_SITE_KEY = '6LeAvkcsAAAAAF6nLftuY36VaEqwnl_RB-qRBglH';
+
+    // 🔥 HÀM LẤY reCAPTCHA TOKEN
+    async function getRecaptchaToken(action = 'register') {
+      return new Promise((resolve) => {
+        grecaptcha.ready(async () => {
+          try {
+            const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: action });
+            console.log('reCAPTCHA token received for', action);
+            resolve(token);
+          } catch (error) {
+            console.error('reCAPTCHA error:', error);
+            resolve(null);
+          }
+        });
+      });
+    }
+
+    // 🔥 HÀM KIỂM TRA SỐ ĐIỆN THOẠI ĐÃ TỒN TẠI CHƯA
+    async function checkPhoneExists(phone) {
+      if (!phone || phone.trim() === '') {
+        return { exists: false, message: '' };
+      }
+      
+      // Kiểm tra định dạng số điện thoại Việt Nam
+      const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+      if (!phoneRegex.test(phone)) {
+        return { exists: false, message: 'Số điện thoại không hợp lệ' };
+      }
+      
+      try {
+        // Kiểm tra trong Firestore xem có số điện thoại nào trùng không
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("phone", "==", phone));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          return { 
+            exists: true, 
+            message: 'Số điện thoại này đã được sử dụng' 
+          };
+        } else {
+          return { 
+            exists: false, 
+            message: 'Số điện thoại có thể sử dụng' 
+          };
+        }
+      } catch (error) {
+        console.error("Lỗi khi kiểm tra số điện thoại:", error);
+        return { exists: false, message: 'Không thể kiểm tra số điện thoại' };
+      }
+    }
+
+    // 🔥 XỬ LÝ KIỂM TRA SỐ ĐIỆN THOẠI KHI NHẬP
+    let phoneCheckTimeout;
+    phoneInput.addEventListener('input', function() {
+      const phone = this.value.trim();
+      
+      // Ẩn trạng thái cũ
+      phoneStatus.style.display = 'none';
+      phoneInput.classList.remove('invalid', 'valid');
+      
+      // Xóa timeout cũ nếu có
+      if (phoneCheckTimeout) {
+        clearTimeout(phoneCheckTimeout);
+      }
+      
+      // Nếu số điện thoại đủ 10-11 số, kiểm tra sau 500ms
+      if (phone.length >= 10) {
+        phoneCheckTimeout = setTimeout(async () => {
+          phoneStatus.style.display = 'flex';
+          phoneStatus.className = 'phone-status loading';
+          phoneStatusText.textContent = 'Đang kiểm tra số điện thoại...';
+          
+          const result = await checkPhoneExists(phone);
+          
+          if (result.exists) {
+            phoneStatus.className = 'phone-status taken';
+            phoneStatusText.textContent = result.message;
+            phoneInput.classList.add('invalid');
+            phoneInput.classList.remove('valid');
+          } else if (result.message === 'Số điện thoại không hợp lệ') {
+            phoneStatus.className = 'phone-status taken';
+            phoneStatusText.textContent = 'Số điện thoại không hợp lệ (VD: 0912345678)';
+            phoneInput.classList.add('invalid');
+            phoneInput.classList.remove('valid');
+          } else {
+            phoneStatus.className = 'phone-status available';
+            phoneStatusText.textContent = result.message;
+            phoneInput.classList.add('valid');
+            phoneInput.classList.remove('invalid');
+          }
+        }, 500);
+      } else if (phone.length > 0 && phone.length < 10) {
+        phoneStatus.style.display = 'flex';
+        phoneStatus.className = 'phone-status taken';
+        phoneStatusText.textContent = 'Số điện thoại phải có 10-11 số';
+        phoneInput.classList.add('invalid');
+      }
+    });
+
+    // Kiểm tra độ mạnh mật khẩu
+    passwordInput.addEventListener('input', function() {
+      const password = this.value;
+      let strength = 0;
+      let text = '';
+      let color = '#64748b';
+      
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      
+      switch(strength) {
+        case 0:
+          text = password.length > 0 ? 'Rất yếu' : '';
+          color = '#ef4444';
+          break;
+        case 1:
+          text = 'Yếu';
+          color = '#f97316';
+          break;
+        case 2:
+          text = 'Trung bình';
+          color = '#eab308';
+          break;
+        case 3:
+          text = 'Mạnh';
+          color = '#84cc16';
+          break;
+        case 4:
+          text = 'Rất mạnh';
+          color = '#10b981';
+          break;
+      }
+      
+      passwordStrength.textContent = text;
+      passwordStrength.style.color = color;
+    });
+
+    // Hiển thị/ẩn mật khẩu
+    function setupPasswordToggle(button, input) {
+      button.onclick = () => {
+        const icon = button.querySelector('.material-symbols-outlined');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.textContent = 'visibility_off';
+        } else {
+          input.type = 'password';
+          icon.textContent = 'visibility';
+        }
+      };
+    }
+
+    setupPasswordToggle(togglePassword, passwordInput);
+    setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput);
+
+    // Hàm hiển thị thông báo
+    function showMessage(text, type = 'error') {
+      message.innerHTML = text;
+      message.className = `message ${type} show`;
+    }
+
+    // Hàm hiển thị loading
+    function setLoading(isLoading) {
+      if (isLoading) {
+        registerBtn.disabled = true;
+        registerBtn.classList.add('loading');
+      } else {
+        registerBtn.disabled = false;
+        registerBtn.classList.remove('loading');
+      }
+    }
+
+    // Xử lý submit form với reCAPTCHA
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const agreeTerms = document.getElementById('agreeTerms').checked;
+
+      // Reset message
+      message.className = 'message';
+      message.textContent = '';
+
+      // Validate
+      if (!email || !password || !confirmPassword) {
+        showMessage('Vui lòng nhập email và mật khẩu!');
+        return;
+      }
+
+      if (!email.includes('@')) {
+        showMessage('Email không hợp lệ!');
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage('Mật khẩu phải có ít nhất 6 ký tự!');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMessage('Mật khẩu xác nhận không khớp!');
+        return;
+      }
+
+      // Kiểm tra số điện thoại
+      if (phone) {
+        const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+        if (!phoneRegex.test(phone)) {
+          showMessage('Số điện thoại không hợp lệ! (VD: 0912345678)');
+          phoneInput.focus();
+          phoneInput.select();
+          return;
+        }
+        
+        // Kiểm tra xem số điện thoại đã tồn tại chưa
+        const phoneCheck = await checkPhoneExists(phone);
+        if (phoneCheck.exists) {
+          showMessage('Số điện thoại này đã được sử dụng. Vui lòng sử dụng số điện thoại khác!');
+          phoneInput.focus();
+          phoneInput.select();
+          return;
+        }
+      }
+
+      if (!agreeTerms) {
+        showMessage('Vui lòng đồng ý với điều khoản dịch vụ!');
+        return;
+      }
+
+      try {
+        // Hiển thị loading
+        setLoading(true);
+        showMessage('Đang xác thực...');
+
+        // 🔥 LẤY reCAPTCHA TOKEN
+        const recaptchaToken = await getRecaptchaToken('register');
+        
+        if (!recaptchaToken) {
+          showMessage('Không thể xác thực bảo mật. Vui lòng tải lại trang!');
+          setLoading(false);
+          return;
+        }
+
+        showMessage('Đang tạo tài khoản...');
+
+        // Tạo user trong Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 🔥 GỬI EMAIL XÁC THỰC
+        await sendEmailVerification(user);
+
+        // Lưu thông tin vào Firestore với status là 'pending' (chờ xác thực)
+        const userData = {
+          uid: user.uid,
+          name: name || email.split('@')[0],
+          email: email,
+          phone: phone || '',
+          emailVerified: false,
+          userType: 'customer',
+          status: 'pending', // QUAN TRỌNG: Trạng thái pending cho đến khi xác thực email
+          createdAt: serverTimestamp(),
+          lastLogin: null,
+          totalOrders: 0,
+          totalSpent: 0
+        };
+
+        await setDoc(doc(db, "users", user.uid), userData);
+
+        // THÀNH CÔNG
+        showMessage(`
+          <div style="text-align: left;">
+            <div style="color: #059669; font-weight: bold; font-size: 1.6rem; margin-bottom: 10px;">
+              <span class="material-symbols-outlined" style="vertical-align: middle;">check_circle</span>
+              Đăng ký thành công!
+            </div>
+            
+            <div style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+              <strong>📧 Email xác thực đã được gửi đến:</strong><br>
+              <span style="color: #0369a1; font-weight: 500;">${email}</span>
+            </div>
+            
+            <div style="font-size: 1.3rem; color: #475569; line-height: 1.5;">
+              <strong>⚠️ VUI LÒNG LÀM THEO CÁC BƯỚC SAU:</strong><br><br>
+              1. <strong>Kiểm tra hộp thư</strong> của bạn<br>
+              2. Tìm email từ <strong>Store Phone</strong><br>
+              3. <strong>Click vào liên kết xác thực</strong> trong email<br>
+              4. Sau khi xác thực, tài khoản sẽ được kích hoạt<br>
+              5. <strong>Quay lại đăng nhập</strong> sau khi xác thực<br><br>
+              
+              <div style="background: #fef3c7; padding: 10px; border-radius: 6px; border: 1px solid #fbbf24;">
+                <strong>💡 Lưu ý quan trọng:</strong><br>
+                - Bạn <strong>phải xác thực email</strong> trước khi đăng nhập<br>
+                - Kiểm tra cả thư mục <strong>Spam/Junk</strong> nếu không thấy email<br>
+                - Liên kết xác thực có hiệu lực trong 24 giờ
+              </div>
+            </div>
+          </div>
+        `, 'success');
+        
+        // Reset form
+        registerForm.reset();
+        passwordStrength.textContent = '';
+        phoneStatus.style.display = 'none';
+        phoneInput.classList.remove('invalid', 'valid');
+        
+        // Chuyển hướng đến trang đăng nhập sau 10 giây
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 10000);
+
+      } catch (err) {
+        console.error("Lỗi đăng ký:", err);
+        setLoading(false);
+        
+        let errorMsg = 'Đăng ký thất bại!';
+        
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            errorMsg = 'Email này đã được sử dụng! <a href="login.html" style="color: #3b82f6;">Đăng nhập ngay</a>';
+            break;
+          case 'auth/invalid-email':
+            errorMsg = 'Email không hợp lệ!';
+            break;
+          case 'auth/weak-password':
+            errorMsg = 'Mật khẩu quá yếu! Vui lòng chọn mật khẩu mạnh hơn.';
+            break;
+          case 'auth/operation-not-allowed':
+            errorMsg = 'Chức năng đăng ký tạm thời không khả dụng!';
+            break;
+          case 'auth/too-many-requests':
+            errorMsg = 'Quá nhiều yêu cầu đăng ký. Vui lòng thử lại sau 15 phút!';
+            break;
+        }
+        
+        showMessage(errorMsg);
+        passwordInput.value = '';
+        confirmPasswordInput.value = '';
+        passwordStrength.textContent = '';
+        passwordInput.focus();
+      }
+    });
+
+    // Enter key support
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        registerForm.requestSubmit();
+      }
+    });
+
+    // Auto-focus
+    document.getElementById('name').focus();
+  </script>
+</body>
+</html>
