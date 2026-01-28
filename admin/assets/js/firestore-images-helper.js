@@ -1,4 +1,5 @@
 // admin/assets/js/firestore-images-helper.js
+import { firebaseConfig } from '../../../assets/js/API.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
   getFirestore,
@@ -9,14 +10,6 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC0ua4VVMCYnJa2ndQ2MMgDYPNdCEfoxwY",
-  authDomain: "products-a39df.firebaseapp.com",
-  projectId: "products-a39df",
-  storageBucket: "products-a39df.firebasestorage.app",
-  messagingSenderId: "708345988066",
-  appId: "1:708345988066:web:b8011a4859285450162fbb"
-};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
